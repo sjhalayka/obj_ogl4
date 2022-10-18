@@ -21,7 +21,7 @@ uniform int flat_colour = 0;
 
 vec3 LightIntensity = vec3(1.0, 1.0, 1.0);
 
-vec3 MaterialKd = texture(colour_tex, ftexcoord).rgb;
+uniform vec3 MaterialKd;
 
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
@@ -40,7 +40,7 @@ vec3 phongModelDiffAndSpec(bool do_specular)
     vec3 v = normalize(-Position.xyz);
     vec3 r = reflect( -s, n );
     float sDotN = max( dot(s,n), 0.0 );
-    vec3 diffuse = LightIntensity * MaterialKd * sDotN;
+    vec3 diffuse = LightIntensity * texture(colour_tex, ftexcoord).rgb * sDotN;
     vec3 spec = vec3(0.0);
 
     if( sDotN > 0.0 )
@@ -120,8 +120,7 @@ void shadeWithShadow()
     if(shadow == 1.0)
     {
         diffAndSpec = phongModelDiffAndSpec(true);
-        frag_colour = vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
-        frag_colour /= 2;
+        frag_colour = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
     }
     else
     {
