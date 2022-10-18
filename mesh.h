@@ -31,6 +31,9 @@ using std::ios;
 #include <set>
 using std::set;
 
+#include <map>
+using std::map;
+
 #include <vector>
 using std::vector;
 
@@ -147,6 +150,11 @@ public:
 		string usemtl_palette_string;
 
 		string line;
+
+		map<vertex_3, size_t> face_normal_counts;
+		vertex_3 vtemp;
+
+
 
 		while (getline(infile, line))
 		{
@@ -279,7 +287,8 @@ public:
 				t.vertex[0].ny = norms[vn_index].y;
 				t.vertex[0].nz = norms[vn_index].z;
 
-
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
 
 				std_strtok(tokens[2], "[/]", face_tokens);
 
@@ -309,6 +318,11 @@ public:
 				t.vertex[1].nx = norms[vn_index].x;
 				t.vertex[1].ny = norms[vn_index].y;
 				t.vertex[1].nz = norms[vn_index].z;
+
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
 
 
 				std_strtok(tokens[3], "[/]", face_tokens);
@@ -341,9 +355,23 @@ public:
 				t.vertex[2].ny = norms[vn_index].y;
 				t.vertex[2].nz = norms[vn_index].z;
 
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
+
+
+
 				triangles.push_back(t);
 			}
 		}
+
+		for (map<vertex_3, size_t>::const_iterator ci = face_normal_counts.begin(); ci != face_normal_counts.end(); ci++)
+		{
+			cout << ci->first.x << " " << ci->first.y << " " << ci->first.z << endl;
+			cout << ci->second << endl << endl;
+		}
+
 
 		init_opengl_data();
 

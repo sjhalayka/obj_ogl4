@@ -46,7 +46,6 @@ void mesh::draw(GLint render_shader_program,
 	int win_x,
 	int win_y)
 {
-
 	glUseProgram(render_shader_program);
 
 	const GLuint components_per_vertex = 8;
@@ -63,8 +62,6 @@ void mesh::draw(GLint render_shader_program,
 
 	const size_t tex_width = w;
 	const size_t tex_height = h;
-
-	cout << tex_width << " " << tex_height << endl;
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
@@ -95,7 +92,7 @@ void mesh::draw(GLint render_shader_program,
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(0);
-	// color attribute
+	// normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 	// texture coord attribute

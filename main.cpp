@@ -5,31 +5,7 @@
 int main(int argc, char** argv)
 {
 
-	//if (false == sphere_mesh.read_triangles_from_binary_stereo_lithography_file("sphere.stl"))
-	//{
-	//	cout << "Error: Could not properly read file sphere.stl" << endl;
-	//	return 2;
-	//}
-
-	//sphere_mesh.scale_mesh(sphere_scale); // radius == 0.5f;
-
-	//if (false == out_stl.read_triangles_from_binary_stereo_lithography_file("out.stl"))
-	//{
-	//	cout << "Error: Could not properly read file out.stl" << endl;
-	//	return 2;
-	//}
-
-	//out_stl.scale_mesh(1); // radius == 0.5f;
-
-
-
 	mesh game_piece_mesh;
-
-	//if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file(argv[1], true))
-	//{
-	//	cout << "Error: Could not properly read file out.stl" << endl;
-	//	return 2;
-	//}
 
 	if (false == game_piece_mesh.read_triangles_from_wavefront_obj_file("chr_knight.obj"))
 	{
@@ -37,54 +13,20 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	//	if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file("out.stl", true))
-	//{
-	//	cout << "Error: Could not properly read file out.stl" << endl;
-	//	return 2;
-	//}
-
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	//if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file("out0.stl", true))
-	//{
-	//	cout << "Error: Could not properly read file out0.stl" << endl;
-	//	return 2;
-	//}
 
-	//player_game_piece_meshes.push_back(game_piece_mesh);
-	//
-	//if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file("out1.stl", true))
-	//{
-	//	cout << "Error: Could not properly read file out1.stl" << endl;
-	//	return 2;
-	//}
-
-	//player_game_piece_meshes.push_back(game_piece_mesh);
-
-
-
-	//if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file("out2.stl", true))
-	//{
-	//	cout << "Error: Could not properly read file out2.stl" << endl;
-	//	return 2;
-	//}
-
-	//player_game_piece_meshes.push_back(game_piece_mesh);
-
-	//game_piece_mesh.scale_mesh(1);
-
-	//for (size_t i = 0; i < 1; i++)
-	//	player_game_piece_meshes.push_back(game_piece_mesh);
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
-		vec3 dir(-1, 0, 0);// = get_pseudorandom_unit_direction();
-		vec3 dir2(0, -1, 0);// = get_pseudorandom_unit_direction();
+		vec3 dir(-1, 0, 0);
+		vec3 dir2(0, -1, 0);
 
 		vec3 left = normalize(cross(dir, dir2));
 		vec3 tangent = cross(dir, left);
 
+		//player_game_piece_meshes[i].set_transform();
 		player_game_piece_meshes[i].init_geodesic(dir, left, tangent, 1.0f); // 1/2 + .25/2
 	}
 
@@ -192,7 +134,7 @@ bool init_opengl(const int& width, const int& height)
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(win_x, win_y);
-	win_id = glutCreateWindow("Binary Stereo Lithography file viewer");
+	win_id = glutCreateWindow("OBJ file viewer");
 
 	if (GLEW_OK != glewInit())
 	{
@@ -452,7 +394,7 @@ void display_func(void)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
-		if (true == screenshot_mode)
+		if (1)//true == screenshot_mode)
 		{
 			glCullFace(GL_FRONT);
 			glPolygonMode(GL_BACK, GL_LINE);
@@ -532,7 +474,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'a':
-		take_screenshot(10, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot(4, "out.tga");// , const bool reverse_rows = false)
 		break;
 
 	default:
