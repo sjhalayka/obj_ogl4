@@ -226,7 +226,7 @@ bool init_opengl(const int& width, const int& height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 
 	// Assign the depth buffer texture to texture channel 0
-	glActiveTexture(GL_TEXTURE0);	
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthTex);
 
 	glGenFramebuffers(1, &shadowFBO);

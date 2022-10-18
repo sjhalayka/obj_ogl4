@@ -21,13 +21,17 @@ uniform int flat_colour = 0;
 
 vec3 LightIntensity = vec3(1.0, 1.0, 1.0);
 
-uniform vec3 MaterialKd;
+vec3 MaterialKd = texture(colour_tex, ftexcoord).rgb;
 
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 10.0;
 
 layout (location = 0) out vec4 frag_colour;
+
+
+vec4 t = texture(colour_tex, ftexcoord);
+
 
 vec3 phongModelDiffAndSpec(bool do_specular)
 {
@@ -68,6 +72,8 @@ subroutine uniform RenderPassType RenderPass;
 subroutine (RenderPassType)
 void shadeWithShadow()
 {
+
+
     if(flat_colour == 1)
     {
         frag_colour = vec4(MaterialKd, 1.0);
@@ -79,10 +85,9 @@ void shadeWithShadow()
  //       frag_colour.g = ftexcoord.g;
 //        frag_colour.b = 1;
 //        frag_colour.a = 1;
+//    frag_colour = texture(colour_tex, ftexcoord);
     
-   frag_colour = texture(colour_tex, ftexcoord);
-    
-        return;
+//        return;
     }
 
 
@@ -115,7 +120,8 @@ void shadeWithShadow()
     if(shadow == 1.0)
     {
         diffAndSpec = phongModelDiffAndSpec(true);
-        frag_colour = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+        frag_colour = vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+        frag_colour /= 2;
     }
     else
     {
