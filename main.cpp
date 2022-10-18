@@ -270,11 +270,12 @@ void display_func(void)
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
 
+	glActiveTexture(GL_TEXTURE0);
 
 	mat4 lightPV, shadowBias;
 	Frustum lightFrustum;
 
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 
@@ -307,13 +308,15 @@ void display_func(void)
 	lightFrustum.orient(lightPos, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
 	lightFrustum.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
 
-
+	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 0);
 
 
 	vec3 piece_dir = normalize(player_game_piece_meshes[0].geodesic_dir); // normalize(centre);// = normalize(vec3(1, 1, 1));
 	float dp_limit = 0.5f;
 	int highlight_move_region = 0;
+
+
 
 	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "piece_dir"), piece_dir.x, piece_dir.y, piece_dir.z);
 	glUniform1f(glGetUniformLocation(shadow_map.get_program(), "dp_limit"), dp_limit);

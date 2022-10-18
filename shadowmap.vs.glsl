@@ -2,9 +2,9 @@
 
 layout (location=0) in vec3 position;
 layout (location=1) in vec3 normal;
-layout (location=2) in vec2 uv;
+layout (location=2) in vec2 texcoord;
 
-out vec2 UV;
+out vec2 ftexcoord;
 out vec3 Position;
 out vec3 Normal;
 out vec4 ShadowCoord;
@@ -29,5 +29,5 @@ void main()
     Untransformed_Position = position;
 
     gl_Position = mvp * vec4(position, 1.0);
-    UV = uv;
+    ftexcoord = texcoord;
 }

@@ -2,6 +2,9 @@
 
 uniform sampler2DShadow shadow_map;
 
+uniform sampler2D colour_tex;
+
+in vec2 ftexcoord;
 in vec3 Position;
 in vec3 Normal;
 in vec4 ShadowCoord;
@@ -18,7 +21,7 @@ uniform int flat_colour = 0;
 
 vec3 LightIntensity = vec3(1.0, 1.0, 1.0);
 
-uniform vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
+uniform vec3 MaterialKd;
 
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
@@ -70,6 +73,18 @@ void shadeWithShadow()
         frag_colour = vec4(MaterialKd, 1.0);
         return;
     }
+    else
+    {
+//        frag_colour.r = ftexcoord.r;
+ //       frag_colour.g = ftexcoord.g;
+//        frag_colour.b = 1;
+//        frag_colour.a = 1;
+    
+   frag_colour = texture(colour_tex, ftexcoord);
+    
+        return;
+    }
+
 
     float shadow = 1.0;
     
