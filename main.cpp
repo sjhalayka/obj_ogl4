@@ -174,10 +174,7 @@ void reshape_func(int width, int height)
 
 
 
-
-
-
-void display_func(void)
+void draw_stuff(void)
 {
 	static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
@@ -288,7 +285,7 @@ void display_func(void)
 
 	// reset camera matrices
 
-	if(false == screenshot_mode)
+	if (false == screenshot_mode)
 		main_camera.calculate_camera_matrices(win_x, win_y);
 
 	model = mat4(1.0f);
@@ -376,6 +373,18 @@ void display_func(void)
 
 	glFlush();
 
+}
+
+
+void display_func(void)
+{
+
+
+	//glEnable(GL_DEPTH_TEST);
+
+	draw_stuff();
+
+
 
 	vector<unsigned char> output_pixels(win_x * win_y * 4);
 
@@ -390,55 +399,57 @@ void display_func(void)
 
 
 
-
+	glDisable(GL_DEPTH_TEST);
 
 	vector<unsigned short> depth_pixels(win_x * win_y);
 
 glReadBuffer(GL_DEPTH_ATTACHMENT);
 glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, &depth_pixels[0]);
 
-//glReadBuffer(GL_COLOR_ATTACHMENT0);
-//glReadPixels(0, 0, win_x, win_y, GL_BGRA, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-unsigned short depth_max = 0, depth_min = -1;
-
-	for (size_t i = 0; i < win_x; i++)
-	{
-		for (size_t j = 0; j < win_y; j++)
-		{
-			size_t depth_index = j * win_x + i;
-			size_t tga_index = depth_index * 4;
-
-			float val = depth_pixels[depth_index];
-
-			if (val > depth_max)
-				depth_max = val;
-
-			else if (val < depth_min)
-				depth_min = val;
-		}
-	}
+glReadBuffer(GL_COLOR_ATTACHMENT0);
+glReadPixels(0, 0, win_x, win_y, GL_BGRA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
 
-	for (size_t i = 0; i < win_x; i++)
-	{
-		for (size_t j = 0; j < win_y; j++)
-		{	
-			size_t depth_index = j * win_x + i;
-			size_t tga_index = depth_index * 4;
+//
+//unsigned short depth_max = 0, depth_min = -1;
+//
+//	for (size_t i = 0; i < win_x; i++)
+//	{
+//		for (size_t j = 0; j < win_y; j++)
+//		{
+//			size_t depth_index = j * win_x + i;
+//			size_t tga_index = depth_index * 4;
+//
+//			float val = depth_pixels[depth_index];
+//
+//			if (val > depth_max)
+//				depth_max = val;
+//
+//			else if (val < depth_min)
+//				depth_min = val;
+//		}
+//	}
+//
+//
+//	for (size_t i = 0; i < win_x; i++)
+//	{
+//		for (size_t j = 0; j < win_y; j++)
+//		{	
+//			size_t depth_index = j * win_x + i;
+//			size_t tga_index = depth_index * 4;
+//
+//			float val = depth_pixels[depth_index] - depth_min / (1.0f - depth_min);
+//
+//			output_pixels[tga_index + 0] = val * 255.0f;// / static_cast<unsigned short>(-1);
+//			output_pixels[tga_index + 1] = val * 255.0f;//  / static_cast<unsigned short>(-1);
+//			output_pixels[tga_index + 2] = val * 255.0f;// / static_cast<unsigned short>(-1);
+//			output_pixels[tga_index + 3] = 255;
+//		}
+//	}
+//
+//	cout << depth_min << " " << depth_max << endl;
 
-			float val = depth_pixels[depth_index] - depth_min / (1.0f - depth_min);
-
-			output_pixels[tga_index + 0] = val * 255.0f;// / static_cast<unsigned short>(-1);
-			output_pixels[tga_index + 1] = val * 255.0f;//  / static_cast<unsigned short>(-1);
-			output_pixels[tga_index + 2] = val * 255.0f;// / static_cast<unsigned short>(-1);
-			output_pixels[tga_index + 3] = 255;
-		}
-	}
-
-	cout << depth_min << " " << depth_max << endl;
-
-	//glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
+// glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
 
 // Set up Targa TGA image data.
