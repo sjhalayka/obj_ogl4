@@ -191,7 +191,7 @@ void draw_stuff(void)
 	mat4 lightPV, shadowBias;
 	Frustum lightFrustum;
 
-	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 
@@ -352,11 +352,11 @@ void draw_stuff(void)
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
 
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
+		//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
 
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 		glPolygonMode(GL_BACK, GL_FILL);
 		glCullFace(GL_BACK);
@@ -518,12 +518,6 @@ void use_buffers(void)
 
 	cout << depth_min << " " << depth_max << endl;
 
-	// //glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-
-
-
-
 
 	vector<unsigned char> fbpixels_blurred = output_pixels;
 	vector<unsigned char> target_pixels = output_pixels;
@@ -538,14 +532,10 @@ void use_buffers(void)
 			size_t depth_index = i * win_y + j;
 			size_t fb_index = 4 * depth_index;
 
-			//		float t = depth_pixels[depth_index];
-
-
-
 			float t = (depth_pixels[depth_index] - depth_min) / float(depth_max - depth_min);
 
 
-			t = sqrt(t * t);
+			t = pow(t, 5.0f);
 
 			float r0 = output_pixels[fb_index];
 			float g0 = output_pixels[fb_index + 1];
