@@ -127,6 +127,12 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
+	if (false == tex_passthrough.init("ortho.vs.glsl", "ortho.fs.glsl"))
+	{
+		cout << "Could not load ortho shader" << endl;
+		return false;
+	}
+
 	glGenTextures(1, &depthTex);
 	glBindTexture(GL_TEXTURE_2D, depthTex);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
@@ -376,15 +382,81 @@ void draw_stuff(void)
 }
 
 
-void display_func(void)
+
+
+void blur_image(vector<unsigned char>& write_p, GLuint width, GLuint height, size_t num_channels)
 {
+	const vector<unsigned char> read_p = write_p;
+
+	for (size_t i = 1; i < (width - 1); i++)
+	{
+		for (size_t j = 1; j < (height - 1); j++)
+		{
+			size_t centre_index = num_channels * (j * width + i);
+
+			size_t up_index = num_channels * ((j + 1) * width + i);
+			size_t down_index = num_channels * ((j - 1) * width + i);
+			size_t left_index = num_channels * (j * width + (i + 1));
+			size_t right_index = num_channels * (j * width + (i - 1));
+
+			size_t upper_left_index = num_channels * ((j + 1) * width + (i + 1));
+			size_t upper_right_index = num_channels * ((j + 1) * width + (i - 1));
+			size_t lower_left_index = num_channels * ((j - 1) * width + (i + 1));
+			size_t lower_right_index = num_channels * ((j - 1) * width + (i - 1));
+
+			float r = 0, g = 0, b = 0, a = 0;
+
+			r = static_cast<float>(read_p[centre_index]) +
+				static_cast<float>(read_p[up_index]) +
+				static_cast<float>(read_p[down_index]) +
+				static_cast<float>(read_p[left_index]) +
+				static_cast<float>(read_p[right_index]) +
+				static_cast<float>(read_p[upper_left_index]) +
+				static_cast<float>(read_p[upper_right_index]) +
+				static_cast<float>(read_p[lower_left_index]) +
+				static_cast<float>(read_p[lower_left_index]);
+			\
+				r /= 9.0;
+
+			g = static_cast<float>(read_p[centre_index + 1]) +
+				static_cast<float>(read_p[up_index + 1]) +
+				static_cast<float>(read_p[down_index + 1]) +
+				static_cast<float>(read_p[left_index + 1]) +
+				static_cast<float>(read_p[right_index + 1]) +
+				static_cast<float>(read_p[upper_left_index + 1]) +
+				static_cast<float>(read_p[upper_right_index + 1]) +
+				static_cast<float>(read_p[lower_left_index + 1]) +
+				static_cast<float>(read_p[lower_left_index + 1]);
+
+			g /= 9.0;
+
+			b = static_cast<float>(read_p[centre_index + 2]) +
+				static_cast<float>(read_p[up_index + 2]) +
+				static_cast<float>(read_p[down_index + 2]) +
+				static_cast<float>(read_p[left_index + 2]) +
+				static_cast<float>(read_p[right_index + 2]) +
+				static_cast<float>(read_p[upper_left_index + 2]) +
+				static_cast<float>(read_p[upper_right_index + 2]) +
+				static_cast<float>(read_p[lower_left_index + 2]) +
+				static_cast<float>(read_p[lower_left_index + 2]);
+
+			b /= 9.0;
+
+			a = 255.0f;
+
+			write_p[centre_index + 0] = static_cast<unsigned char>(r);
+			write_p[centre_index + 1] = static_cast<unsigned char>(g);
+			write_p[centre_index + 2] = static_cast<unsigned char>(b);
+			write_p[centre_index + 3] = static_cast<unsigned char>(a);
+		}
+	}
+
+}
 
 
-	//glEnable(GL_DEPTH_TEST);
 
-	draw_stuff();
-
-
+void use_buffers(void)
+{
 
 	vector<unsigned char> output_pixels(win_x * win_y * 4);
 
@@ -396,112 +468,272 @@ void display_func(void)
 
 	//glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
-
-
-
-	glDisable(GL_DEPTH_TEST);
-
 	vector<unsigned short> depth_pixels(win_x * win_y);
-
-glReadBuffer(GL_DEPTH_ATTACHMENT);
-glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, &depth_pixels[0]);
-
-glReadBuffer(GL_COLOR_ATTACHMENT0);
-glReadPixels(0, 0, win_x, win_y, GL_BGRA, GL_UNSIGNED_BYTE, &output_pixels[0]);
+	vector<unsigned char> depth_output_pixels(4 * win_x * win_y);
 
 
-//
-//unsigned short depth_max = 0, depth_min = -1;
-//
-//	for (size_t i = 0; i < win_x; i++)
-//	{
-//		for (size_t j = 0; j < win_y; j++)
-//		{
-//			size_t depth_index = j * win_x + i;
-//			size_t tga_index = depth_index * 4;
-//
-//			float val = depth_pixels[depth_index];
-//
-//			if (val > depth_max)
-//				depth_max = val;
-//
-//			else if (val < depth_min)
-//				depth_min = val;
-//		}
-//	}
-//
-//
-//	for (size_t i = 0; i < win_x; i++)
-//	{
-//		for (size_t j = 0; j < win_y; j++)
-//		{	
-//			size_t depth_index = j * win_x + i;
-//			size_t tga_index = depth_index * 4;
-//
-//			float val = depth_pixels[depth_index] - depth_min / (1.0f - depth_min);
-//
-//			output_pixels[tga_index + 0] = val * 255.0f;// / static_cast<unsigned short>(-1);
-//			output_pixels[tga_index + 1] = val * 255.0f;//  / static_cast<unsigned short>(-1);
-//			output_pixels[tga_index + 2] = val * 255.0f;// / static_cast<unsigned short>(-1);
-//			output_pixels[tga_index + 3] = 255;
-//		}
-//	}
-//
-//	cout << depth_min << " " << depth_max << endl;
+	glReadBuffer(GL_DEPTH_ATTACHMENT);
+	glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, &depth_pixels[0]);
 
-// glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-
-// Set up Targa TGA image data.
-unsigned char  idlength = 0;
-unsigned char  colourmaptype = 0;
-unsigned char  datatypecode = 2;
-unsigned short int colourmaporigin = 0;
-unsigned short int colourmaplength = 0;
-unsigned char  colourmapdepth = 0;
-unsigned short int x_origin = 0;
-unsigned short int y_origin = 0;
-
-unsigned short int px = win_x;
-unsigned short int py = win_y;
-unsigned char  bitsperpixel = 32;
-unsigned char  imagedescriptor = 0;
-vector<char> idstring;
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glReadPixels(0, 0, win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
 
 
-// Write Targa TGA file to disk.
-ofstream out("attachment.tga", ios::binary);
+	unsigned short depth_max = 0, depth_min = -1;
 
-if (!out.is_open())
-{
-	cout << "Failed to open TGA file for writing: attachment.tga" << endl;
-	return;
+	for (size_t i = 0; i < win_x; i++)
+	{
+		for (size_t j = 0; j < win_y; j++)
+		{
+			size_t depth_index = j * win_x + i;
+			size_t tga_index = depth_index * 4;
+
+			float val = depth_pixels[depth_index];
+
+			if (val > depth_max)
+				depth_max = val;
+
+			else if (val < depth_min)
+				depth_min = val;
+		}
+	}
+
+
+	for (size_t i = 0; i < win_x; i++)
+	{
+		for (size_t j = 0; j < win_y; j++)
+		{
+			size_t depth_index = j * win_x + i;
+			size_t tga_index = depth_index * 4;
+
+			float val = (depth_pixels[depth_index] - depth_min) / float(depth_max - depth_min);
+
+			depth_output_pixels[tga_index + 0] = val * 255.0f;// / static_cast<unsigned short>(-1);
+			depth_output_pixels[tga_index + 1] = val * 255.0f;//  / static_cast<unsigned short>(-1);
+			depth_output_pixels[tga_index + 2] = val * 255.0f;// / static_cast<unsigned short>(-1);
+			depth_output_pixels[tga_index + 3] = 255;
+		}
+	}
+
+	cout << depth_min << " " << depth_max << endl;
+
+	// //glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
+
+
+
+
+
+
+	vector<unsigned char> fbpixels_blurred = output_pixels;
+	vector<unsigned char> target_pixels = output_pixels;
+
+	for (size_t i = 0; i < 20; i++)
+		blur_image(fbpixels_blurred, win_x, win_y, 4);
+
+	for (size_t i = 0; i < win_x; i++)
+	{
+		for (size_t j = 0; j < win_y; j++)
+		{
+			size_t depth_index = i * win_y + j;
+			size_t fb_index = 4 * depth_index;
+
+			//		float t = depth_pixels[depth_index];
+
+
+
+			float t = (depth_pixels[depth_index] - depth_min) / float(depth_max - depth_min);
+
+
+			t = sqrt(t * t);
+
+			float r0 = output_pixels[fb_index];
+			float g0 = output_pixels[fb_index + 1];
+			float b0 = output_pixels[fb_index + 2];
+
+			float r1 = fbpixels_blurred[fb_index];
+			float g1 = fbpixels_blurred[fb_index + 1];
+			float b1 = fbpixels_blurred[fb_index + 2];
+
+			float r2 = (1.0f - t) * r0 + t * r1;
+			float g2 = (1.0f - t) * g0 + t * g1;
+			float b2 = (1.0f - t) * b0 + t * b1;
+
+			target_pixels[fb_index + 0] = static_cast<unsigned char>(r2);
+			target_pixels[fb_index + 1] = static_cast<unsigned char>(g2);
+			target_pixels[fb_index + 2] = static_cast<unsigned char>(b2);
+			target_pixels[fb_index + 3] = 255;
+		}
+	}
+
+
+
+
+	// Set up Targa TGA image data.
+	unsigned char  idlength = 0;
+	unsigned char  colourmaptype = 0;
+	unsigned char  datatypecode = 2;
+	unsigned short int colourmaporigin = 0;
+	unsigned short int colourmaplength = 0;
+	unsigned char  colourmapdepth = 0;
+	unsigned short int x_origin = 0;
+	unsigned short int y_origin = 0;
+
+	unsigned short int px = win_x;
+	unsigned short int py = win_y;
+	unsigned char  bitsperpixel = 32;
+	unsigned char  imagedescriptor = 0;
+	vector<char> idstring;
+
+
+
+	// Write Targa TGA file to disk.
+	ofstream out("attachment.tga", ios::binary);
+
+	if (!out.is_open())
+	{
+		cout << "Failed to open TGA file for writing: attachment.tga" << endl;
+		return;
+	}
+
+	out.write(reinterpret_cast<char*>(&idlength), 1);
+	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+	out.write(reinterpret_cast<char*>(&datatypecode), 1);
+	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+	out.write(reinterpret_cast<char*>(&x_origin), 2);
+	out.write(reinterpret_cast<char*>(&y_origin), 2);
+	out.write(reinterpret_cast<char*>(&px), 2);
+	out.write(reinterpret_cast<char*>(&py), 2);
+	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+	out.write(reinterpret_cast<char*>(&target_pixels[0]), win_x * win_y * 4 * sizeof(unsigned char));
+
+	out.close();
+
+
+	//glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &target_pixels[0]);
+
+
+
+
+
+
+		// vao and vbo handle
+	GLuint vao, vbo, ibo;
+
+	// https://raw.githubusercontent.com/progschj/OpenGL-Examples/master/03texture.cpp
+
+	// generate and bind the vao
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// generate and bind the vertex buffer object
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// http://www.songho.ca/opengl/gl_transform.html
+
+
+	// data for a fullscreen quad (this time with texture coords)
+	static const GLfloat vertexData[] = {
+		//  X     Y     Z           U     V     
+		   1.0f, 1.0f, 0.0f,       1.0f, 1.0f, // vertex 0
+		  -1.0f, 1.0f, 0.0f,       0.0f, 1.0f, // vertex 1
+		   1.0f,-1.0f, 0.0f,       1.0f, 0.0f, // vertex 2
+		  -1.0f,-1.0f, 0.0f,       0.0f, 0.0f, // vertex 3
+	}; // 4 vertices with 5 components (floats) each
+
+	// fill with data
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 5, vertexData, GL_STATIC_DRAW);
+
+
+	// set up generic attrib pointers
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (char*)0 + 0 * sizeof(GLfloat));
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (char*)0 + 3 * sizeof(GLfloat));
+
+
+	// generate and bind the index buffer object
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	static const GLuint indexData[] = {
+		0,1,2, // first triangle
+		2,1,3, // second triangle
+	};
+
+	// fill with data
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 2 * 3, indexData, GL_STATIC_DRAW);
+
+	// "unbind" vao
+	glBindVertexArray(0);
+
+
+	// texture handle
+	GLuint texture;
+
+	glActiveTexture(GL_TEXTURE3);
+
+	// generate texture
+	glGenTextures(1, &texture);
+
+	// bind the texture
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// set texture content
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win_x, win_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &target_pixels[0]);
+
+	// use the shader program
+	glUseProgram(tex_passthrough.get_program());
+
+	// bind texture to third texture
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "tex"), 3);
+
+
+	// bind the vao
+	glBindVertexArray(vao);
+
+	// draw
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ibo);
+
+	glDeleteTextures(1, &texture);
 }
 
-out.write(reinterpret_cast<char*>(&idlength), 1);
-out.write(reinterpret_cast<char*>(&colourmaptype), 1);
-out.write(reinterpret_cast<char*>(&datatypecode), 1);
-out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
-out.write(reinterpret_cast<char*>(&colourmaplength), 2);
-out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
-out.write(reinterpret_cast<char*>(&x_origin), 2);
-out.write(reinterpret_cast<char*>(&y_origin), 2);
-out.write(reinterpret_cast<char*>(&px), 2);
-out.write(reinterpret_cast<char*>(&py), 2);
-out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
-out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
-
-out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 4 * sizeof(unsigned char));
-
-out.close();
-
-//exit(1);
 
 
 
-	if(false == screenshot_mode)
+
+void display_func(void)
+{
+	draw_stuff();
+
+
+	use_buffers();
+
+
+	if (false == screenshot_mode)
 		glutSwapBuffers();
+
+
+
 }
 
 void keyboard_func(unsigned char key, int x, int y)

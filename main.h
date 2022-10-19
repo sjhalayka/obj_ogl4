@@ -56,7 +56,7 @@ vector<triangle> triangles;
 
 
 vertex_fragment_shader shadow_map;
-
+vertex_fragment_shader tex_passthrough;
 
 
 
