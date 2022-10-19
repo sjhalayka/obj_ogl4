@@ -379,16 +379,28 @@ void display_func(void)
 
 	vector<unsigned char> output_pixels(win_x * win_y * 4);
 
+	//	vector<unsigned char> output_pixels(win_x * win_y * 4);
+	//	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	//glReadPixels(0, 0, win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
-	vector<unsigned char> depth_pixels(win_x * win_y);
+	//glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
+
+
+
+
+
+
+	vector<unsigned short> depth_pixels(win_x * win_y);
 
 glReadBuffer(GL_DEPTH_ATTACHMENT);
-glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, &depth_pixels[0]);
+glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, &depth_pixels[0]);
 
 //glReadBuffer(GL_COLOR_ATTACHMENT0);
 //glReadPixels(0, 0, win_x, win_y, GL_BGRA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
-unsigned char max = 0, min = -1;
+unsigned short depth_max = 0, depth_min = -1;
 
 	for (size_t i = 0; i < win_x; i++)
 	{
@@ -397,22 +409,36 @@ unsigned char max = 0, min = -1;
 			size_t depth_index = j * win_x + i;
 			size_t tga_index = depth_index * 4;
 
-			unsigned char val = depth_pixels[depth_index];
+			float val = depth_pixels[depth_index];
 
-			if (val > max)
-				max = val;
+			if (val > depth_max)
+				depth_max = val;
 
-			else if (val < min)
-				min = val;
+			else if (val < depth_min)
+				depth_min = val;
+		}
+	}
 
-			output_pixels[tga_index + 0] = val;// / static_cast<unsigned short>(-1);
-			output_pixels[tga_index + 1] = val;//  / static_cast<unsigned short>(-1);
-			output_pixels[tga_index + 2] = val;// / static_cast<unsigned short>(-1);
+
+	for (size_t i = 0; i < win_x; i++)
+	{
+		for (size_t j = 0; j < win_y; j++)
+		{	
+			size_t depth_index = j * win_x + i;
+			size_t tga_index = depth_index * 4;
+
+			float val = depth_pixels[depth_index] - depth_min / (1.0f - depth_min);
+
+			output_pixels[tga_index + 0] = val * 255.0f;// / static_cast<unsigned short>(-1);
+			output_pixels[tga_index + 1] = val * 255.0f;//  / static_cast<unsigned short>(-1);
+			output_pixels[tga_index + 2] = val * 255.0f;// / static_cast<unsigned short>(-1);
 			output_pixels[tga_index + 3] = 255;
 		}
 	}
 
-	cout << min << " " << max << endl;
+	cout << depth_min << " " << depth_max << endl;
+
+	//glDrawPixels(win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
 
 
 // Set up Targa TGA image data.
@@ -459,7 +485,7 @@ out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 4 * sizeof
 
 out.close();
 
-exit(1);
+//exit(1);
 
 
 
