@@ -389,24 +389,14 @@ public:
 	vec3 geodesic_tangent;
 	float displacement;
 
-	void init_geodesic(vec3 dir, vec3 left, vec3 tangent, float displacement_factor)
+	void init_model_matrix(vec3 dir, vec3 left, vec3 tangent)
 	{
 		geodesic_dir = dir;
 		geodesic_left = left;
 		geodesic_tangent = tangent;
-		// displacement = displacement_factor;
 
 		set_transform();
 	}
-
-	void proceed_geodesic(float elapsed_time)
-	{
-		geodesic_dir = geodesic_dir * cos(elapsed_time) + geodesic_tangent * sin(elapsed_time);
-		geodesic_tangent = normalize(cross(geodesic_dir, geodesic_left));
-
-		set_transform();
-	}
-
 
 	void set_transform(void)
 	{
@@ -553,7 +543,7 @@ public:
 
 
 protected:
-//void get_vertices_and_normals_from_triangles();
+void get_vertices_and_normals_from_triangles();
 	void init_opengl_data(void);
 };
 

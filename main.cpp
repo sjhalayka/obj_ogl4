@@ -26,8 +26,7 @@ int main(int argc, char** argv)
 		vec3 left = normalize(cross(dir, dir2));
 		vec3 tangent = cross(dir, left);
 
-		//player_game_piece_meshes[i].set_transform();
-		player_game_piece_meshes[i].init_geodesic(dir, left, tangent, 1.0f); // 1/2 + .25/2
+		player_game_piece_meshes[i].init_model_matrix(dir, left, tangent);
 	}
 
 
@@ -52,28 +51,6 @@ int main(int argc, char** argv)
 
 
 
-	//if (false == game_piece_mesh.read_triangles_from_binary_stereo_lithography_file("classic.stl"))
-	//{
-	//	cout << "Error: Could not properly read file fractal.stl" << endl;
-	//	return 2;
-	//}
-
-	//game_piece_mesh.scale_mesh(game_piece_scale);
-
-
-	//for (size_t i = 0; i < 0; i++)
-	//	enemy_game_piece_meshes.push_back(game_piece_mesh);
-
-	//for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
-	//{
-	//	vec3 dir = get_pseudorandom_unit_direction();
-	//	vec3 dir2 = get_pseudorandom_unit_direction();
-
-	//	vec3 left = normalize(cross(dir, dir2));
-	//	vec3 tangent = cross(dir, left);
-
-	//	enemy_game_piece_meshes[i].init_geodesic(dir, left, tangent, sphere_scale * 0.5f + game_piece_scale * 0.5f); // 1/2 + .25/2
-	//}
 
 
 
@@ -102,20 +79,14 @@ int main(int argc, char** argv)
 
 void idle_func(void)
 {
-	static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
+	//static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+	//std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
 
-	float x = elapsed.count() / 1000.0f;
-	x *= 0.25f;
+	//float x = elapsed.count() / 1000.0f;
+	//x *= 0.25f;
 
-	start_time = std::chrono::high_resolution_clock::now();
-
-	//for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	//	player_game_piece_meshes[i].proceed_geodesic(x);
-
-	//for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
-	//	enemy_game_piece_meshes[i].proceed_geodesic(x);
+	//start_time = std::chrono::high_resolution_clock::now();
 
 	glutPostRedisplay();
 }
@@ -224,9 +195,8 @@ void display_func(void)
 	srand(0);
 
 
+	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 
-	//vec3 player_colour(rand, 0, 0);
-	//vec3 enemy_colour(0.75f, 0.75f, 0.75f);
 
 
 	shadow_map.use_program();
@@ -252,18 +222,6 @@ void display_func(void)
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 0);
-
-
-	vec3 piece_dir = normalize(player_game_piece_meshes[0].geodesic_dir); // normalize(centre);// = normalize(vec3(1, 1, 1));
-	float dp_limit = 0.5f;
-	int highlight_move_region = 0;
-
-
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "piece_dir"), piece_dir.x, piece_dir.y, piece_dir.z);
-	glUniform1f(glGetUniformLocation(shadow_map.get_program(), "dp_limit"), dp_limit);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "highlight_move_region"), 0);
-
 
 	mat4 model = mat4(1.0f);
 	mat4 view = lightFrustum.getViewMatrix();
@@ -371,13 +329,6 @@ void display_func(void)
 	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
 
 
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "highlight_move_region"), 1);
-
-
-	//sphere_mesh.draw(shadow_map.get_program(), win_x, win_y);
-
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "highlight_move_region"), 0);
-
 
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
@@ -394,60 +345,22 @@ void display_func(void)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
-		if (1)//true == screenshot_mode)
-		{
-			glCullFace(GL_FRONT);
-			glPolygonMode(GL_BACK, GL_LINE);
 
-			glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
+		glCullFace(GL_FRONT);
+		glPolygonMode(GL_BACK, GL_LINE);
 
-			glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-			player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-			glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
 
-			glPolygonMode(GL_BACK, GL_FILL);
-			glCullFace(GL_BACK);
-		}
+		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
+		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
-		//glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_FILL);
+		glCullFace(GL_BACK);
 
-		//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
-
-		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 		glPolygonMode(GL_FRONT, GL_FILL);
-
-
 	}
-
-
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0.0f, 0.0f, 0.0f);
-	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow = lightPV * model;
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	glCullFace(GL_FRONT);
-	glPolygonMode(GL_BACK, GL_LINE);
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
-
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-
-	//out_stl.draw(shadow_map.get_program(), win_x, win_y);
-	//sphere_mesh.draw(shadow_map.get_program(), win_x, win_y);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-	glPolygonMode(GL_BACK, GL_FILL);
-	glCullFace(GL_BACK);
-
-
 
 	model = mat4(1.0f);
 	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
@@ -461,9 +374,94 @@ void display_func(void)
 	draw_axis(shadow_map.get_program());
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
-
-
 	glFlush();
+
+
+	vector<unsigned char> output_pixels(win_x * win_y * 4);
+
+
+	vector<unsigned char> depth_pixels(win_x * win_y);
+
+glReadBuffer(GL_DEPTH_ATTACHMENT);
+glReadPixels(0, 0, win_x, win_y, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, &depth_pixels[0]);
+
+//glReadBuffer(GL_COLOR_ATTACHMENT0);
+//glReadPixels(0, 0, win_x, win_y, GL_BGRA, GL_UNSIGNED_BYTE, &output_pixels[0]);
+
+unsigned char max = 0, min = -1;
+
+	for (size_t i = 0; i < win_x; i++)
+	{
+		for (size_t j = 0; j < win_y; j++)
+		{
+			size_t depth_index = j * win_x + i;
+			size_t tga_index = depth_index * 4;
+
+			unsigned char val = depth_pixels[depth_index];
+
+			if (val > max)
+				max = val;
+
+			else if (val < min)
+				min = val;
+
+			output_pixels[tga_index + 0] = val;// / static_cast<unsigned short>(-1);
+			output_pixels[tga_index + 1] = val;//  / static_cast<unsigned short>(-1);
+			output_pixels[tga_index + 2] = val;// / static_cast<unsigned short>(-1);
+			output_pixels[tga_index + 3] = 255;
+		}
+	}
+
+	cout << min << " " << max << endl;
+
+
+// Set up Targa TGA image data.
+unsigned char  idlength = 0;
+unsigned char  colourmaptype = 0;
+unsigned char  datatypecode = 2;
+unsigned short int colourmaporigin = 0;
+unsigned short int colourmaplength = 0;
+unsigned char  colourmapdepth = 0;
+unsigned short int x_origin = 0;
+unsigned short int y_origin = 0;
+
+unsigned short int px = win_x;
+unsigned short int py = win_y;
+unsigned char  bitsperpixel = 32;
+unsigned char  imagedescriptor = 0;
+vector<char> idstring;
+
+
+
+// Write Targa TGA file to disk.
+ofstream out("attachment.tga", ios::binary);
+
+if (!out.is_open())
+{
+	cout << "Failed to open TGA file for writing: attachment.tga" << endl;
+	return;
+}
+
+out.write(reinterpret_cast<char*>(&idlength), 1);
+out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+out.write(reinterpret_cast<char*>(&datatypecode), 1);
+out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+out.write(reinterpret_cast<char*>(&x_origin), 2);
+out.write(reinterpret_cast<char*>(&y_origin), 2);
+out.write(reinterpret_cast<char*>(&px), 2);
+out.write(reinterpret_cast<char*>(&py), 2);
+out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 4 * sizeof(unsigned char));
+
+out.close();
+
+exit(1);
+
+
 
 	if(false == screenshot_mode)
 		glutSwapBuffers();
@@ -474,7 +472,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'a':
-		take_screenshot(4, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot(2, "out.tga");// , const bool reverse_rows = false)
 		break;
 
 	default:
