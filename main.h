@@ -64,8 +64,6 @@ vertex_fragment_shader tex_passthrough;
 GLfloat border[] = { 1.0f, 0.0f,0.0f,0.0f };
 // The depth buffer texture
 GLuint depthTex;
-GLuint fbo_texture;
-
 
 size_t shadowMapWidth = 8192;
 size_t shadowMapHeight = 8192;
