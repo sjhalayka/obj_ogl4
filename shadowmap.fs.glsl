@@ -79,16 +79,6 @@ void shadeWithShadow()
         frag_colour = vec4(MaterialKd, 1.0);
         return;
     }
-    else
-    {
-//        frag_colour.r = ftexcoord.r;
- //       frag_colour.g = ftexcoord.g;
-//        frag_colour.b = 1;
-//        frag_colour.a = 1;
-//    frag_colour = texture(colour_tex, ftexcoord);
-    
-//        return;
-    }
 
 
     float shadow = 1.0;
@@ -96,22 +86,6 @@ void shadeWithShadow()
     if( ShadowCoord.z >= 0.0 )
     {
         shadow = textureProj(shadow_map, ShadowCoord);
-
-        /*
-        vec3 n = normalize(Normal);
-        vec3 n2 = normalize(LightPosition.xyz);
-        float dp = dot(n, n2);
-
-        if(dp <= 0.0)
-        {
-            shadow = 1.0;
-        }
-        else
-        {
-            if(shadow == 0.0)
-                shadow = 1.0 - dp;
-        }
-        */    
     }
     
     

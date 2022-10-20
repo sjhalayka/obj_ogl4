@@ -9,4 +9,7 @@ layout(location = 0) out vec4 FragColor;
 void main() 
 {
    FragColor = texture(tex, ftexcoord);
+
+   FragColor.rgb = 1.0 - FragColor.rgb;
+
 };
