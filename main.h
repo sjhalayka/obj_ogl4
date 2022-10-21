@@ -72,7 +72,7 @@ GLuint shadowFBO = 0, pass1Index = 0, pass2Index = 0;
 
 GLuint offscreen_fbo;
 GLuint offscreen_colour_tex;
-//GLuint offscreen_depth_tex;
+GLuint offscreen_depth_tex;
 
 
 
