@@ -354,19 +354,19 @@ void draw_stuff(GLuint fbo_handle)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
-	/*if (fbo_handle == 0)
-	{
-		GLenum drawBuffers[] = { GL_NONE };
-		glDrawBuffers(1, drawBuffers);
-	}
-	else
-	{
-		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, drawBuffers);
-	}*/
+	//if (fbo_handle == 0 || fbo_handle == )
+	//{
+	//	GLenum drawBuffers[] = { GL_NONE };
+	//	glDrawBuffers(1, drawBuffers);
+	//}
+	//else
+	//{
+	//	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	//	glDrawBuffers(1, drawBuffers);
+	//}
 
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
+	//GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	//glDrawBuffers(1, drawBuffers);
 
 	// reset camera matrices
 
@@ -792,14 +792,14 @@ void use_buffers(void)
 
 void display_func(void)
 {
-	draw_stuff(shadowFBO);
-	//use_buffers();
+	draw_stuff(0);
+	use_buffers();
 
 	draw_stuff(offscreen_fbo);
 	use_buffers();
 
 	draw_stuff(0);
-//	use_buffers();
+	use_buffers();
 
 	if (false == screenshot_mode)
 		glutSwapBuffers();
