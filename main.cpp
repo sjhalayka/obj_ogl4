@@ -349,7 +349,7 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
+	//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
@@ -365,7 +365,9 @@ void draw_stuff(GLuint fbo_handle)
 		glDrawBuffers(1, drawBuffers);
 	}*/
 
-	
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
 	// reset camera matrices
 
 	if (false == screenshot_mode)
