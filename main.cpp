@@ -793,13 +793,13 @@ void use_buffers(void)
 void display_func(void)
 {
 	draw_stuff(shadowFBO);
-	use_buffers();
+	//use_buffers();
 
 	draw_stuff(offscreen_fbo);
 	use_buffers();
 
 	draw_stuff(0);
-	use_buffers();
+//	use_buffers();
 
 	if (false == screenshot_mode)
 		glutSwapBuffers();
