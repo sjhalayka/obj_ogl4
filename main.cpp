@@ -142,11 +142,11 @@ bool init_opengl(const int& width, const int& height)
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 
 	// Assign the depth buffer texture to texture channel 0
 	glActiveTexture(GL_TEXTURE0);
@@ -159,6 +159,57 @@ bool init_opengl(const int& width, const int& height)
 
 	GLenum drawBuffers[] = { GL_NONE };
 	glDrawBuffers(1, drawBuffers);
+
+
+
+
+
+
+
+
+
+	glActiveTexture(GL_TEXTURE7);
+	glGenTextures(1, &offscreen_depth_tex);
+	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glActiveTexture(GL_TEXTURE8);
+	glGenTextures(1, &offscreen_colour_tex);
+	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+
+	// Assign the depth buffer texture to texture channel 0
+	//glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+
+	glGenFramebuffers(1, &offscreen_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+		GL_TEXTURE_2D, offscreen_depth_tex, 0);
+
+	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
+
+	glGenFramebuffers(1, &offscreen_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D, offscreen_colour_tex, 0);
+
+	drawBuffers[0] = GL_COLOR_ATTACHMENT0;
+	glDrawBuffers(1, drawBuffers);
+
+
+
+
+
+
+
+
 
 
 	return true;
@@ -194,6 +245,8 @@ void draw_stuff(void)
 
 	mat4 lightPV, shadowBias;
 	Frustum lightFrustum;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
@@ -250,7 +303,7 @@ void draw_stuff(void)
 	vec4 lp_untransformed = vec4(lightPos, 0.0f);
 	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
 	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
@@ -293,6 +346,12 @@ void draw_stuff(void)
 	glFlush();
 
 
+
+
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// reset camera matrices
 
 	if (false == screenshot_mode)
@@ -318,7 +377,7 @@ void draw_stuff(void)
 	lp_untransformed = vec4(lightPos, 0.0f);
 	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, win_x, win_y);
 	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass2Index);
@@ -718,10 +777,7 @@ void use_buffers(void)
 void display_func(void)
 {
 	draw_stuff();
-
-
 	use_buffers();
-
 
 	if (false == screenshot_mode)
 		glutSwapBuffers();
