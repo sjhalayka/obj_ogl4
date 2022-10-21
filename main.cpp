@@ -168,12 +168,12 @@ bool init_opengl(const int& width, const int& height)
 
 
 
-	glActiveTexture(GL_TEXTURE7);
-	glGenTextures(1, &offscreen_depth_tex);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glActiveTexture(GL_TEXTURE7);
+	//glGenTextures(1, &offscreen_depth_tex);
+	//glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	//glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glActiveTexture(GL_TEXTURE8);
 	glGenTextures(1, &offscreen_colour_tex);
@@ -185,13 +185,12 @@ bool init_opengl(const int& width, const int& height)
 
 
 	// Assign the depth buffer texture to texture channel 0
-	//glActiveTexture(GL_TEXTURE9);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	//glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
 
-	glGenFramebuffers(1, &offscreen_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-		GL_TEXTURE_2D, offscreen_depth_tex, 0);
+	//glGenFramebuffers(1, &offscreen_fbo);
+	//glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+	//	GL_TEXTURE_2D, offscreen_depth_tex, 0);
 
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
 
@@ -235,7 +234,7 @@ void reshape_func(int width, int height)
 
 
 
-void draw_stuff(void)
+void draw_stuff(GLuint fbo_handle)
 {
 	static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
@@ -247,6 +246,9 @@ void draw_stuff(void)
 	Frustum lightFrustum;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+
+	GLenum drawBuffers[] = { GL_NONE };
+	glDrawBuffers(1, drawBuffers);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
@@ -347,11 +349,23 @@ void draw_stuff(void)
 
 
 
+//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	/*if (fbo_handle == 0)
+	{
+		GLenum drawBuffers[] = { GL_NONE };
+		glDrawBuffers(1, drawBuffers);
+	}
+	else
+	{
+		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, drawBuffers);
+	}*/
 
+	
 	// reset camera matrices
 
 	if (false == screenshot_mode)
@@ -776,7 +790,13 @@ void use_buffers(void)
 
 void display_func(void)
 {
-	draw_stuff();
+	draw_stuff(shadowFBO);
+	use_buffers();
+
+	draw_stuff(offscreen_fbo);
+	use_buffers();
+
+	draw_stuff(0);
 	use_buffers();
 
 	if (false == screenshot_mode)
