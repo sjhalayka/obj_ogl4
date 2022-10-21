@@ -547,10 +547,10 @@ void use_buffers(void)
 	glUseProgram(tex_passthrough.get_program());
 
 	// bind texture to third texture
-	glActiveTexture(GL_TEXTURE8);
+	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
 
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "tex"), 8);
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "tex"), 12);
 
 
 	// bind the vao
