@@ -20,13 +20,13 @@ layout(location = 0) out vec4 frag_colour;
 
 float to_distance(float depth_colour)
 {
-    float distance = (2.0 * near * far) / (far + near - depth_colour * (far - near));	
-    return distance;
+    float dist = (2.0*near*far) / (far + near - depth_colour*(far - near));	
+    return dist;
 }
 
-float to_depth(float distance)
+float to_depth(float dist)
 {
-    float depth = (far*(distance - 2.0*near) + near*distance)/(distance*(far - near));
+    float depth = (far*(dist - 2.0*near) + near*dist)/(dist*(far - near));
     return depth;
 }
 
@@ -45,7 +45,7 @@ void main()
     
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-			blurred_colour += texture( colour_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);		
+			blurred_colour += texture( colour_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);	
     
     // Output to screen
     blurred_colour /= quality * directions;// - 15.0;
@@ -53,23 +53,20 @@ void main()
 	vec4 unblurred_colour = texture(colour_tex, ftexcoord);
 
 	float depth_colour = texture(depth_tex, ftexcoord).r;
-
-    depth_colour = pow(depth_colour, 100.0);
  
-    float d = to_distance(depth_colour);
-
-    depth_colour = to_depth(d);
+    float distance_to_pixel = to_distance(depth_colour);
 
 
 
-//    float d = distance(to_distance(depth_colour), model_distance);
+    float x = clamp(abs(distance_to_pixel - model_distance) / model_distance, 0.0, 1.0);
 
-//    d = to_depth(d);
+     x = max(1 - x, 0);
 
-//    d = (0.5 - distance(d, depth_colour)*2.0;
+     x = 1.0 - pow(x, 1.0/10.0);
 
 
-    frag_colour.rgb = vec3(mix(unblurred_colour, blurred_colour, depth_colour));
+
+    frag_colour.rgb = vec3(mix(unblurred_colour, blurred_colour, x));
     frag_colour.a = 1.0;
 }
 
