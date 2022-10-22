@@ -27,25 +27,18 @@ void main()
    
     vec2 radius = vec2(size/img_size.x, size/img_size.y);
     
-    // Normalized pixel coordinates (from 0 to 1)
-    vec2 uv = ftexcoord;///img_size.xy;
-    // Pixel colour
-    vec4 blurred_colour = texture(colour_tex, uv);
+    vec4 blurred_colour = texture(colour_tex, ftexcoord);
     
-    // Blur calculations
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
-    {
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-        {
-			blurred_colour += texture( colour_tex, uv+vec2(cos(d),sin(d))*radius*i);		
-        }
-    }
+			blurred_colour += texture( colour_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);		
     
     // Output to screen
-    blurred_colour /= quality * directions - 15.0;
-	vec4 unblurred_colour = texture(colour_tex, uv);
+    blurred_colour /= quality * directions;// - 15.0;
 
-	float depth_colour = texture(depth_tex, uv).r;
+	vec4 unblurred_colour = texture(colour_tex, ftexcoord);
+
+	float depth_colour = texture(depth_tex, ftexcoord).r;
 	depth_colour = pow(depth_colour, 100.0);
 
     frag_colour.r = (1.0f - depth_colour) * unblurred_colour.r + depth_colour * blurred_colour.r;
