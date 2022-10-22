@@ -13,6 +13,15 @@ in vec2 ftexcoord;
 layout(location = 0) out vec4 frag_colour;
 
 
+float gauss(float x, float x0, float sx){
+    
+    float arg = x-x0;
+    arg = -1./2.*arg*arg/sx;
+    
+    float a = 1./(pow(2.*3.1415*sx, 0.5));
+    
+    return a*exp(arg);
+}
 
 
 // https://www.shadertoy.com/view/Xltfzj
@@ -23,7 +32,6 @@ void main()
     float directions = 4.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
     float size = 8.0; // BLUR size (radius)
-
    
     vec2 radius = vec2(size/img_size.x, size/img_size.y);
     
@@ -41,9 +49,9 @@ void main()
 	float depth_colour = texture(depth_tex, ftexcoord).r;
 	depth_colour = pow(depth_colour, 100.0);
 
-    frag_colour.r = (1.0f - depth_colour) * unblurred_colour.r + depth_colour * blurred_colour.r;
-	frag_colour.g = (1.0f - depth_colour) * unblurred_colour.g + depth_colour * blurred_colour.g;
-	frag_colour.b = (1.0f - depth_colour) * unblurred_colour.b + depth_colour * blurred_colour.b;
+    //depth_colour = pow(gauss(0.0, 1.0, depth_colour), 1.0);//smoothstep(0.0, 1.0, depth_colour);//pow(abs( depth_colour - 0.5)*2.0, 1100.0);
+
+    frag_colour.rgb = vec3(mix(unblurred_colour, blurred_colour, depth_colour));
     frag_colour.a = 1.0;
 }
 
