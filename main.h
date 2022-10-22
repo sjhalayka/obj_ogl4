@@ -98,6 +98,11 @@ bool screenshot_mode = false;
 
 
 
+void take_screenshot2(size_t num_cams_wide, const char* filename);
+
+
+
+
 void take_screenshot(size_t num_cams_wide, const char* filename, const bool reverse_rows = false)
 {
 	screenshot_mode = true;
