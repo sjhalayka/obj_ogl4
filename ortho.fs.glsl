@@ -56,7 +56,7 @@ void main()
 			blurred_colour += texture( colour_tex, ftexcoord + vec2(cos(d),sin(d))*radius*x*i);	
     
     // Output to screen
-    blurred_colour /= quality * directions;// - 15.0;
+    blurred_colour /= quality * directions - 15.0;
 
     frag_colour.rgb = blurred_colour.rgb;//vec3(mix(unblurred_colour, blurred_colour, x));
     frag_colour.a = 1.0;
