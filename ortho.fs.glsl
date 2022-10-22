@@ -5,6 +5,12 @@ uniform sampler2D colour_tex; // texture uniform
 
 uniform int img_width;
 uniform int img_height;
+uniform float model_distance;
+uniform float near;
+uniform float far;
+
+
+
 
 vec2 img_size = vec2(img_width, img_height);
 
@@ -12,6 +18,17 @@ in vec2 ftexcoord;
 
 layout(location = 0) out vec4 frag_colour;
 
+float to_distance(float depth_colour)
+{
+    float distance = (2.0 * near * far) / (far + near - depth_colour * (far - near));	
+    return distance;
+}
+
+float to_depth(float distance)
+{
+    float depth = (far*(distance - 2.0*near) + near*distance)/(distance*(far - near));
+    return depth;
+}
 
 // https://www.shadertoy.com/view/Xltfzj
 void main()
@@ -37,21 +54,20 @@ void main()
 
 	float depth_colour = texture(depth_tex, ftexcoord).r;
 
-    float minVal = 0.99;
-    depth_colour = (depth_colour - minVal) / (1.0f - minVal);
+    depth_colour = pow(depth_colour, 100.0);
+ 
+    float d = to_distance(depth_colour);
+
+    depth_colour = to_depth(d);
 
 
-//    depth_colour = abs(depth_colour - 0.5)*2.0;
 
-//	depth_colour = pow(depth_colour, 100.0);
+//    float d = distance(to_distance(depth_colour), model_distance);
 
-    //depth_colour = 1.0 - cubicPulse(0.0, 1.0, depth_colour);
+//    d = to_depth(d);
 
-    //depth_colour = pow(depth_colour, 100.0);
+//    d = (0.5 - distance(d, depth_colour)*2.0;
 
-    //depth_colour = cos(depth_colour);//abs(0.5 - depth_colour)*2.0;
-
-    //depth_colour = smoothstep(0.0, 1.0, depth_colour);//pow(abs( depth_colour - 0.5)*2.0, 1100.0);
 
     frag_colour.rgb = vec3(mix(unblurred_colour, blurred_colour, depth_colour));
     frag_colour.a = 1.0;

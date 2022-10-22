@@ -565,6 +565,20 @@ void use_buffers(void)
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
 
+	vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
+
+	vec3 m2 = main_camera.eye;
+	
+	vec3 diff = m - m2;
+
+	float d = diff.length();
+
+	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), d);
+	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
+	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
+
+
+
 
 	// bind the vao
 	glBindVertexArray(vao);
