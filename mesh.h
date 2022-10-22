@@ -130,8 +130,6 @@ public:
 		glEnd();
 	}
 
-	bool read_triangles_from_binary_stereo_lithography_file(const char* const file_name, bool randomize_tris);
-
 	bool read_triangles_from_wavefront_obj_file(const char* const file_name)
 	{
 		triangles.clear();
@@ -381,8 +379,6 @@ public:
 
 
 	void draw(GLint render_shader_program, int win_x, int win_y);
-
-	void draw_AABB(void);
 
 	vec3 geodesic_dir;
 	vec3 geodesic_left;
