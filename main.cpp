@@ -114,6 +114,7 @@ void init_offscreen_fbo(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	glActiveTexture(GL_TEXTURE12);
 	glGenTextures(1, &offscreen_colour_tex);
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
@@ -211,7 +212,7 @@ bool init_opengl(const int& width, const int& height)
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 
 	// Assign the depth buffer texture to texture channel 0
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, depthTex);
 
 	glGenFramebuffers(1, &shadowFBO);
@@ -257,7 +258,7 @@ void draw_stuff(GLuint fbo_handle)
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
 
-	glActiveTexture(GL_TEXTURE0);
+	//glActiveTexture(GL_TEXTURE0);
 
 	mat4 lightPV, shadowBias;
 	Frustum lightFrustum;
@@ -299,7 +300,7 @@ void draw_stuff(GLuint fbo_handle)
 	lightFrustum.orient(lightPos, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
 	lightFrustum.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
 
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE4);
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 0);
 
 	mat4 model = mat4(1.0f);
@@ -478,8 +479,6 @@ void use_buffers(GLuint frame_buffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
 
 	// vao and vbo handle
 	GLuint vao, vbo, ibo;
@@ -668,162 +667,12 @@ void passive_motion_func(int x, int y)
 
 
 
-void take_screenshot(size_t num_cams_wide, const char* filename)
-{
-	const size_t old_width = win_x;
-	const size_t old_height = win_y;
-
-	win_x = win_x * num_cams_wide;
-	win_y = win_y * num_cams_wide;
-
-	
-	main_camera.calculate_camera_matrices(win_x, win_y);
-
-
-
-	glViewport(0, 0, win_x, win_y);
-
-
-	GLuint      fbo = 0;
-	GLuint      fbo_tex[2] = { 0, 0 };
-	GLuint      quad_vao = 0;
-
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	glGenTextures(2, fbo_tex);
-
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[1]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo_tex[0], 0);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fbo_tex[1], 0);
-
-	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, draw_buffers);
-
-	glUseProgram(shadow_map.get_program());
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
-
-	draw_stuff(fbo);
-	use_buffers(fbo);
-
-
-
-
-	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
-
-	glGenVertexArrays(1, &quad_vao);
-
-	glDisable(GL_DEPTH_TEST);
-	glBindVertexArray(quad_vao);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDeleteVertexArrays(1, &quad_vao);
-
-	glFlush();
-
-
-
-	vector<unsigned char> output_pixels(win_x * win_y * 4);
-
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glReadPixels(0, 0, win_x, win_y, GL_RGBA, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-
-	// Set up Targa TGA image data.
-	unsigned char  idlength = 0;
-	unsigned char  colourmaptype = 0;
-	unsigned char  datatypecode = 2;
-	unsigned short int colourmaporigin = 0;
-	unsigned short int colourmaplength = 0;
-	unsigned char  colourmapdepth = 0;
-	unsigned short int x_origin = 0;
-	unsigned short int y_origin = 0;
-
-	unsigned short int px = win_x;
-	unsigned short int py = win_y;
-	unsigned char  bitsperpixel = 32;
-	unsigned char  imagedescriptor = 0;
-	vector<char> idstring;
-
-	for (size_t i = 0; i < win_x; i++)
-	{
-		for (size_t j = 0; j < win_y; j++)
-		{
-			size_t index = 4 * (j * win_x + i);
-
-			unsigned char temp_char;
-			temp_char = output_pixels[index + 0];
-			output_pixels[index + 0] = output_pixels[index + 2];
-			output_pixels[index + 2] = temp_char;
-			output_pixels[index + 3] = 255;
-		}
-	}
-
-	// Write Targa TGA file to disk.
-	ofstream out(filename, ios::binary);
-
-	if (!out.is_open())
-	{
-		cout << "Failed to open TGA file for writing: " << filename << endl;
-		return;
-	}
-
-	out.write(reinterpret_cast<char*>(&idlength), 1);
-	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
-	out.write(reinterpret_cast<char*>(&datatypecode), 1);
-	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
-	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
-	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
-	out.write(reinterpret_cast<char*>(&x_origin), 2);
-	out.write(reinterpret_cast<char*>(&y_origin), 2);
-	out.write(reinterpret_cast<char*>(&px), 2);
-	out.write(reinterpret_cast<char*>(&py), 2);
-	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
-	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
-
-	out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 4 * sizeof(unsigned char));
-
-	out.close();
-
-
-
-
-	glDeleteFramebuffers(1, &fbo);
-	glDeleteTextures(2, fbo_tex);
-
-
-	win_x = old_width;
-	win_y = old_height;
-
-
-	main_camera.calculate_camera_matrices(win_x, win_y);
-	glViewport(0, 0, win_x, win_y);
-
-	glutSwapBuffers();
-}
-
-
 
 
 void take_screenshot2(size_t num_cams_wide, const char* filename)
 {
+	screenshot_mode = true;
+
 	const size_t old_width = win_x;
 	const size_t old_height = win_y;
 
@@ -832,41 +681,17 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	glViewport(0, 0, win_x, win_y);
 
-	GLuint      fbo = 0;
-	GLuint      fbo_tex[2] = { 0, 0 };
 	GLuint quad_vao = 0;
 
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	glGenTextures(2, fbo_tex);
-
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[1]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo_tex[0], 0);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fbo_tex[1], 0);
-
-	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
-
-	glDrawBuffers(1, draw_buffers);
-
 	glEnable(GL_DEPTH_TEST);
+
+
+	init_offscreen_fbo();
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
 
-	glEnable(GL_DEPTH_TEST);
 
 	glUseProgram(shadow_map.get_program());
 
@@ -874,7 +699,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 
 
-	init_offscreen_fbo();
 
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
@@ -883,12 +707,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	draw_stuff(offscreen_fbo);
 	use_buffers(offscreen_fbo);
 
-
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, fbo_tex[1]);
 
 	glGenVertexArrays(1, &quad_vao);
 
@@ -968,12 +786,11 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	win_y = old_height;
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
+	screenshot_mode = false;
+
 	init_offscreen_fbo();
-	glViewport(0, 0, win_x, win_y);
+	//glViewport(0, 0, win_x, win_y);
 
-
-	glDeleteFramebuffers(1, &fbo);
-	glDeleteTextures(2, fbo_tex);
 }
 
 
