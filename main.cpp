@@ -79,15 +79,6 @@ int main(int argc, char** argv)
 
 void idle_func(void)
 {
-	//static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-	//std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-	//std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
-
-	//float x = elapsed.count() / 1000.0f;
-	//x *= 0.25f;
-
-	//start_time = std::chrono::high_resolution_clock::now();
-
 	glutPostRedisplay();
 }
 
@@ -102,9 +93,6 @@ void init_offscreen_fbo(void)
 
 	if (offscreen_depth_tex != 0)
 		glDeleteTextures(1, &offscreen_depth_tex);
-
-
-
 
 	glActiveTexture(GL_TEXTURE7);
 	glGenTextures(1, &offscreen_depth_tex);
@@ -124,32 +112,17 @@ void init_offscreen_fbo(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
-
-
 	glGenFramebuffers(1, &offscreen_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
 
-
-
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-		GL_TEXTURE_2D, offscreen_colour_tex, 0);
-
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
 		GL_TEXTURE_2D, offscreen_depth_tex, 0);
 
-
-
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D, offscreen_colour_tex, 0);
 
 	GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, drawBuffers);
-
-
-
 
 }
 
@@ -199,21 +172,14 @@ bool init_opengl(const int& width, const int& height)
 
 
 
-
+	glActiveTexture(GL_TEXTURE4);
 	glGenTextures(1, &depthTex);
 	glBindTexture(GL_TEXTURE_2D, depthTex);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
 
 	// Assign the depth buffer texture to texture channel 0
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, depthTex);
 
 	glGenFramebuffers(1, &shadowFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
@@ -258,15 +224,10 @@ void draw_stuff(GLuint fbo_handle)
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
 
-	//glActiveTexture(GL_TEXTURE0);
-
 	mat4 lightPV, shadowBias;
 	Frustum lightFrustum;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-
-	GLenum drawBuffers[] = { GL_NONE };
-	glDrawBuffers(1, drawBuffers);
 
 	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
@@ -301,7 +262,7 @@ void draw_stuff(GLuint fbo_handle)
 	lightFrustum.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
 
 	glActiveTexture(GL_TEXTURE4);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 0);
+	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 4);
 
 	mat4 model = mat4(1.0f);
 	mat4 view = lightFrustum.getViewMatrix();
@@ -363,8 +324,6 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-	glFlush();
-
 
 
 
@@ -373,14 +332,7 @@ void draw_stuff(GLuint fbo_handle)
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
-
-	 drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
-
-	// reset camera matrices
-
-	if (false == screenshot_mode)
-		main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	model = mat4(1.0f);
 	view = main_camera.view_mat;
@@ -470,7 +422,6 @@ void draw_stuff(GLuint fbo_handle)
 	draw_axis(shadow_map.get_program());
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
-	glFlush();
 
 }
 
@@ -511,7 +462,7 @@ void use_buffers(GLuint frame_buffer)
 
 	// set up generic attrib pointers
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (char*)0 + 0 * sizeof(GLfloat));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (char*)0 + 3 * sizeof(GLfloat));
@@ -536,21 +487,16 @@ void use_buffers(GLuint frame_buffer)
 	// use the shader program
 	glUseProgram(tex_passthrough.get_program());
 
-
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "depth_tex"), 7);
-
 
 	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "colour_tex"), 12);
 
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
-
 
 	const vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
 	const vec3 m2 = main_camera.eye;	
@@ -580,21 +526,10 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	if (false == screenshot_mode)
-		draw_stuff(offscreen_fbo);
-	else
-		draw_stuff(0);
-	
-	glFlush();
-
-
+	draw_stuff(offscreen_fbo);
 	use_buffers(0);
-	
-	glFlush();
 
-	if(false == screenshot_mode)
-		glutSwapBuffers();
+	glutSwapBuffers();
 }
 
 
@@ -785,7 +720,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	screenshot_mode = false;
 
 	init_offscreen_fbo();
-	//glViewport(0, 0, win_x, win_y);
 
 }
 

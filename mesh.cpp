@@ -64,7 +64,7 @@ void mesh::draw(GLint render_shader_program,
 	const size_t tex_height = h;
 
 	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, tex_handle);
 	glGenTextures(1, &tex_handle);
 
@@ -76,7 +76,7 @@ void mesh::draw(GLint render_shader_program,
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 
 
-	glUniform1i(glGetUniformLocation(render_shader_program, "colour_tex"), 1);
+	glUniform1i(glGetUniformLocation(render_shader_program, "colour_tex"), 2);
 
 	GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data.size()) / components_per_vertex;
 
