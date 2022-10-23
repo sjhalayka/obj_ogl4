@@ -66,9 +66,10 @@ vec4 get_blurred_pixel(vec2 tc)
 // https://www.blitzcoder.org/forum/topic.php?id=124
 void main()
 {
-//    frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb;
-//       frag_colour.a = 1.0f;
-//  return;
+    frag_colour.rgb = texture(colour_tex, ftexcoord).rgb;//get_blurred_pixel(ftexcoord).rgb;
+       frag_colour.a = 1.0f;
+
+    return;
 
      float FXAA_SPAN_MAX = 8.0;
     float FXAA_REDUCE_MUL = 1.0/8.0;
