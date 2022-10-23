@@ -122,9 +122,9 @@ void main()
     float lumaB = dot(rgbB, luma);
 
     if((lumaB < lumaMin) || (lumaB > lumaMax)){
-        frag_colour.xyz=rgbA;
+        frag_colour.rgb=rgbA;
     }else{
-        frag_colour.xyz=rgbB;
+        frag_colour.rgb=rgbB;
     }
 
     frag_colour.a = 1.0;

@@ -91,6 +91,68 @@ void idle_func(void)
 	glutPostRedisplay();
 }
 
+
+void init_offscreen_fbo(void)
+{
+	if (offscreen_fbo != 0)
+		glDeleteFramebuffers(1, &offscreen_fbo);
+
+	if(offscreen_colour_tex != 0)
+		glDeleteTextures(1, &offscreen_colour_tex);
+
+	if (offscreen_depth_tex != 0)
+		glDeleteTextures(1, &offscreen_depth_tex);
+
+
+
+
+	glActiveTexture(GL_TEXTURE7);
+	glGenTextures(1, &offscreen_depth_tex);
+	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glActiveTexture(GL_TEXTURE12);
+	glGenTextures(1, &offscreen_colour_tex);
+	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+
+
+	glGenFramebuffers(1, &offscreen_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+
+
+
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D, offscreen_colour_tex, 0);
+
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+		GL_TEXTURE_2D, offscreen_depth_tex, 0);
+
+
+
+
+	GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, drawBuffers);
+
+
+
+
+}
+
+
 bool init_opengl(const int& width, const int& height)
 {
 	win_x = width;
@@ -161,59 +223,7 @@ bool init_opengl(const int& width, const int& height)
 	glDrawBuffers(1, drawBuffers);
 
 
-
-
-
-
-
-
-
-	glActiveTexture(GL_TEXTURE7);
-	glGenTextures(1, &offscreen_depth_tex);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glActiveTexture(GL_TEXTURE12);
-	glGenTextures(1, &offscreen_colour_tex);
-	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-
-
-
-
-	glGenFramebuffers(1, &offscreen_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
-
-
-
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-		GL_TEXTURE_2D, offscreen_colour_tex, 0);
-
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-		GL_TEXTURE_2D, offscreen_depth_tex, 0);
-
-	
-
-
-	drawBuffers[0] = GL_COLOR_ATTACHMENT0;
-	glDrawBuffers(1, drawBuffers);
-
-
-
-
-
-
-
-
+	init_offscreen_fbo();
 
 
 	return true;
@@ -235,6 +245,8 @@ void reshape_func(int width, int height)
 	glViewport(0, 0, win_x, win_y);
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
+
+	init_offscreen_fbo();
 }
 
 
@@ -366,7 +378,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	// reset camera matrices
 
-	if (false == screenshot_mode)
+//	if (false == screenshot_mode)
 		main_camera.calculate_camera_matrices(win_x, win_y);
 
 	model = mat4(1.0f);
@@ -426,6 +438,11 @@ void draw_stuff(GLuint fbo_handle)
 
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
+
+
+		// Draw outlines
+
+
 
 		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
 
@@ -517,26 +534,6 @@ void use_buffers(GLuint frame_buffer)
 	glBindVertexArray(0);
 
 
-	// texture handle
-	//GLuint texture;
-
-	//glActiveTexture(GL_TEXTURE3);
-
-	//// generate texture
-	//glGenTextures(1, &texture);
-
-	//// bind the texture
-	//glBindTexture(GL_TEXTURE_2D, texture);
-
-	//// set texture parameters
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	//// set texture content
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win_x, win_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &target_pixels[0]);
-
 	// use the shader program
 	glUseProgram(tex_passthrough.get_program());
 
@@ -577,8 +574,6 @@ void use_buffers(GLuint frame_buffer)
 	glDeleteBuffers(1, &ibo);
 
 	glFlush();
-
-	//glDeleteTextures(1, &texture);
 }
 
 
@@ -586,36 +581,26 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, win_x, win_y);
-	draw_stuff(offscreen_fbo);
+
+	if (false == screenshot_mode)
+		draw_stuff(offscreen_fbo);
+	else
+		draw_stuff(0);
+	
+	glFlush();
+
 	use_buffers(0);
+	
+	glFlush();
 
-	glutSwapBuffers();
+	if(false == screenshot_mode)
+		glutSwapBuffers();
 }
 
 
 
 
 
-void keyboard_func(unsigned char key, int x, int y)
-{
-	switch (tolower(key))
-	{
-	case 'm':
-		take_screenshot(4, "out.tga");// , const bool reverse_rows = false)
-		break;
-
-	case 'a':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] + 0.1f ;// vec4(n_up * displacement, 1.0f);
-		break;
-
-	case 's':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
-
-	default:
-		break;
-	}
-}
 
 void mouse_func(int button, int state, int x, int y)
 {
@@ -685,9 +670,6 @@ void passive_motion_func(int x, int y)
 
 void take_screenshot(size_t num_cams_wide, const char* filename)
 {
-	screenshot_mode = true;
-
-
 	const size_t old_width = win_x;
 	const size_t old_height = win_y;
 
@@ -697,7 +679,6 @@ void take_screenshot(size_t num_cams_wide, const char* filename)
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glViewport(0, 0, win_x, win_y);
-
 
 
 	GLuint      fbo = 0;
@@ -752,6 +733,7 @@ void take_screenshot(size_t num_cams_wide, const char* filename)
 
 	glDeleteVertexArrays(1, &quad_vao);
 
+	glFlush();
 
 
 
@@ -830,6 +812,138 @@ void take_screenshot(size_t num_cams_wide, const char* filename)
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
 	glViewport(0, 0, win_x, win_y);
-	screenshot_mode = false;
 
+	glutSwapBuffers();
+}
+
+
+
+
+	void take_screenshot3(size_t num_cams_wide, const char* filename, const bool reverse_rows = false)
+	{
+		screenshot_mode = true;
+
+		// Set up Targa TGA image data.
+		unsigned char  idlength = 0;
+		unsigned char  colourmaptype = 0;
+		unsigned char  datatypecode = 2;
+		unsigned short int colourmaporigin = 0;
+		unsigned short int colourmaplength = 0;
+		unsigned char  colourmapdepth = 0;
+		unsigned short int x_origin = 0;
+		unsigned short int y_origin = 0;
+
+		cout << "Image size: " << static_cast<size_t>(win_x) * num_cams_wide << "x" << static_cast<size_t>(win_y) * num_cams_wide << " pixels" << endl;
+
+		if (static_cast<size_t>(win_x) * num_cams_wide > static_cast<unsigned short>(-1) ||
+			static_cast<size_t>(win_y) * num_cams_wide > static_cast<unsigned short>(-1))
+		{
+			cout << "Image too large. Maximum width and height is " << static_cast<unsigned short>(-1) << endl;
+			return;
+		}
+
+		unsigned short int px = win_x * static_cast<unsigned short>(num_cams_wide);
+		unsigned short int py = win_y * static_cast<unsigned short>(num_cams_wide);
+		unsigned char  bitsperpixel = 24;
+		unsigned char  imagedescriptor = 0;
+		vector<char> idstring;
+
+		size_t num_bytes = 3 * px * py;
+		vector<unsigned char> pixel_data(num_bytes);
+
+		vector<unsigned char> fbpixels(3 * win_x * win_y);
+
+		const size_t total_cams = num_cams_wide * num_cams_wide;
+		size_t cam_count = 0;
+		// Loop through subcameras.
+		for (size_t cam_num_x = 0; cam_num_x < num_cams_wide; cam_num_x++)
+		{
+			for (size_t cam_num_y = 0; cam_num_y < num_cams_wide; cam_num_y++)
+			{
+				cout << "Camera: " << cam_count + 1 << " of " << total_cams << endl;
+
+				// Set up camera, draw, then copy the frame buffer.
+				main_camera.Set_Large_Screenshot(num_cams_wide, cam_num_x, cam_num_y, win_x, win_y);
+
+
+
+				display_func();
+				glReadPixels(0, 0, win_x, win_y, GL_RGB, GL_UNSIGNED_BYTE, &fbpixels[0]);
+
+				// Copy pixels to large image.
+				for (GLint i = 0; i < win_x; i++)
+				{
+					for (GLint j = 0; j < win_y; j++)
+					{
+						size_t fb_index = 3 * (j * win_x + i);
+
+						size_t screenshot_x = cam_num_x * win_x + i;
+						size_t screenshot_y = cam_num_y * win_y + j;
+						size_t screenshot_index = 3 * (screenshot_y * (win_x * num_cams_wide) + screenshot_x);
+
+						pixel_data[screenshot_index] = fbpixels[fb_index + 2];
+						pixel_data[screenshot_index + 1] = fbpixels[fb_index + 1];
+						pixel_data[screenshot_index + 2] = fbpixels[fb_index];
+					}
+				}
+
+				cam_count++;
+			}
+
+		}
+
+		screenshot_mode = false;
+
+		main_camera.calculate_camera_matrices(win_x, win_y);
+
+		// Write Targa TGA file to disk.
+		ofstream out(filename, ios::binary);
+
+		if (!out.is_open())
+		{
+			cout << "Failed to open TGA file for writing: " << filename << endl;
+			return;
+		}
+
+		out.write(reinterpret_cast<char*>(&idlength), 1);
+		out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+		out.write(reinterpret_cast<char*>(&datatypecode), 1);
+		out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+		out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+		out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+		out.write(reinterpret_cast<char*>(&x_origin), 2);
+		out.write(reinterpret_cast<char*>(&y_origin), 2);
+		out.write(reinterpret_cast<char*>(&px), 2);
+		out.write(reinterpret_cast<char*>(&py), 2);
+		out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+		out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+		out.write(reinterpret_cast<char*>(&pixel_data[0]), num_bytes);
+	}
+
+
+
+
+void keyboard_func(unsigned char key, int x, int y)
+{
+	switch (tolower(key))
+	{
+	case 'm':
+		take_screenshot(1, "out.tga");// , const bool reverse_rows = false)
+		//take_screenshot3(1, "out.tga");
+
+
+		break;
+
+	case 'a':
+		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
+		break;
+
+	case 's':
+		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
+		break;
+
+	default:
+		break;
+	}
 }

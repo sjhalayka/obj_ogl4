@@ -70,16 +70,16 @@ size_t shadowMapHeight = 8192;
 GLuint shadowFBO = 0, pass1Index = 0, pass2Index = 0;
 
 
-GLuint offscreen_fbo;
-GLuint offscreen_colour_tex;
-GLuint offscreen_depth_tex;
+GLuint offscreen_fbo = 0;
+GLuint offscreen_colour_tex = 0;
+GLuint offscreen_depth_tex = 0;
 
 
 
 uv_camera main_camera;
 
 GLint win_id = 0;
-GLint win_x = 800, win_y = 600;
+size_t win_x = 800, win_y = 600;
 
 float u_spacer = 0.01f;
 float v_spacer = 0.5f*u_spacer;
@@ -93,6 +93,7 @@ int mouse_y = 0;
 
 vec3 ray;
 vec3 collision_location;
+
 
 bool screenshot_mode = false;
 
@@ -321,6 +322,10 @@ void draw_axis(GLuint program)
 
 	glDeleteBuffers(1, &axis_buffer);
 }
+
+
+
+
 
 #endif
 
