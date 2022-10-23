@@ -152,7 +152,6 @@ bool init_opengl(const int& width, const int& height)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
-	glShadeModel(GL_SMOOTH);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
@@ -422,6 +421,8 @@ void draw_stuff(GLuint fbo_handle)
 	draw_axis(shadow_map.get_program());
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
+
+	glDisable(GL_DEPTH_TEST);
 
 }
 
