@@ -1,4 +1,4 @@
-#version 430
+    #version 430
 
 uniform sampler2D depth_tex; // texture uniform
 uniform sampler2D colour_tex; // texture uniform
@@ -42,9 +42,11 @@ void main()
 	float depth_colour = texture(depth_tex, ftexcoord).r;
  
     float distance_to_pixel = to_distance(depth_colour);
-    float x = clamp(distance(distance_to_pixel, model_distance) / model_distance, 0.0, 1.0);
+    float x = clamp((distance_to_pixel - model_distance) / model_distance, 0.0, 1.0);
    
-     x = max(1.0 - x, 0.0);
+   // tent function
+   if(x > 0.5)
+     x = 1.0 - x;
 
     x = 1.0 - pow(x, 1.0/10.0);
 
