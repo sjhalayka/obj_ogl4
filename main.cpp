@@ -601,7 +601,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(2, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot(4, "out.tga");// , const bool reverse_rows = false)
 		break;
 
 	case 'a':
@@ -683,9 +683,10 @@ void passive_motion_func(int x, int y)
 
 
 
-void take_screenshot2(size_t num_cams_wide, const char* filename)
+void take_screenshot(size_t num_cams_wide, const char* filename)
 {
 	screenshot_mode = true;
+
 
 	const size_t old_width = win_x;
 	const size_t old_height = win_y;
@@ -693,7 +694,10 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	win_x = win_x * num_cams_wide;
 	win_y = win_y * num_cams_wide;
 
+
 	glViewport(0, 0, win_x, win_y);
+
+
 
 	GLuint      fbo = 0;
 	GLuint      fbo_tex[2] = { 0, 0 };
@@ -726,10 +730,17 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
+
+
 	draw_stuff(fbo);
 	use_buffers(fbo);
 
-	glActiveTexture(GL_TEXTURE0);
+
+
+
+	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
 
 	glGenVertexArrays(1, &quad_vao);
@@ -819,7 +830,5 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	main_camera.calculate_camera_matrices(win_x, win_y);
 	glViewport(0, 0, win_x, win_y);
 	screenshot_mode = false;
-	glFlush();
-	glutSwapBuffers();
 
 }
