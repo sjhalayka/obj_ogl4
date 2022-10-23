@@ -700,10 +700,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 
 
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
-
-
 	draw_stuff(offscreen_fbo);
 	use_buffers(offscreen_fbo);
 
