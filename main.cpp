@@ -694,6 +694,7 @@ void take_screenshot(size_t num_cams_wide, const char* filename)
 	win_x = win_x * num_cams_wide;
 	win_y = win_y * num_cams_wide;
 
+	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glViewport(0, 0, win_x, win_y);
 
