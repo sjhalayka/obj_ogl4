@@ -8,11 +8,8 @@ uniform int img_height;
 uniform float model_distance;
 uniform float near;
 uniform float far;
-
-
-
-
-vec2 img_size = vec2(img_width, img_height);
+uniform int screenshot_mode;
+uniform int cam_factor;
 
 in vec2 ftexcoord;
 
@@ -49,13 +46,21 @@ vec4 get_blurred_pixel(vec2 tc)
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
     float size = 8.0; // BLUR size (radius)
-        vec2 radius = vec2(size/img_size.x, size/img_size.y);
+
+
+    vec2 radius = vec2(0, 0);
+    
+    if(screenshot_mode == 1)
+        radius = vec2(size / img_width * cam_factor, size / img_height * cam_factor);
+    else
+        radius = vec2(size / img_width, size / img_height);
+
 
    vec4 blurred_colour = texture(colour_tex, tc);
     
-    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
-		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-			blurred_colour += texture( colour_tex, tc + vec2(cos(d),sin(d))*radius*x*i);	
+    for(float d = 0.0; d < pi_times_2; d += pi_times_2 / directions)
+		for(float i = 1.0 / quality; i <= 1.0; i += 1.0/quality)
+			blurred_colour += texture(colour_tex, tc + vec2(cos(d), sin(d)) * radius * x * i);	
     
     // Output to screen
     blurred_colour /= quality * directions - 15.0;
@@ -67,20 +72,8 @@ vec4 get_blurred_pixel(vec2 tc)
 // https://www.blitzcoder.org/forum/topic.php?id=124
 void main()
 {
-frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb;
-frag_colour.a = 1.0;
-return;
-
-
-
-   frag_colour.rgb = texture(depth_tex, ftexcoord).rgb;
-
-   frag_colour.r = pow(frag_colour.r, 100.0);
-     frag_colour.g = pow(frag_colour.g, 100.0);
-       frag_colour.b = pow(frag_colour.b, 100.0);
-       frag_colour.a = 1;
-
-    
+    frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb;
+    frag_colour.a = 1.0;
 }
 
 

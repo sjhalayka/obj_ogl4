@@ -414,7 +414,8 @@ void draw_stuff(GLuint fbo_handle)
 	shadow = lightPV * model;
 
 	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
 
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
@@ -505,7 +506,8 @@ void use_buffers(GLuint frame_buffer)
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
-
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "screenshot_mode"), screenshot_mode);
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
 
 
 
@@ -730,7 +732,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(4, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 

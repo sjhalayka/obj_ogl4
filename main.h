@@ -80,6 +80,9 @@ uv_camera main_camera;
 
 GLint win_id = 0;
 size_t win_x = 800, win_y = 600;
+size_t cam_factor = 4;
+
+
 
 float u_spacer = 0.01f;
 float v_spacer = 0.5f*u_spacer;
