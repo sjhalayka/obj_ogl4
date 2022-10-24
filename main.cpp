@@ -407,7 +407,13 @@ void draw_stuff(GLuint fbo_handle)
 
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);		//glCullFace(GL_FRONT);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+
 		glPolygonMode(GL_FRONT, GL_LINES);
 		draw_triangle_lines(line_shader.get_program());
 		glPolygonMode(GL_FRONT, GL_FILL);
@@ -518,6 +524,10 @@ void use_buffers(GLuint frame_buffer)
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
 
+	if(screenshot_mode)
+		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
+	else
+		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), 1);
 
 
 
@@ -742,7 +752,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(4, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 

@@ -9,7 +9,7 @@ uniform float model_distance;
 uniform float near;
 uniform float far;
 
-
+uniform int cam_factor; 
 
 
 vec2 img_size = vec2(img_width, img_height);
@@ -49,7 +49,7 @@ vec4 get_blurred_pixel(vec2 tc)
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
     float size = 8.0; // BLUR size (radius)
-        vec2 radius = vec2(size/img_size.x, size/img_size.y);
+        vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
    vec4 blurred_colour = texture(colour_tex, tc);
     
