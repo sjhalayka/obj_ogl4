@@ -67,20 +67,8 @@ vec4 get_blurred_pixel(vec2 tc)
 // https://www.blitzcoder.org/forum/topic.php?id=124
 void main()
 {
-frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb;
-frag_colour.a = 1.0;
-return;
-
-
-
-   frag_colour.rgb = texture(depth_tex, ftexcoord).rgb;
-
-   frag_colour.r = pow(frag_colour.r, 100.0);
-     frag_colour.g = pow(frag_colour.g, 100.0);
-       frag_colour.b = pow(frag_colour.b, 100.0);
-       frag_colour.a = 1;
-
-    
+    frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb; // texture(colour_tex, ftexcoord).rgb;
+    frag_colour.a = 1.0;    
 }
 
 

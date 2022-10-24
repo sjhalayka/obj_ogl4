@@ -395,7 +395,7 @@ void draw_stuff(GLuint fbo_handle)
 
 		// Draw outlines
 
-		glDepthRange(0.01, 1.0); /* Draw overlying geometry */
+		glDepthRange(0.025, 1.0);
 
 		glUseProgram(line_shader.get_program());
 
@@ -413,11 +413,7 @@ void draw_stuff(GLuint fbo_handle)
 
 		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 2.0f);
 
-
-		glPolygonMode(GL_FRONT, GL_LINES);
 		draw_triangle_lines(line_shader.get_program());
-		glPolygonMode(GL_FRONT, GL_FILL);
-
 
 		glDepthRange(0.0, 1.0);
 
