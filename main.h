@@ -190,8 +190,9 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 
 void draw_axis(GLuint program)
 {
-	GLuint components_per_vertex = 6;
-	const GLuint components_per_normal = 3;
+	glUseProgram(program);
+
+	GLuint components_per_vertex = 3;
 	GLuint components_per_position = 3;
 
 	GLuint axis_buffer;
@@ -203,13 +204,7 @@ void draw_axis(GLuint program)
 	flat_data.push_back(0);
 	flat_data.push_back(0);
 	flat_data.push_back(1);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
 
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
 	flat_data.push_back(0);
 	flat_data.push_back(0);
 	flat_data.push_back(0);
@@ -227,18 +222,12 @@ void draw_axis(GLuint program)
 		components_per_vertex * sizeof(GLfloat),
 		NULL);
 
-	glEnableVertexAttribArray(glGetAttribLocation(program, "normal"));
-	glVertexAttribPointer(glGetAttribLocation(program, "normal"),
-		components_per_normal,
-		GL_FLOAT,
-		GL_TRUE,
-		components_per_vertex * sizeof(GLfloat),
-		(const GLvoid*)(components_per_position * sizeof(GLfloat)));
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0.0, 0.0, 1.0f);
+//	glUniform3f(glGetUniformLocation(program, "MaterialKd"), 0.0, 0.0, 1.0f);
 	glDrawArrays(GL_LINES, 0, num_vertices);
 
+	glDeleteBuffers(1, &axis_buffer);
 
+	return;
 
 
 	flat_data.clear();
@@ -269,14 +258,6 @@ void draw_axis(GLuint program)
 		GL_FALSE,
 		components_per_vertex * sizeof(GLfloat),
 		NULL);
-
-	glEnableVertexAttribArray(glGetAttribLocation(program, "normal"));
-	glVertexAttribPointer(glGetAttribLocation(program, "normal"),
-		components_per_normal,
-		GL_FLOAT,
-		GL_TRUE,
-		components_per_vertex * sizeof(GLfloat),
-		(const GLvoid*)(components_per_position * sizeof(GLfloat)));
 
 	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0.0, 1.0, 0.0f);
 	glDrawArrays(GL_LINES, 0, num_vertices);
@@ -311,14 +292,6 @@ void draw_axis(GLuint program)
 		GL_FALSE,
 		components_per_vertex * sizeof(GLfloat),
 		NULL);
-
-	glEnableVertexAttribArray(glGetAttribLocation(program, "normal"));
-	glVertexAttribPointer(glGetAttribLocation(program, "normal"),
-		components_per_normal,
-		GL_FLOAT,
-		GL_TRUE,
-		components_per_vertex * sizeof(GLfloat),
-		(const GLvoid*)(components_per_position * sizeof(GLfloat)));
 
 	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0, 0.0, 0.0f);
 	glDrawArrays(GL_LINES, 0, num_vertices);

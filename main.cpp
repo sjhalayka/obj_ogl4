@@ -379,6 +379,8 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
+		glUseProgram(shadow_map.get_program());
+
 		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
 
 		model = player_game_piece_meshes[i].model_mat;
@@ -391,29 +393,35 @@ void draw_stuff(GLuint fbo_handle)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
-		glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINE);
-		// Draw outlines
-		
-		glUseProgram(line_shader.get_program());
-
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-		//glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		//glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-		player_game_piece_meshes[i].draw(line_shader.get_program(), win_x, win_y);
-
-		glPolygonMode(GL_BACK, GL_FILL);
-		glCullFace(GL_BACK);
 
 
-		glPolygonMode(GL_FRONT, GL_FILL);
+		//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//// Draw outlines
+
+
+		//glUseProgram(line_shader.get_program());
+
+		//glUniformMatrix3fv(glGetUniformLocation(line_shader.get_program(), "u_model_matrix"), 1, GL_FALSE, &model[0][0]);	
+		//glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_view_matrix"), 1, GL_FALSE, &view[0][0]);
+		//glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_projection_matrix"), 1, GL_FALSE, &proj[0][0]);
+
+		//player_game_piece_meshes[i].draw(line_shader.get_program(), win_x, win_y);
+
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//glCullFace(GL_BACK);
+
+
+		//glPolygonMode(GL_FRONT, GL_FILL);
 
 
 
-		glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINE);
+
+
+
+
+		//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_LINE);
 
 		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
 		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
@@ -425,26 +433,26 @@ void draw_stuff(GLuint fbo_handle)
 		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
-		glPolygonMode(GL_BACK, GL_FILL);
-		glCullFace(GL_BACK);
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//glCullFace(GL_BACK);
 
 
-		glPolygonMode(GL_FRONT, GL_FILL);
+		//glPolygonMode(GL_FRONT, GL_FILL);
 	}
 
-	glUseProgram(shadow_map.get_program());
+	glUseProgram(line_shader.get_program());
 
 	model = mat4(1.0f);
 	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
 	shadow = lightPV * model;
 
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(line_shader.get_program(), "u_model_matrix"), 1, GL_FALSE, &model[0][0]);	
+glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_view_matrix"), 1, GL_FALSE, &view[0][0]);
+glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_projection_matrix"), 1, GL_FALSE, &proj[0][0]);
 
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-	draw_axis(shadow_map.get_program());
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+//	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+	draw_axis(line_shader.get_program());
+//	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 
 	glDisable(GL_DEPTH_TEST);
