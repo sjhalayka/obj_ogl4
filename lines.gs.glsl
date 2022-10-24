@@ -1,8 +1,19 @@
 #version 430
 layout (lines) in;                              // now we can access 2 vertices
 layout (triangle_strip, max_vertices = 4) out;  // always (for now) producing 2 triangles (so 4 vertices)
- vec2  u_viewportSize = vec2(800, 600);
+
+
+uniform int img_width;
+uniform int img_height;
+
+
+
+vec2  u_viewportSize = vec2(img_width, img_height);
  float u_thickness = 4;
+
+
+
+
 void main()
 {
     vec4 p1 = gl_in[0].gl_Position;

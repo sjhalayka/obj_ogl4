@@ -393,6 +393,18 @@ void draw_stuff(GLuint fbo_handle)
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
 
+		glUseProgram(line_shader.get_program());
+
+		model = player_game_piece_meshes[i].model_mat;
+		mat4 mvp = proj * view * model;
+
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);		//glCullFace(GL_FRONT);
+		glPolygonMode(GL_BACK, GL_FILL);
+		draw_axis(line_shader.get_program());
+
+
 
 		//glCullFace(GL_FRONT);
 		//glPolygonMode(GL_BACK, GL_FILL);
@@ -442,15 +454,11 @@ void draw_stuff(GLuint fbo_handle)
 // https://stackoverflow.com/questions/54686818/glsl-geometry-shader-to-replace-gllinewidth
 // https://github.com/Rabbid76/graphics-snippets/blob/master/example/cpp/opengl/example_shader_geometry_1_line.cpp
 
-	glUseProgram(line_shader.get_program());
 
-	model = mat4(1.0f);
-	mat4 mvp = proj * view * model;
+			//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_FILL);
 
-	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-
-
-	draw_axis(line_shader.get_program());
+	//draw_triangle_outlines(line_shader.get_program());
 }
 
 
@@ -531,14 +539,17 @@ void use_buffers(GLuint frame_buffer)
 	m.y = player_game_piece_meshes[0].get_centre().y;
 	m.z = player_game_piece_meshes[0].get_centre().z;
 
-	const vec3 m2 = main_camera.eye;	
+	const vec3 m2 = main_camera.eye;
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "screenshot_mode"), screenshot_mode);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "screenshot_mode"), 0);
 
+	if(screenshot_mode)
+		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
+	else
+		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), 1);
 
 
 	// bind the vao

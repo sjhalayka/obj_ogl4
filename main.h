@@ -51,9 +51,6 @@ vector<vec3> colours;
 
 
 
-vector<triangle> triangles;
-
-
 
 vertex_fragment_shader shadow_map;
 vertex_fragment_shader tex_passthrough;
@@ -186,6 +183,61 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 	return true;
 }
 
+//
+//void draw_triangle_outlines(GLuint program)
+//{
+//	GLuint components_per_vertex = 3;
+//	GLuint components_per_position = 3;
+//
+//	GLuint axis_buffer;
+//
+//	glGenBuffers(1, &axis_buffer);
+//
+//	vector<GLfloat> flat_data;
+//
+//	for (size_t t = 0; t < player_game_piece_meshes[0].triangles.size(); t++)
+//	{
+//		flat_data.push_back(triangles[t].vertex[0].x);
+//		flat_data.push_back(triangles[t].vertex[0].y);
+//		flat_data.push_back(triangles[t].vertex[0].z);
+//		flat_data.push_back(triangles[t].vertex[1].x);
+//		flat_data.push_back(triangles[t].vertex[1].y);
+//		flat_data.push_back(triangles[t].vertex[1].z);
+//
+//		flat_data.push_back(triangles[t].vertex[1].x);
+//		flat_data.push_back(triangles[t].vertex[1].y);
+//		flat_data.push_back(triangles[t].vertex[1].z);
+//		flat_data.push_back(triangles[t].vertex[2].x);
+//		flat_data.push_back(triangles[t].vertex[2].y);
+//		flat_data.push_back(triangles[t].vertex[2].z);
+//
+//		flat_data.push_back(triangles[t].vertex[2].x);
+//		flat_data.push_back(triangles[t].vertex[2].y);
+//		flat_data.push_back(triangles[t].vertex[2].z);
+//		flat_data.push_back(triangles[t].vertex[0].x);
+//		flat_data.push_back(triangles[t].vertex[0].y);
+//		flat_data.push_back(triangles[t].vertex[0].z);
+//	}
+//
+//
+//
+//	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+//	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+//
+//	glEnableVertexAttribArray(glGetAttribLocation(program, "position"));
+//	glVertexAttribPointer(glGetAttribLocation(program, "position"),
+//		components_per_position,
+//		GL_FLOAT,
+//		GL_FALSE,
+//		components_per_vertex * sizeof(GLfloat),
+//		NULL);
+//
+//	glDrawArrays(GL_LINES, 0, num_vertices);
+//
+//	glDeleteBuffers(1, &axis_buffer);
+//}
 
 
 void draw_axis(GLuint program)
@@ -199,26 +251,50 @@ void draw_axis(GLuint program)
 
 	vector<GLfloat> flat_data;
 
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(1);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
+	for (size_t t = 0; t < player_game_piece_meshes[0].triangles.size(); t++)
+	{
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].z);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].z);
 
-	flat_data.push_back(0);
-	flat_data.push_back(1);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].z);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].z);
 
-	flat_data.push_back(1);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].z);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].x);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].y);
+		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].z);
+	}
+
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+
+	//flat_data.push_back(0);
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//	
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
 
 	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
 
