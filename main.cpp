@@ -242,8 +242,7 @@ void draw_stuff(GLuint fbo_handle)
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 
 
-
-	shadow_map.use_program();
+	glUseProgram(shadow_map.get_program());
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 	GLuint programHandle = shadow_map.get_program();
@@ -440,23 +439,18 @@ void draw_stuff(GLuint fbo_handle)
 		//glPolygonMode(GL_FRONT, GL_FILL);
 	}
 
+// https://stackoverflow.com/questions/54686818/glsl-geometry-shader-to-replace-gllinewidth
+// https://github.com/Rabbid76/graphics-snippets/blob/master/example/cpp/opengl/example_shader_geometry_1_line.cpp
+
 	glUseProgram(line_shader.get_program());
 
 	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow = lightPV * model;
+	mat4 mvp = proj * view * model;
 
-	glUniformMatrix3fv(glGetUniformLocation(line_shader.get_program(), "u_model_matrix"), 1, GL_FALSE, &model[0][0]);	
-glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_view_matrix"), 1, GL_FALSE, &view[0][0]);
-glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_projection_matrix"), 1, GL_FALSE, &proj[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 
-//	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+
 	draw_axis(line_shader.get_program());
-//	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-
-	glDisable(GL_DEPTH_TEST);
-
 }
 
 
