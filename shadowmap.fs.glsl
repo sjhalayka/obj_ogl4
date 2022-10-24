@@ -1,6 +1,7 @@
 #version 430
 
 uniform sampler2DShadow shadow_map;
+uniform sampler2DShadow shadow_map2;
 
 uniform sampler2D colour_tex;
 
@@ -8,14 +9,15 @@ in vec2 ftexcoord;
 in vec3 Position;
 in vec3 Normal;
 in vec4 ShadowCoord;
-in vec3 Untransformed_Position;
+in vec4 ShadowCoord2;
+
 
 uniform vec4 LightPosition; // in view space
 uniform vec4 LightPosition_Untransformed; // in world space
 
-uniform vec3 piece_dir;
-uniform float dp_limit;
-uniform int highlight_move_region;
+uniform vec4 LightPosition2; // in view space
+uniform vec4 LightPosition_Untransformed2; // in world space
+
 
 uniform int flat_colour = 0;
 
@@ -88,6 +90,10 @@ void shadeWithShadow()
         shadow = textureProj(shadow_map, ShadowCoord);
     }
     
+    //if( ShadowCoord2.z >= 0.0 )
+   // {
+ //       shadow = textureProj(shadow_map2, ShadowCoord);
+    //}
     
     vec3 diffAndSpec;
     

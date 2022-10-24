@@ -62,12 +62,15 @@ int cam_factor = 8;
 
 // The depth buffer texture
 GLuint depthTex = 0;
+GLuint depthTex2 = 0;
 
 size_t shadowMapWidth = 8192;
 size_t shadowMapHeight = 8192;
 
 GLuint shadowFBO = 0, pass1Index = 0, pass2Index = 0;
+GLuint shadowFBO2 = 0;
 
+vec3 lightPos2;
 
 GLuint offscreen_fbo = 0;
 GLuint offscreen_colour_tex = 0;
