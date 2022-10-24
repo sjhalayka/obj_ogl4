@@ -168,11 +168,7 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
-	if (false == line_shader.init("lines.vs.glsl", "lines.gs.glsl", "lines.fs.glsl"))
-	{
-		cout << "Could not load line shader" << endl;
-		return false;
-	}
+
 
 
 	glActiveTexture(GL_TEXTURE4);
@@ -242,7 +238,8 @@ void draw_stuff(GLuint fbo_handle)
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 
 
-	glUseProgram(shadow_map.get_program());
+
+	shadow_map.use_program();
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 	GLuint programHandle = shadow_map.get_program();
@@ -378,10 +375,6 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
-		glDepthRange(0.0, 1.0); /* Draw underlying geometry */
-
-		glUseProgram(shadow_map.get_program());
-
 		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
 
 		model = player_game_piece_meshes[i].model_mat;
@@ -394,85 +387,43 @@ void draw_stuff(GLuint fbo_handle)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
-//		glCullFace(GL_FRONT);
+
+		glCullFace(GL_FRONT);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+
+		// Draw outlines
 
 
 
+		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
 
+		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
+		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
-		 glDepthRange(0.01, 1.0); /* Draw overlying geometry */
-
-		glUseProgram(line_shader.get_program());
-
-		model = player_game_piece_meshes[i].model_mat;
-		mat4 mvp = proj * view * model;
-
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);		//glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINES);
-		draw_axis(line_shader.get_program());
 		glPolygonMode(GL_BACK, GL_FILL);
+		glCullFace(GL_BACK);
 
 
-		glDepthRange(0.0, 1.0);
-
-
-	//	glCullFace(GL_BACK);
-
-		//glCullFace(GL_FRONT);
-		//glPolygonMode(GL_BACK, GL_FILL);
-		//// Draw outlines
-
-
-		//glUseProgram(line_shader.get_program());
-
-		//glUniformMatrix3fv(glGetUniformLocation(line_shader.get_program(), "u_model_matrix"), 1, GL_FALSE, &model[0][0]);	
-		//glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_view_matrix"), 1, GL_FALSE, &view[0][0]);
-		//glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_projection_matrix"), 1, GL_FALSE, &proj[0][0]);
-
-		//player_game_piece_meshes[i].draw(line_shader.get_program(), win_x, win_y);
-
-		//glPolygonMode(GL_BACK, GL_FILL);
-		//glCullFace(GL_BACK);
-
-
-		//glPolygonMode(GL_FRONT, GL_FILL);
-
-
-
-
-
-
-
-		//glCullFace(GL_FRONT);
-		//glPolygonMode(GL_BACK, GL_LINE);
-
-		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-
-		//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
-
-		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-		//glPolygonMode(GL_BACK, GL_FILL);
-		//glCullFace(GL_BACK);
-
-
-		//glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_FRONT, GL_FILL);
 	}
 
-// https://stackoverflow.com/questions/54686818/glsl-geometry-shader-to-replace-gllinewidth
-// https://github.com/Rabbid76/graphics-snippets/blob/master/example/cpp/opengl/example_shader_geometry_1_line.cpp
+	model = mat4(1.0f);
+	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
+	shadow = lightPV * model;
+
+	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
+
+	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+	draw_axis(shadow_map.get_program());
+	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
 
-			//glCullFace(GL_FRONT);
-		//glPolygonMode(GL_BACK, GL_FILL);
+	glDisable(GL_DEPTH_TEST);
 
-	//draw_triangle_outlines(line_shader.get_program());
 }
 
 
@@ -548,22 +499,14 @@ void use_buffers(GLuint frame_buffer)
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
-	vec3 m;
-	m.x = player_game_piece_meshes[0].get_centre().x;
-	m.y = player_game_piece_meshes[0].get_centre().y;
-	m.z = player_game_piece_meshes[0].get_centre().z;
-
-	const vec3 m2 = main_camera.eye;
+	const vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
+	const vec3 m2 = main_camera.eye;	
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "screenshot_mode"), 0);
 
-	if(screenshot_mode)
-		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
-	else
-		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), 1);
+
 
 
 	// bind the vao
@@ -787,7 +730,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(4, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 
