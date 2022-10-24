@@ -58,7 +58,7 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 
 
-int cam_factor = 4;
+int cam_factor = 8;
 
 // The depth buffer texture
 GLuint depthTex = 0;

@@ -395,9 +395,6 @@ void draw_stuff(GLuint fbo_handle)
 
 		// Draw outlines
 
-
-//		glCullFace(GL_FRONT);
-
 		glDepthRange(0.01, 1.0); /* Draw overlying geometry */
 
 		glUseProgram(line_shader.get_program());
@@ -414,6 +411,9 @@ void draw_stuff(GLuint fbo_handle)
 		else
 			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
+		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 2.0f);
+
+
 		glPolygonMode(GL_FRONT, GL_LINES);
 		draw_triangle_lines(line_shader.get_program());
 		glPolygonMode(GL_FRONT, GL_FILL);
@@ -421,10 +421,6 @@ void draw_stuff(GLuint fbo_handle)
 
 		glDepthRange(0.0, 1.0);
 
-
-
-
-		glCullFace(GL_BACK);
 	}
 
 	//model = mat4(1.0f);
