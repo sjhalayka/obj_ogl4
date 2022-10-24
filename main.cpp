@@ -168,7 +168,11 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
-
+	if (false == line_shader.init("lines.vs.glsl", "lines.gs.glsl", "lines.fs.glsl"))
+	{
+		cout << "Could not load line shader" << endl;
+		return false;
+	}
 
 
 	glActiveTexture(GL_TEXTURE4);
@@ -388,25 +392,74 @@ void draw_stuff(GLuint fbo_handle)
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
 
-		glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINE);
-
-
-		// Draw outlines
 
 
 
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
 
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
 
+
+
+				glCullFace(GL_FRONT);
+
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		 glDepthRange(0.01, 1.0); /* Draw overlying geometry */
+
+		glUseProgram(line_shader.get_program());
+
+		model = player_game_piece_meshes[i].model_mat;
+		mat4 mvp = proj * view * model;
+
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);		//glCullFace(GL_FRONT);
+		glPolygonMode(GL_BACK, GL_LINES);
+		draw_axis(line_shader.get_program());
 		glPolygonMode(GL_BACK, GL_FILL);
+
+
+		glDepthRange(0.0, 1.0);
+
+
+
+
 		glCullFace(GL_BACK);
 
 
-		glPolygonMode(GL_FRONT, GL_FILL);
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_LINE);
+
+
+		//// Draw outlines
+
+
+
+		//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
+
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//glCullFace(GL_BACK);
+
+
+		//glPolygonMode(GL_FRONT, GL_FILL);
 	}
 
 	model = mat4(1.0f);
