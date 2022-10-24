@@ -6,7 +6,7 @@
 #include "primitives.h"
 #include "mesh.h"
 #include "vertex_fragment_shader.h"
-
+#include "vertex_geometry_fragment_shader.h"
 
 #include <cstdlib>
 #include "GL/glew.h"
@@ -55,6 +55,7 @@ vector<vec3> colours;
 
 vertex_fragment_shader shadow_map;
 vertex_fragment_shader tex_passthrough;
+vertex_geometry_fragment_shader line_shader;
 
 
 
@@ -182,7 +183,7 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 }
 
 
-void draw_axis(GLuint program)
+void draw_triangle_lines(GLuint program)
 {
 	GLuint components_per_vertex = 3;
 	GLuint components_per_position = 3;
