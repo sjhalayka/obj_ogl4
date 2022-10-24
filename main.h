@@ -6,7 +6,7 @@
 #include "primitives.h"
 #include "mesh.h"
 #include "vertex_fragment_shader.h"
-
+#include "vertex_geometry_fragment_shader.h"
 
 #include <cstdlib>
 #include "GL/glew.h"
@@ -57,7 +57,7 @@ vector<triangle> triangles;
 
 vertex_fragment_shader shadow_map;
 vertex_fragment_shader tex_passthrough;
-
+vertex_geometry_fragment_shader line_shader;
 
 
 

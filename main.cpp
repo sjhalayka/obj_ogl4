@@ -168,7 +168,11 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
-
+	if (false == line_shader.init("lines.vs.glsl", "lines.gs.glsl", "lines.fs.glsl"))
+	{
+		cout << "Could not load line shader" << endl;
+		return false;
+	}
 
 
 	glActiveTexture(GL_TEXTURE4);
@@ -388,26 +392,54 @@ void draw_stuff(GLuint fbo_handle)
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
 
+
+
+
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
-
-
 		// Draw outlines
+		
+		glUseProgram(line_shader.get_program());
 
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
-
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
-
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-		glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+		player_game_piece_meshes[i].draw(line_shader.get_program(), win_x, win_y);
 
 		glPolygonMode(GL_BACK, GL_FILL);
 		glCullFace(GL_BACK);
 
 
 		glPolygonMode(GL_FRONT, GL_FILL);
+
+
+
+
+
+		//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_LINE);
+
+		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
+		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
+		//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
+
+		//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 0, 0, 0);
+
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
+		//player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
+		//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
+
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//glCullFace(GL_BACK);
+
+
+		glPolygonMode(GL_FRONT, GL_FILL);
 	}
+
+	glUseProgram(shadow_map.get_program());
 
 	model = mat4(1.0f);
 	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
