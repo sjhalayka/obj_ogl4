@@ -65,9 +65,18 @@ public:
 
 	mat4 model_mat;
 
-	vec3 min_location, max_location;
+	vertex_3 centre;
 
+	vertex_3 get_centre(void)
+	{
+		vec4 v = player_game_piece_meshes[0].model_mat[3];
 
+		vertex_3 ret(v.x, v.y, v.z);
+
+		ret.x += centre.x;
+		ret.y += centre.y;
+		ret.z += centre.z;
+	}
 
 	void std_strtok(const string& s, const string& regex_s, vector<string>& tokens)
 	{
@@ -356,11 +365,19 @@ public:
 				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
 				face_normal_counts[vtemp]++;
 
-
-
-
-
 				triangles.push_back(t);
+
+				centre.x += t.vertex[0].x;
+				centre.y += t.vertex[0].y;
+				centre.z += t.vertex[0].z;
+
+				centre.x += t.vertex[1].x;
+				centre.y += t.vertex[1].y;
+				centre.z += t.vertex[1].z;
+
+				centre.x += t.vertex[2].x;
+				centre.y += t.vertex[2].y;
+				centre.z += t.vertex[2].z;
 			}
 		}
 
@@ -371,10 +388,18 @@ public:
 		}
 
 
+		centre.x /= triangles.size() * 3;
+		centre.y /= triangles.size() * 3;
+		centre.z /= triangles.size() * 3;
+
+
 		init_opengl_data();
 
 		return true;
 	}
+
+
+
 
 
 

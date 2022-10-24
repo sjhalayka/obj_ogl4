@@ -391,12 +391,9 @@ void draw_stuff(GLuint fbo_handle)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
-
-
-
-
-		glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINE);
+		glDisable(GL_DEPTH_TEST);
+		//glCullFace(GL_FRONT);
+		//glPolygonMode(GL_BACK, GL_LINE);
 		// Draw outlines
 		
 		glUseProgram(line_shader.get_program());
@@ -404,18 +401,17 @@ void draw_stuff(GLuint fbo_handle)
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-
+		//glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		//glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 		player_game_piece_meshes[i].draw(line_shader.get_program(), win_x, win_y);
 
-		glPolygonMode(GL_BACK, GL_FILL);
-		glCullFace(GL_BACK);
+		//glPolygonMode(GL_BACK, GL_FILL);
+		//glCullFace(GL_BACK);
 
 
-		glPolygonMode(GL_FRONT, GL_FILL);
+		//glPolygonMode(GL_FRONT, GL_FILL);
 
-
+		glEnable(GL_DEPTH_TEST);
 
 
 
@@ -436,7 +432,7 @@ void draw_stuff(GLuint fbo_handle)
 		//glCullFace(GL_BACK);
 
 
-		glPolygonMode(GL_FRONT, GL_FILL);
+		//glPolygonMode(GL_FRONT, GL_FILL);
 	}
 
 	glUseProgram(shadow_map.get_program());
@@ -447,7 +443,6 @@ void draw_stuff(GLuint fbo_handle)
 
 	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
 
 	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
@@ -532,7 +527,11 @@ void use_buffers(GLuint frame_buffer)
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
-	const vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
+	vec3 m;
+	m.x = player_game_piece_meshes[0].get_centre().x;
+	m.y = player_game_piece_meshes[0].get_centre().y;
+	m.z = player_game_piece_meshes[0].get_centre().z;
+
 	const vec3 m2 = main_camera.eye;	
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
