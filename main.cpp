@@ -378,6 +378,8 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
+		glDepthRange(0.0, 1.0); /* Draw underlying geometry */
+
 		glUseProgram(shadow_map.get_program());
 
 		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
@@ -392,6 +394,13 @@ void draw_stuff(GLuint fbo_handle)
 
 		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
 
+//		glCullFace(GL_FRONT);
+
+
+
+
+
+		 glDepthRange(0.01, 1.0); /* Draw overlying geometry */
 
 		glUseProgram(line_shader.get_program());
 
@@ -401,10 +410,15 @@ void draw_stuff(GLuint fbo_handle)
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
 		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);		//glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_FILL);
+		glPolygonMode(GL_BACK, GL_LINES);
 		draw_axis(line_shader.get_program());
+		glPolygonMode(GL_BACK, GL_FILL);
 
 
+		glDepthRange(0.0, 1.0);
+
+
+	//	glCullFace(GL_BACK);
 
 		//glCullFace(GL_FRONT);
 		//glPolygonMode(GL_BACK, GL_FILL);
