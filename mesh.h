@@ -69,13 +69,15 @@ public:
 
 	vertex_3 get_centre(void)
 	{
-		vec4 v = player_game_piece_meshes[0].model_mat[3];
+		vec4 v = model_mat[3];
 
 		vertex_3 ret(v.x, v.y, v.z);
 
 		ret.x += centre.x;
 		ret.y += centre.y;
 		ret.z += centre.z;
+
+		return ret;
 	}
 
 	void std_strtok(const string& s, const string& regex_s, vector<string>& tokens)
@@ -93,51 +95,6 @@ public:
 
 
 
-	void draw_basis()
-	{
-		draw_dir();
-		draw_tangent();
-		draw_left();
-
-	}
-
-	void draw_left(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 left = geodesic_left * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + left.x, centre.y + left.y, centre.z + left.z);
-
-		glEnd();
-	}
-	void draw_dir(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 dir = geodesic_dir * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + dir.x, centre.y + dir.y, centre.z + dir.z);
-
-		glEnd();
-	}
-
-	void draw_tangent(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 tangent = geodesic_tangent * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + tangent.x, centre.y + tangent.y, centre.z + tangent.z);
-
-		glEnd();
-	}
 
 	bool read_triangles_from_wavefront_obj_file(const char* const file_name)
 	{
@@ -521,45 +478,6 @@ public:
 		}
 		else // This means that there is a line intersection but not a ray intersection.
 			return false;
-	}
-
-	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	bool intersect_AABB(vec3 ray_origin, vec3 ray_dir)
-	{
-		float tmin = (min_location.x - ray_origin.x) / ray_dir.x;
-		float tmax = (max_location.x - ray_origin.x) / ray_dir.x;
-
-		if (tmin > tmax) swap(tmin, tmax);
-
-		float tymin = (min_location.y - ray_origin.y) / ray_dir.y;
-		float tymax = (max_location.y - ray_origin.y) / ray_dir.y;
-
-		if (tymin > tymax) swap(tymin, tymax);
-
-		if ((tmin > tymax) || (tymin > tmax))
-			return false;
-
-		if (tymin > tmin)
-			tmin = tymin;
-
-		if (tymax < tmax)
-			tmax = tymax;
-
-		float tzmin = (min_location.z - ray_origin.z) / ray_dir.z;
-		float tzmax = (max_location.z - ray_origin.z) / ray_dir.z;
-
-		if (tzmin > tzmax) swap(tzmin, tzmax);
-
-		if ((tmin > tzmax) || (tzmin > tmax))
-			return false;
-
-		if (tzmin > tmin)
-			tmin = tzmin;
-
-		if (tzmax < tmax)
-			tmax = tzmax;
-
-		return true;
 	}
 
 
