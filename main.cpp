@@ -83,532 +83,6 @@ void idle_func(void)
 }
 
 
-void init_offscreen_fbo(void)
-{
-	if (offscreen_fbo != 0)
-		glDeleteFramebuffers(1, &offscreen_fbo);
-
-	if(offscreen_colour_tex != 0)
-		glDeleteTextures(1, &offscreen_colour_tex);
-
-	if (offscreen_depth_tex != 0)
-		glDeleteTextures(1, &offscreen_depth_tex);
-
-	glActiveTexture(GL_TEXTURE7);
-	glGenTextures(1, &offscreen_depth_tex);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glActiveTexture(GL_TEXTURE12);
-	glGenTextures(1, &offscreen_colour_tex);
-	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glGenFramebuffers(1, &offscreen_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-		GL_TEXTURE_2D, offscreen_depth_tex, 0);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-		GL_TEXTURE_2D, offscreen_colour_tex, 0);
-
-	GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, drawBuffers);
-
-}
-
-
-bool init_opengl(const int& width, const int& height)
-{
-	win_x = width;
-	win_y = height;
-
-	if (win_x < 1)
-		win_x = 1;
-
-	if (win_y < 1)
-		win_y = 1;
-
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(win_x, win_y);
-	win_id = glutCreateWindow("OBJ file viewer");
-
-	if (GLEW_OK != glewInit())
-	{
-		cout << "GLEW initialization error" << endl;
-		return false;
-	}
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-
-	if (false == shadow_map.init("shadowmap.vs.glsl", "shadowmap.fs.glsl"))
-	{
-		cout << "Could not load shadowmap shader" << endl;
-		return false;
-	}
-
-	if (false == tex_passthrough.init("ortho.vs.glsl", "ortho.fs.glsl"))
-	{
-		cout << "Could not load ortho shader" << endl;
-		return false;
-	}
-
-	if (false == line_shader.init("lines.vs.glsl", "lines.gs.glsl", "lines.fs.glsl"))
-	{
-		cout << "Could not load line shader" << endl;
-		return false;
-	}
-
-
-	glActiveTexture(GL_TEXTURE4);
-	glGenTextures(1, &depthTex);
-	glBindTexture(GL_TEXTURE_2D, depthTex);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	// Assign the depth buffer texture to texture channel 0
-
-	glGenFramebuffers(1, &shadowFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-		GL_TEXTURE_2D, depthTex, 0);
-
-	GLenum drawBuffers[] = { GL_NONE };
-	glDrawBuffers(1, drawBuffers);
-
-
-	glActiveTexture(GL_TEXTURE5);
-	glGenTextures(1, &depthTex2);
-	glBindTexture(GL_TEXTURE_2D, depthTex2);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	// Assign the depth buffer texture to texture channel 0
-
-	glGenFramebuffers(1, &shadowFBO2);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO2);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-		GL_TEXTURE_2D, depthTex2, 0);
-
-	drawBuffers[0] = { GL_NONE };
-	glDrawBuffers(1, drawBuffers);
-
-
-
-	init_offscreen_fbo();
-
-
-	return true;
-}
-
-void reshape_func(int width, int height)
-{
-	win_x = width;
-	win_y = height;
-
-	if (win_x < 1)
-		win_x = 1;
-
-	if (win_y < 1)
-		win_y = 1;
-
-	glutSetWindow(win_id);
-	glutReshapeWindow(win_x, win_y);
-	glViewport(0, 0, win_x, win_y);
-
-	main_camera.calculate_camera_matrices(win_x, win_y);
-
-	init_offscreen_fbo();
-}
-
-void draw_stuff(GLuint fbo_handle)
-{
-	static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
-
-	mat4 lightPV, shadowBias;
-	Frustum lightFrustum;
-
-
-	mat4 lightPV2, shadowBias2;
-	Frustum lightFrustum2;
-
-	GLuint programHandle;
-	vec3 left;
-	mat4 model, view, proj;
-	mat3 normal;
-	vec4 lp;
-	vec4 lp_untransformed;
-	mat4 shadow, shadow2;
-
-
-	// do lighting
-
-
-	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
-
-	srand(0);
-
-
-	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
-	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
-
-
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-
-
-	shadow_map.use_program();
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-	 programHandle = shadow_map.get_program();
-	pass1Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "recordDepth");
-	pass2Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "shadeWithShadow");
-
-	shadowBias = mat4(
-		vec4(0.5f, 0.0f, 0.0f, 0.0f),
-		vec4(0.0f, 0.5f, 0.0f, 0.0f),
-		vec4(0.0f, 0.0f, 0.5f, 0.0f),
-		vec4(0.5f, 0.5f, 0.5f, 1.0f)
-	);
-
-	 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	lightPos = normalize(lightPos) * 10.0f;
-
-	lightFrustum.orient(lightPos, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
-	lightFrustum.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
-
-	glActiveTexture(GL_TEXTURE4);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 4);
-
-	 model = mat4(1.0f);
-	 view = lightFrustum.getViewMatrix();
-	 proj = lightFrustum.getProjectionMatrix();
-
-	 normal = mat3(vec3((lightFrustum.getViewMatrix() * model)[0]), vec3((lightFrustum.getViewMatrix() * model)[1]), vec3((lightFrustum.getViewMatrix() * model)[2]));
-	lightPV = shadowBias * lightFrustum.getProjectionMatrix() * lightFrustum.getViewMatrix();
-	 shadow = lightPV * model;
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	 lp = view * vec4(lightPos, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition"), lp.x, lp.y, lp.z, lp.w);
-
-	 lp_untransformed = vec4(lightPos, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(2.5f, 10.0f);
-
-
-
-
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-
-	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow = lightPV * model;
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	{
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-		model = player_game_piece_meshes[i].model_mat;
-		normal = mat3(vec3((lightFrustum.getViewMatrix() * model)[0]), vec3((lightFrustum.getViewMatrix() * model)[1]), vec3((lightFrustum.getViewMatrix() * model)[2]));
-		shadow = lightPV * model;
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO2);
-
-
-
-	shadow_map.use_program();
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-	programHandle = shadow_map.get_program();
-	pass1Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "recordDepth");
-	pass2Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "shadeWithShadow");
-
-	shadowBias2 = mat4(
-		vec4(0.5f, 0.0f, 0.0f, 0.0f),
-		vec4(0.0f, 0.5f, 0.0f, 0.0f),
-		vec4(0.0f, 0.0f, 0.5f, 0.0f),
-		vec4(0.5f, 0.5f, 0.5f, 1.0f)
-	);
-
-	left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	lightPos2 = normalize(lightPos2) * 10.0f;
-	lightPos2.z = -lightPos2.z*2;
-
-	lightFrustum2.orient(lightPos2, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
-	lightFrustum2.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
-
-
-
-
-	glActiveTexture(GL_TEXTURE5);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map2"), 5);
-
-
-
-	glActiveTexture(GL_TEXTURE4);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[0]"), 4);
-
-	glActiveTexture(GL_TEXTURE5);
-	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[1]"), 5);
-
-
-	model = mat4(1.0f);
-	view = lightFrustum2.getViewMatrix();
-	proj = lightFrustum2.getProjectionMatrix();
-
-	normal = mat3(vec3((lightFrustum2.getViewMatrix() * model)[0]), vec3((lightFrustum2.getViewMatrix() * model)[1]), vec3((lightFrustum2.getViewMatrix() * model)[2]));
-	lightPV2 = shadowBias2 * lightFrustum2.getProjectionMatrix() * lightFrustum2.getViewMatrix();
-	shadow2 = lightPV2 * model;
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-	lp = view * vec4(lightPos2, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition2"), lp.x, lp.y, lp.z, lp.w);
-
-	lp_untransformed = vec4(lightPos2, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed2"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(2.5f, 10.0f);
-
-
-
-
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-
-	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow2 = lightPV2 * model;
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	{
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-		model = player_game_piece_meshes[i].model_mat;
-		normal = mat3(vec3((lightFrustum2.getViewMatrix() * model)[0]), vec3((lightFrustum2.getViewMatrix() * model)[1]), vec3((lightFrustum2.getViewMatrix() * model)[2]));
-		shadow2 = lightPV2 * model;
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-	}
-
-
-
-
-
-
-
-
-
-	// Draw stuff
-
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
-
-
-	main_camera.calculate_camera_matrices(win_x, win_y);
-
-	model = mat4(1.0f);
-	view = main_camera.view_mat;
-	proj = main_camera.projection_mat;
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-
-	lightPV = shadowBias * lightFrustum.getProjectionMatrix() * lightFrustum.getViewMatrix();
-	shadow = lightPV * model;
-
-	lightPV2 = shadowBias2 * lightFrustum2.getProjectionMatrix() * lightFrustum2.getViewMatrix();
-	shadow2 = lightPV2 * model;
-
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-
-	lp = view * vec4(lightPos, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition"), lp.x, lp.y, lp.z, lp.w);
-	lp_untransformed = vec4(lightPos, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-	lp = view * vec4(lightPos2, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition2"), lp.x, lp.y, lp.z, lp.w);
-	lp_untransformed = vec4(lightPos2, 0.0f);
-	glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed2"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-
-
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, win_x, win_y);
-	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass2Index);
-
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow = lightPV * model;
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-	model = mat4(1.0f);
-	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	shadow2 = lightPV2 * model;
-
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-
-
-
-
-
-
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	{
-		glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-		model = player_game_piece_meshes[i].model_mat;
-		normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-		shadow = lightPV * model;
-		shadow2 = lightPV2 * model;
-
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-		player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-
-		glDepthRange(0.025, 1.0);
-
-		glUseProgram(line_shader.get_program());
-
-		model = player_game_piece_meshes[i].model_mat;
-		mat4 mvp = proj * view * model;
-
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-
-		if (screenshot_mode)
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-		else
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
-
-		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 2.0f);
-
-		draw_triangle_lines(line_shader.get_program());
-
-		glDepthRange(0.0, 1.0);
-
-	}
-
-	//model = mat4(1.0f);
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//shadow = lightPV * model;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-	//draw_axis(shadow_map.get_program());
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-
-	glDisable(GL_DEPTH_TEST);
-
-}
-
 
 void use_buffers(GLuint frame_buffer)
 {
@@ -683,13 +157,13 @@ void use_buffers(GLuint frame_buffer)
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
 	const vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
-	const vec3 m2 = main_camera.eye;	
+	const vec3 m2 = main_camera.eye;
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
 
-	if(screenshot_mode)
+	if (screenshot_mode)
 		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), cam_factor);
 	else
 		glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "cam_factor"), 1);
@@ -708,6 +182,134 @@ void use_buffers(GLuint frame_buffer)
 
 	glFlush();
 }
+
+
+
+bool init_opengl(const int& width, const int& height)
+{
+	win_x = width;
+	win_y = height;
+
+	if (win_x < 1)
+		win_x = 1;
+
+	if (win_y < 1)
+		win_y = 1;
+
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
+	glutInitWindowPosition(0, 0);
+	glutInitWindowSize(win_x, win_y);
+	win_id = glutCreateWindow("OBJ file viewer");
+
+	if (GLEW_OK != glewInit())
+	{
+		cout << "GLEW initialization error" << endl;
+		return false;
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
+
+
+	if (false == point_shader.init("point.vs.glsl", "point.fs.glsl"))
+	{
+		cout << "Could not load point shader" << endl;
+		return false;
+	}
+
+	if (false == point_depth_shader.init("point_depth.vs.glsl", "point_depth.gs.glsl", "point_depth.fs.glsl"))
+	{
+		cout << "Could not load point depth shader" << endl;
+		return false;
+	}
+
+
+	if (false == tex_passthrough.init("ortho.vs.glsl", "ortho.fs.glsl"))
+	{
+		cout << "Could not load ortho shader" << endl;
+		return false;
+	}
+
+	if (false == line_shader.init("lines.vs.glsl", "lines.gs.glsl", "lines.fs.glsl"))
+	{
+		cout << "Could not load line shader" << endl;
+		return false;
+	}
+
+
+	glGenFramebuffers(1, &depthMapFBO);
+
+	glGenTextures(1, &depthCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+
+
+	for (unsigned int i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32F, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+
+	GLenum drawBuffers[] = { GL_NONE };
+	glDrawBuffers(1, drawBuffers);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+
+	init_offscreen_fbo();
+
+
+	return true;
+}
+
+void reshape_func(int width, int height)
+{
+	win_x = width;
+	win_y = height;
+
+	if (win_x < 1)
+		win_x = 1;
+
+	if (win_y < 1)
+		win_y = 1;
+
+	glutSetWindow(win_id);
+	glutReshapeWindow(win_x, win_y);
+	glViewport(0, 0, win_x, win_y);
+
+	main_camera.calculate_camera_matrices(win_x, win_y);
+
+	init_offscreen_fbo();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void display_func(void)
@@ -792,132 +394,13 @@ void passive_motion_func(int x, int y)
 
 
 
-void take_screenshot2(size_t num_cams_wide, const char* filename)
-{
-	screenshot_mode = true;
-
-	const size_t old_width = win_x;
-	const size_t old_height = win_y;
-
-	win_x = win_x * num_cams_wide;
-	win_y = win_y * num_cams_wide;
-
-	glViewport(0, 0, win_x, win_y);
-
-	GLuint quad_vao = 0;
-
-	glEnable(GL_DEPTH_TEST);
-
-
-	init_offscreen_fbo();
-
-	main_camera.calculate_camera_matrices(win_x, win_y);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
-
-
-	glUseProgram(shadow_map.get_program());
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
-	draw_stuff(offscreen_fbo);
-	use_buffers(offscreen_fbo);
-
-
-	glGenVertexArrays(1, &quad_vao);
-
-	glDisable(GL_DEPTH_TEST);
-	glBindVertexArray(quad_vao);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDeleteVertexArrays(1, &quad_vao);
-
-
-
-	vector<unsigned char> output_pixels(win_x * win_y * 3);
-
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glReadPixels(0, 0, win_x, win_y, GL_RGB, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-	// Set up Targa TGA image data.
-	unsigned char  idlength = 0;
-	unsigned char  colourmaptype = 0;
-	unsigned char  datatypecode = 2;
-	unsigned short int colourmaporigin = 0;
-	unsigned short int colourmaplength = 0;
-	unsigned char  colourmapdepth = 0;
-	unsigned short int x_origin = 0;
-	unsigned short int y_origin = 0;
-
-	unsigned short int px = win_x;
-	unsigned short int py = win_y;
-	unsigned char  bitsperpixel = 24;
-	unsigned char  imagedescriptor = 0;
-	vector<char> idstring;
-
-	for (size_t i = 0; i < win_x; i++)
-	{
-		for (size_t j = 0; j < win_y; j++)
-		{
-			size_t index = 3 * (j * win_x + i);
-
-			unsigned char temp_char;
-			temp_char = output_pixels[index + 0];
-			output_pixels[index + 0] = output_pixels[index + 2];
-			output_pixels[index + 2] = temp_char;
-		}
-	}
-
-	// Write Targa TGA file to disk.
-	ofstream out(filename, ios::binary);
-
-	if (!out.is_open())
-	{
-		cout << "Failed to open TGA file for writing: " << filename << endl;
-		return;
-	}
-
-	out.write(reinterpret_cast<char*>(&idlength), 1);
-	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
-	out.write(reinterpret_cast<char*>(&datatypecode), 1);
-	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
-	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
-	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
-	out.write(reinterpret_cast<char*>(&x_origin), 2);
-	out.write(reinterpret_cast<char*>(&y_origin), 2);
-	out.write(reinterpret_cast<char*>(&px), 2);
-	out.write(reinterpret_cast<char*>(&py), 2);
-	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
-	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
-
-	out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 3 * sizeof(unsigned char));
-
-	out.close();
-
-	win_x = old_width;
-	win_y = old_height;
-	main_camera.calculate_camera_matrices(win_x, win_y);
-
-	screenshot_mode = false;
-
-	init_offscreen_fbo();
-
-}
-
 
 void keyboard_func(unsigned char key, int x, int y)
 {
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		//take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 
