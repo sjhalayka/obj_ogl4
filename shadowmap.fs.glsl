@@ -109,7 +109,7 @@ vec3 phongModelDiffAndSpec(bool do_specular)
         ret_light2 = ret_light2 + spec_light1;
     }
 
-    return (ret_light1);// + ret_light2);///2.0;
+    return (ret_light1 + ret_light2);///2.0;
 }
 
 subroutine void RenderPassType();
