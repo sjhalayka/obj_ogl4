@@ -38,34 +38,78 @@ vec4 t = texture(colour_tex, ftexcoord);
 vec3 phongModelDiffAndSpec(bool do_specular)
 {
     vec3 n = Normal;
-    vec3 s = normalize(vec3(LightPosition2.xyz) - Position);
-    vec3 v = normalize(-Position.xyz);
-    vec3 r = reflect( -s, n );
-    float sDotN = max( dot(s,n), 0.0 );
-    vec3 diffuse = LightIntensity * texture(colour_tex, ftexcoord).rgb * sDotN;
-    vec3 spec = vec3(0.0);
+    vec3 s_light1 = normalize(vec3(LightPosition.xyz) - Position);
+    vec3 s_light2 = normalize(vec3(LightPosition2.xyz) - Position);
 
-    if( sDotN > 0.0 )
+    vec3 v = normalize(-Position.xyz);
+    vec3 r_light1 = reflect( -s_light1, n );
+    vec3 r_light2 = reflect( -s_light2, n );
+
+    float sDotN_light1 = max( dot(s_light1,n), 0.0 );
+    float sDotN_light2 = max( dot(s_light2,n), 0.0 );
+
+
+    vec3 diffuse_light1 = LightIntensity * texture(colour_tex, ftexcoord).rgb * sDotN_light1;
+    vec3 diffuse_light2 = LightIntensity * texture(colour_tex, ftexcoord).rgb * sDotN_light2;
+
+    vec3 spec_light1 = vec3(0.0);
+    vec3 spec_light2 = vec3(0.0);
+
+    if( sDotN_light1 > 0.0 )
     {
-        spec.x = MaterialKs.x * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.y = MaterialKs.y * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.z = MaterialKs.z * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec_light1.x = MaterialKs.x * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
+        spec_light1.y = MaterialKs.y * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
+        spec_light1.z = MaterialKs.z * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
     }
 
-    vec3 n2 = Normal;
-    vec3 s2 = normalize(vec3(-LightPosition2) - Position);
-    vec3 v2 = normalize(-Position.xyz);
-    vec3 r2 = reflect( -s2, n2 );
-    float sDotN2 = max( dot(s2,n2)*0.5f, 0.0 );
-    vec3 diffuse2 = LightIntensity*0.25 * MaterialKa * sDotN2;
+   if( sDotN_light2 > 0.0 )
+    {
+        spec_light2.x = MaterialKs.x * pow( max( dot(r_light2,v), 0.0 ), MaterialShininess );
+        spec_light2.y = MaterialKs.y * pow( max( dot(r_light2,v), 0.0 ), MaterialShininess );
+        spec_light2.z = MaterialKs.z * pow( max( dot(r_light2,v), 0.0 ), MaterialShininess );
+    }
 
-    float k = (1.0 - sDotN)/2.0;
-    vec3 ret = diffuse + diffuse2 + MaterialKa*k;
+
+
+    vec3 n2 = Normal;
+
+
+    vec3 s2_light1 = normalize(vec3(-LightPosition) - Position);
+    vec3 s2_light2 = normalize(vec3(-LightPosition2) - Position);
+
+    vec3 v2 = normalize(-Position.xyz);
+    
+    vec3 r2_light1 = reflect( -s2_light1, n2 );
+    vec3 r2_light2 = reflect( -s2_light2, n2 );
+    
+    
+    
+    float sDotN2_light1 = max( dot(s2_light1,n2)*0.5f, 0.0 );
+    float sDotN2_light2 = max( dot(s2_light2,n2)*0.5f, 0.0 );
+
+
+
+
+    vec3 diffuse2_light1 = LightIntensity*0.25 * MaterialKa * sDotN2_light1;
+    vec3 diffuse2_light2 = LightIntensity*0.25 * MaterialKa * sDotN2_light2;
+
+
+
+    float k_light1 = (1.0 - sDotN_light1)/2.0;
+    float k_light2 = (1.0 - sDotN_light2)/2.0;
+
+
+
+    vec3 ret_light1 = diffuse_light1 + diffuse2_light1 + MaterialKa*k_light1;
+    vec3 ret_light2 = diffuse_light2 + diffuse2_light2 + MaterialKa*k_light2;
 
     if(do_specular)
-        ret = ret + spec;
-    
-    return ret;
+    {
+        ret_light1 = ret_light1 + spec_light1;
+        ret_light2 = ret_light2 + spec_light1;
+    }
+
+    return (ret_light1);// + ret_light2);///2.0;
 }
 
 subroutine void RenderPassType();
@@ -83,18 +127,24 @@ void shadeWithShadow()
     }
 
 
-    float shadow = 1.0;
+    float shadow1 = 1.0;
+    float shadow2 = 1.0;
     
-   // if( ShadowCoord.z >= 0.0 )
-    //{
-    //    shadow = textureProj(shadow_map, ShadowCoord);
-    //}
-    
-    if( ShadowCoord2.z >= 0.0 )
+   if( ShadowCoord.z >= 0.0 )
     {
-        shadow = textureProj(shadow_map2, ShadowCoord2);
+      shadow1 = textureProj(shadow_map, ShadowCoord);
     }
     
+   if( ShadowCoord2.z >= 0.0 )
+    {
+      shadow2 = textureProj(shadow_map2, ShadowCoord2);
+    }
+
+    float shadow = 1.0;
+
+    if(shadow1 != 1.0 || shadow2 != 1.0)
+        shadow = 0.25;
+
     vec3 diffAndSpec;
     
     if(shadow == 1.0)
