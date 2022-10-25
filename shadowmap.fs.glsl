@@ -38,7 +38,7 @@ vec4 t = texture(colour_tex, ftexcoord);
 vec3 phongModelDiffAndSpec(bool do_specular)
 {
     vec3 n = Normal;
-    vec3 s = normalize(vec3(LightPosition.xyz) - Position);
+    vec3 s = normalize(vec3(LightPosition2.xyz) - Position);
     vec3 v = normalize(-Position.xyz);
     vec3 r = reflect( -s, n );
     float sDotN = max( dot(s,n), 0.0 );
@@ -53,7 +53,7 @@ vec3 phongModelDiffAndSpec(bool do_specular)
     }
 
     vec3 n2 = Normal;
-    vec3 s2 = normalize(vec3(-LightPosition) - Position);
+    vec3 s2 = normalize(vec3(-LightPosition2) - Position);
     vec3 v2 = normalize(-Position.xyz);
     vec3 r2 = reflect( -s2, n2 );
     float sDotN2 = max( dot(s2,n2)*0.5f, 0.0 );
@@ -85,15 +85,15 @@ void shadeWithShadow()
 
     float shadow = 1.0;
     
-    if( ShadowCoord.z >= 0.0 )
-    {
-        shadow = textureProj(shadow_map, ShadowCoord);
-    }
-    
-    //if( ShadowCoord2.z >= 0.0 )
-   // {
- //       shadow = textureProj(shadow_map2, ShadowCoord);
+   // if( ShadowCoord.z >= 0.0 )
+    //{
+    //    shadow = textureProj(shadow_map, ShadowCoord);
     //}
+    
+    if( ShadowCoord2.z >= 0.0 )
+    {
+        shadow = textureProj(shadow_map2, ShadowCoord2);
+    }
     
     vec3 diffAndSpec;
     

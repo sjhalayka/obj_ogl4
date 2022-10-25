@@ -70,7 +70,7 @@ size_t shadowMapHeight = 8192;
 GLuint shadowFBO = 0, pass1Index = 0, pass2Index = 0;
 GLuint shadowFBO2 = 0;
 
-vec3 lightPos2;
+vec3 lightPos, lightPos2;
 
 GLuint offscreen_fbo = 0;
 GLuint offscreen_colour_tex = 0;
