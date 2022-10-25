@@ -1,8 +1,8 @@
 #version 430
 
-uniform sampler2DShadow shadow_map;
-uniform sampler2DShadow shadow_map2;
-
+//uniform sampler2DShadow shadow_map;
+//uniform sampler2DShadow shadow_map2;
+uniform sampler2DShadow shadow_maps[2];
 uniform sampler2D colour_tex;
 
 in vec2 ftexcoord;
@@ -132,12 +132,12 @@ void shadeWithShadow()
     
    if( ShadowCoord.z >= 0.0 )
     {
-      shadow1 = textureProj(shadow_map, ShadowCoord);
+      shadow1 = textureProj(shadow_maps[0], ShadowCoord);
     }
     
    if( ShadowCoord2.z >= 0.0 )
     {
-      shadow2 = textureProj(shadow_map2, ShadowCoord2);
+      shadow2 = textureProj(shadow_maps[1], ShadowCoord2);
     }
 
     float shadow = 1.0;

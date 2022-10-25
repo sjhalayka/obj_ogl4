@@ -404,6 +404,13 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
+	glActiveTexture(GL_TEXTURE4);
+	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[0]"), 4);
+
+	glActiveTexture(GL_TEXTURE5);
+	glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[1]"), 5);
+
+
 	model = mat4(1.0f);
 	view = lightFrustum2.getViewMatrix();
 	proj = lightFrustum2.getProjectionMatrix();
