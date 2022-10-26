@@ -406,14 +406,12 @@ void passive_motion_func(int x, int y)
 
 
 
-
-
 void keyboard_func(unsigned char key, int x, int y)
 {
 	switch (tolower(key))
 	{
 	case 'm':
-		//take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 

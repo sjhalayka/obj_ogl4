@@ -57,7 +57,7 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 
 
-int cam_factor = 8;
+int cam_factor = 2;
 
 size_t shadowMapWidth = 2048;
 size_t shadowMapHeight = 2048;
@@ -221,8 +221,6 @@ void init_offscreen_fbo(void)
 	glDrawBuffers(1, drawBuffers);
 
 }
-
-void take_screenshot(size_t num_cams_wide, const char* filename);
 
 
 vec3 get_pseudorandom_unit_direction(void)
@@ -507,23 +505,10 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 void draw_stuff(GLuint fbo_handle)
 {
-	static std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
-
-	//glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
-	//glClearDepth(1.0f);
-	//glEnable(GL_DEPTH_TEST);
-
-
-
-
-	srand(0);
 
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
-//	glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
@@ -554,12 +539,12 @@ lightPos = normalize(lightPos) * 10.0f;
 
 
 	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+	main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	point_depth_shader.use_program();
 
 	//// 0. create depth cubemap transformation matrices
 	//// -----------------------------------------------
-	//main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
 	float near_plane = 1.0;// main_camera.near_plane;
 	float far_plane = 25.0;// main_camera.far_plane;
 	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
@@ -589,14 +574,8 @@ lightPos = normalize(lightPos) * 10.0f;
 	//// 1. render scene to depth cubemap
 	//// --------------------------------
 
-
-
-
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	{
 		player_game_piece_meshes[i].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
-	}
-
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -608,44 +587,6 @@ lightPos = normalize(lightPos) * 10.0f;
 //write_cube_map_to_disk(5, "attachment5.tga");
 //	
 //exit(0);
-
-	//
-
-
-
-
-	/*
-
-
-	exit(1);
-	*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//write_cube_map_to_disk(0, "attachment0.tga");
-//write_cube_map_to_disk(1, "attachment1.tga");
-//write_cube_map_to_disk(2, "attachment2.tga");
-//write_cube_map_to_disk(3, "attachment3.tga");
-//write_cube_map_to_disk(4, "attachment4.tga");
-//write_cube_map_to_disk(5, "attachment5.tga");
-
-
 
 
 
@@ -659,7 +600,7 @@ lightPos = normalize(lightPos) * 10.0f;
 
 	glViewport(0, 0, win_x, win_y);
 
-//	main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -691,406 +632,45 @@ lightPos = normalize(lightPos) * 10.0f;
 		player_game_piece_meshes[i].draw(point_shader.get_program(), win_x, win_y);
 
 
+
+	glEnable(GL_BLEND); //Enable blending.
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+	glUseProgram(line_shader.get_program());
+
+	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
+		glDepthRange(0.025, 1.0);
+
+		model = mat4(1.0f);// player_game_piece_meshes[i].model_mat;
+		
+		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+
+		//glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+
+		draw_triangle_lines(line_shader.get_program());
+
+		glDepthRange(0.0, 1.0);
+	}
+
+
+	glDisable(GL_BLEND);
+
+
+
+
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-
-
-	/*
-
-	////shader.setMat4("model", mode);
-	////shader.setMat4("projection", projection);
-	////shader.setMat4("view", view);
-	////shader.setVec3("lightPos", lightPos);
-	////shader.setVec3("viewPos", main_camera.eye);
-	////shader.setInt("shadows", 1); // enable/disable shadows by pressing 'SPACE'
-
-
-
-
-
-	////shader.setFloat("far_plane", far_plane);
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	////glActiveTexture(GL_TEXTURE0);
-	////glBindTexture(GL_TEXTURE_2D, woodTexture);
-	//glActiveTexture(GL_TEXTURE1);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-
-	//draw_stuff(fbo_handle);
-	//use_buffers(0);
-
-	////renderScene(shader);
-
-	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-
-
-	//shadow_map.use_program();
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-	// programHandle = shadow_map.get_program();
-	//pass1Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "recordDepth");
-	//pass2Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "shadeWithShadow");
-
-	//shadowBias = mat4(
-	//	vec4(0.5f, 0.0f, 0.0f, 0.0f),
-	//	vec4(0.0f, 0.5f, 0.0f, 0.0f),
-	//	vec4(0.0f, 0.0f, 0.5f, 0.0f),
-	//	vec4(0.5f, 0.5f, 0.5f, 1.0f)
-	//);
-
-	// left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	//vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	//lightPos = normalize(lightPos) * 10.0f;
-
-	//lightFrustum.orient(lightPos, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
-	//lightFrustum.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
-
-	//glActiveTexture(GL_TEXTURE4);
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map"), 4);
-
-	// model = mat4(1.0f);
-	// view = lightFrustum.getViewMatrix();
-	// proj = lightFrustum.getProjectionMatrix();
-
-	// normal = mat3(vec3((lightFrustum.getViewMatrix() * model)[0]), vec3((lightFrustum.getViewMatrix() * model)[1]), vec3((lightFrustum.getViewMatrix() * model)[2]));
-	//lightPV = shadowBias * lightFrustum.getProjectionMatrix() * lightFrustum.getViewMatrix();
-	// shadow = lightPV * model;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	// lp = view * vec4(lightPos, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition"), lp.x, lp.y, lp.z, lp.w);
-
-	// lp_untransformed = vec4(lightPos, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-	//glClear(GL_DEPTH_BUFFER_BIT);
-	//glViewport(0, 0, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	//glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
-	//glDisable(GL_CULL_FACE);
-	//glEnable(GL_POLYGON_OFFSET_FILL);
-	//glPolygonOffset(2.5f, 10.0f);
-
-
-
-
-
-	//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-
-	//model = mat4(1.0f);
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//shadow = lightPV * model;
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-
-	//for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	//{
-	//	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-	//	model = player_game_piece_meshes[i].model_mat;
-	//	normal = mat3(vec3((lightFrustum.getViewMatrix() * model)[0]), vec3((lightFrustum.getViewMatrix() * model)[1]), vec3((lightFrustum.getViewMatrix() * model)[2]));
-	//	shadow = lightPV * model;
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-	//	player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-	//}
-
-
-
-
-
-
-
-
-
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO2);
-
-
-
-	//shadow_map.use_program();
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-	//programHandle = shadow_map.get_program();
-	//pass1Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "recordDepth");
-	//pass2Index = glGetSubroutineIndex(programHandle, GL_FRAGMENT_SHADER, "shadeWithShadow");
-
-	//shadowBias2 = mat4(
-	//	vec4(0.5f, 0.0f, 0.0f, 0.0f),
-	//	vec4(0.0f, 0.5f, 0.0f, 0.0f),
-	//	vec4(0.0f, 0.0f, 0.5f, 0.0f),
-	//	vec4(0.5f, 0.5f, 0.5f, 1.0f)
-	//);
-
-	//left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	//lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	//lightPos2 = normalize(lightPos2) * 10.0f;
-	//lightPos2.z = -lightPos2.z*2;
-
-	//lightFrustum2.orient(lightPos2, vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
-	//lightFrustum2.setPerspective(45.0f, 1.0f, 1.0f, 25.0f);
-
-
-
-
-	//glActiveTexture(GL_TEXTURE5);
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_map2"), 5);
-
-
-
-	//glActiveTexture(GL_TEXTURE4);
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[0]"), 4);
-
-	//glActiveTexture(GL_TEXTURE5);
-	//glUniform1i(glGetUniformLocation(shadow_map.get_program(), "shadow_maps[1]"), 5);
-
-
-	//model = mat4(1.0f);
-	//view = lightFrustum2.getViewMatrix();
-	//proj = lightFrustum2.getProjectionMatrix();
-
-	//normal = mat3(vec3((lightFrustum2.getViewMatrix() * model)[0]), vec3((lightFrustum2.getViewMatrix() * model)[1]), vec3((lightFrustum2.getViewMatrix() * model)[2]));
-	//lightPV2 = shadowBias2 * lightFrustum2.getProjectionMatrix() * lightFrustum2.getViewMatrix();
-	//shadow2 = lightPV2 * model;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-	//lp = view * vec4(lightPos2, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition2"), lp.x, lp.y, lp.z, lp.w);
-
-	//lp_untransformed = vec4(lightPos2, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed2"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-	//glClear(GL_DEPTH_BUFFER_BIT);
-	//glViewport(0, 0, static_cast<GLsizei>(shadowMapWidth), static_cast<GLsizei>(shadowMapHeight));
-	//glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass1Index);
-	//glDisable(GL_CULL_FACE);
-	//glEnable(GL_POLYGON_OFFSET_FILL);
-	//glPolygonOffset(2.5f, 10.0f);
-
-
-
-
-
-	//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-
-	//model = mat4(1.0f);
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//shadow2 = lightPV2 * model;
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-
-	//for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	//{
-	//	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-	//	model = player_game_piece_meshes[i].model_mat;
-	//	normal = mat3(vec3((lightFrustum2.getViewMatrix() * model)[0]), vec3((lightFrustum2.getViewMatrix() * model)[1]), vec3((lightFrustum2.getViewMatrix() * model)[2]));
-	//	shadow2 = lightPV2 * model;
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-
-	//	player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-	//}
-
-
-
-
-
-
-
-
-
-	//// Draw stuff
-
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
-
-
-	//main_camera.calculate_camera_matrices(win_x, win_y);
-
-	//model = mat4(1.0f);
-	//view = main_camera.view_mat;
-	//proj = main_camera.projection_mat;
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-
-	//lightPV = shadowBias * lightFrustum.getProjectionMatrix() * lightFrustum.getViewMatrix();
-	//shadow = lightPV * model;
-
-	//lightPV2 = shadowBias2 * lightFrustum2.getProjectionMatrix() * lightFrustum2.getViewMatrix();
-	//shadow2 = lightPV2 * model;
-
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ViewMatrix"), 1, GL_FALSE, &view[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ProjectionMatrix"), 1, GL_FALSE, &proj[0][0]);
-
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-
-	//lp = view * vec4(lightPos, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition"), lp.x, lp.y, lp.z, lp.w);
-	//lp_untransformed = vec4(lightPos, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-	//lp = view * vec4(lightPos2, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition2"), lp.x, lp.y, lp.z, lp.w);
-	//lp_untransformed = vec4(lightPos2, 0.0f);
-	//glUniform4f(glGetUniformLocation(shadow_map.get_program(), "LightPosition_Untransformed2"), lp_untransformed.x, lp_untransformed.y, lp_untransformed.z, lp_untransformed.w);
-
-
-
-
-
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glViewport(0, 0, win_x, win_y);
-	//glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &pass2Index);
-
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-
-	//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-	//model = mat4(1.0f);
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//shadow = lightPV * model;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	//glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), 1.0f, 1.0f, 1.0f);
-	//model = mat4(1.0f);
-	//normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//shadow2 = lightPV2 * model;
-
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-
-
-
-
-
-
-	//for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-	//{
-	//	glUniform3f(glGetUniformLocation(shadow_map.get_program(), "MaterialKd"), colours[i].x, colours[i].y, colours[i].z);
-
-	//	model = player_game_piece_meshes[i].model_mat;
-	//	normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	//	shadow = lightPV * model;
-	//	shadow2 = lightPV2 * model;
-
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	//	glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	//	glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix2"), 1, GL_FALSE, &shadow2[0][0]);
-
-	//	player_game_piece_meshes[i].draw(shadow_map.get_program(), win_x, win_y);
-
-
-	//	glDepthRange(0.025, 1.0);
-
-	//	glUseProgram(line_shader.get_program());
-
-	//	model = player_game_piece_meshes[i].model_mat;
-	//	mat4 mvp = proj * view * model;
-
-	//	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-
-	//	if (screenshot_mode)
-	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-	//	else
-	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
-
-	//	glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 2.0f);
-
-	//	draw_triangle_lines(line_shader.get_program());
-
-	//	glDepthRange(0.0, 1.0);
-
-	//}
-
-	////model = mat4(1.0f);
-	////normal = mat3(vec3((view * model)[0]), vec3((view * model)[1]), vec3((view * model)[2]));
-	////shadow = lightPV * model;
-
-	////glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ModelMatrix"), 1, GL_FALSE, &model[0][0]);
-	////glUniformMatrix3fv(glGetUniformLocation(shadow_map.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal[0][0]);		glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-	////glUniformMatrix4fv(glGetUniformLocation(shadow_map.get_program(), "ShadowMatrix"), 1, GL_FALSE, &shadow[0][0]);
-
-	////glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 1);
-	////draw_axis(shadow_map.get_program());
-	////glUniform1i(glGetUniformLocation(shadow_map.get_program(), "flat_colour"), 0);
-
-
-	//glDisable(GL_DEPTH_TEST);
-	*/
 
 }
 
