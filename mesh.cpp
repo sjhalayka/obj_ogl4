@@ -64,7 +64,7 @@ void mesh::draw(GLint render_shader_program,
 		const size_t tex_height = h;
 
 		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE25);
+
 		glBindTexture(GL_TEXTURE_2D, tex);
 		glGenTextures(1, &tex);
 

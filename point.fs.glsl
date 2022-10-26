@@ -10,8 +10,10 @@ in VS_OUT {
     vec3 mvPosition;
 } fs_in;
 
-uniform sampler2D diffuseTexture;
+
 uniform samplerCube depthMap;
+uniform sampler2D diffuseTexture;
+
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;

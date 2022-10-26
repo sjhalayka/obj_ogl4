@@ -6,7 +6,8 @@ layout (triangle_strip, max_vertices = 4) out;  // always (for now) producing 2 
 uniform int img_width;
 uniform int img_height;
 uniform int cam_factor;
-uniform float line_thickness = 4.0f;
+
+uniform float line_thickness = 1.0f;
 
 vec2  u_viewportSize = vec2(img_width, img_height);
  float u_thickness = cam_factor * line_thickness;

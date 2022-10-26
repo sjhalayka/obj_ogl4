@@ -512,7 +512,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-lightPos = normalize(lightPos) * 10.0f;
+	lightPos = normalize(lightPos) * 10.0f;
 
 
 
@@ -579,19 +579,19 @@ lightPos = normalize(lightPos) * 10.0f;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-//	write_cube_map_to_disk(0, "attachment0.tga");
-//write_cube_map_to_disk(1, "attachment1.tga");
-//write_cube_map_to_disk(2, "attachment2.tga");
-//write_cube_map_to_disk(3, "attachment3.tga");
-//write_cube_map_to_disk(4, "attachment4.tga");
-//write_cube_map_to_disk(5, "attachment5.tga");
-//	
-//exit(0);
+	//	write_cube_map_to_disk(0, "attachment0.tga");
+	//write_cube_map_to_disk(1, "attachment1.tga");
+	//write_cube_map_to_disk(2, "attachment2.tga");
+	//write_cube_map_to_disk(3, "attachment3.tga");
+	//write_cube_map_to_disk(4, "attachment4.tga");
+	//write_cube_map_to_disk(5, "attachment5.tga");
+	//	
+	//exit(0);
 
 
 
-	//// 2. render scene as normal 
-	//// -------------------------
+		//// 2. render scene as normal 
+		//// -------------------------
 
 	glActiveTexture(GL_TEXTURE25);
 	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_tex_handle());
@@ -607,11 +607,17 @@ lightPos = normalize(lightPos) * 10.0f;
 
 	point_shader.use_program();
 
-	
+
 	glActiveTexture(GL_TEXTURE30);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 30);
+
+	glActiveTexture(GL_TEXTURE31);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
+
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 31);
+
 
 
 
@@ -654,7 +660,7 @@ lightPos = normalize(lightPos) * 10.0f;
 		else
 			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
-		//glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
 		draw_triangle_lines(line_shader.get_program());
 
