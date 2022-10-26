@@ -7,6 +7,7 @@ in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec2 TexCoords;
+    vec3 mvPosition;
 } fs_in;
 
 uniform sampler2D diffuseTexture;
@@ -19,38 +20,84 @@ uniform float far_plane;
 uniform int shadows = 1;
 
 
+vec3 LightIntensity = vec3(1.0, 1.0, 1.0);
+    vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
+    vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
+vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
+float MaterialShininess = 10.0;
+
+
+vec3 phongModelDiffAndSpec(bool do_specular)
+{
+
+
+    vec3 n = fs_in.Normal;
+    vec3 s_light1 = normalize(vec3(lightPos.xyz) - fs_in.mvPosition);
+
+    vec3 v = normalize(-fs_in.mvPosition.xyz);
+    vec3 r_light1 = reflect( -s_light1, n );
+
+    float sDotN_light1 = max( dot(s_light1,n), 0.0 );
+
+    vec3 diffuse_light1 = LightIntensity * texture(diffuseTexture, fs_in.TexCoords).rgb * sDotN_light1;
+
+    vec3 spec_light1 = vec3(0.0);
+
+    if( sDotN_light1 > 0.0 )
+    {
+        spec_light1.x = MaterialKs.x * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
+        spec_light1.y = MaterialKs.y * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
+        spec_light1.z = MaterialKs.z * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
+    }
+
+    vec3 n2 = fs_in.Normal;
+
+    vec3 s2_light1 = normalize(vec3(-lightPos) - fs_in.mvPosition);
+
+    vec3 v2 = normalize(-fs_in.mvPosition.xyz);
+    
+    vec3 r2_light1 = reflect( -s2_light1, n2 );
+    
+    
+    
+    float sDotN2_light1 = max( dot(s2_light1,n2)*0.5f, 0.0 );
+
+
+
+
+    vec3 diffuse2_light1 = LightIntensity*0.25 * MaterialKa * sDotN2_light1;
+
+
+
+    float k_light1 = (1.0 - sDotN_light1)/2.0;
+
+
+
+    vec3 ret_light1 = diffuse_light1 + diffuse2_light1 + MaterialKa*k_light1;
+
+    if(do_specular)
+    {
+        ret_light1 = ret_light1 + spec_light1;
+    }
+
+    return (ret_light1);// + ret_light2);///2.0;
+}
+
 
 void main()
 {
 
 
 
-    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
-    vec3 normal = normalize(fs_in.Normal);
-    vec3 lightColor = vec3(1.0);
-    // ambient
-    vec3 ambient = 0.3 * lightColor;
-    // diffuse
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * lightColor;
-    // specular
-    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = 0.0;
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
-    vec3 specular = spec * lightColor;    
-    // calculate shadow
 
 
 
 
-
-
-    float shadow = 0.0;           
+    float shadow = 1.0;           
     
-        // get vector between fragment position and light position
+   
+    
+    // get vector between fragment position and light position
     vec3 fragToLight = fs_in.FragPos - lightPos;
     // ise the fragment to light vector to sample from the depth map    
     float closestDepth = texture(depthMap, fragToLight).r;
@@ -61,18 +108,34 @@ void main()
     // test for shadows
     float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
      shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;        
-    // display closestDepth as debug (to visualize depth cubemap)
-    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
+     
+     shadow = 1 - shadow;
+       vec3 diffAndSpec;
     
-   // return;
+    if(shadow == 1.0)
+    {
+        diffAndSpec = phongModelDiffAndSpec(true);
+        FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+    }
+    else
+    {
+        diffAndSpec = phongModelDiffAndSpec(false);
+        FragColor = vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+        FragColor /= 3;
+    }
+
+    FragColor = pow( FragColor, vec4(1.0 / 2.2) );
+
+
+    return;
 
     
     
     
     
     
-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+ //   vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
-    FragColor = vec4(lighting, 1.0);
+ //   FragColor = vec4(lighting, 1.0);
 }
 

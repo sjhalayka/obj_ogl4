@@ -523,9 +523,11 @@ void draw_stuff(GLuint fbo_handle)
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
-	glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
+//	glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 
-
+	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
+	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+lightPos = normalize(lightPos) * 10.0f;
 
 
 

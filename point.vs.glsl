@@ -9,6 +9,7 @@ out VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec2 TexCoords;
+    vec3 mvPosition;
 } vs_out;
 
 uniform mat4 projection;
@@ -19,6 +20,9 @@ uniform bool reverse_normals = false;
 
 void main()
 {
+mat4 mv = view * model;
+    vs_out.mvPosition = (mv * vec4(aPos,1.0)).xyz;
+
     vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
     if(reverse_normals) // a slight hack to make sure the outer large cube displays lighting from the 'inside' instead of the default 'outside'.
         vs_out.Normal = transpose(inverse(mat3(model))) * (-1.0 * aNormal);
