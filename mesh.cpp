@@ -53,30 +53,28 @@ void mesh::draw(GLint render_shader_program,
 	const GLuint components_per_normal = 3;
 	const GLuint components_per_texcoord = 2;
 
-	std::vector<unsigned char> buffer, image;
-	loadFile(buffer, "chr_knight.png");
-	unsigned long w, h;
-	decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+	if (tex == 0)
+	{
+		std::vector<unsigned char> buffer, image;
+		loadFile(buffer, "chr_knight.png");
+		unsigned long w, h;
+		decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-	GLuint tex_handle = 0;
+		const size_t tex_width = w;
+		const size_t tex_height = h;
 
-	const size_t tex_width = w;
-	const size_t tex_height = h;
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE25);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		glGenTextures(1, &tex);
 
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, tex_handle);
-	glGenTextures(1, &tex_handle);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
-
-
-	glUniform1i(glGetUniformLocation(render_shader_program, "colour_tex"), 2);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+	}
 
 	GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data.size()) / components_per_vertex;
 
@@ -103,6 +101,5 @@ void mesh::draw(GLint render_shader_program,
 
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
-	
-	glDeleteTextures(1, &tex_handle);
+
 }

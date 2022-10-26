@@ -59,6 +59,14 @@ using std::uniform_real_distribution;
 class mesh
 {
 public:
+
+	GLuint tex = 0;
+
+	GLuint get_tex_handle(void)
+	{
+		return tex;
+	}
+
 	vector<triangle> triangles;
 
 	vector<float> opengl_vertex_data;

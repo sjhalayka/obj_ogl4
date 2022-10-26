@@ -59,8 +59,8 @@ vertex_geometry_fragment_shader line_shader;
 
 int cam_factor = 8;
 
-size_t shadowMapWidth = 8192;
-size_t shadowMapHeight = 8192;
+size_t shadowMapWidth = 2048;
+size_t shadowMapHeight = 2048;
 unsigned int depthCubemap = 0;
 unsigned int depthMapFBO = 0;
 
@@ -95,6 +95,89 @@ bool screenshot_mode = false;
 
 void draw_stuff(GLuint fbo_handle);
 void use_buffers(GLuint frame_buffer);
+
+
+
+void write_cube_map_to_disk(size_t i, string filename)
+{
+	size_t size = shadowMapWidth * shadowMapHeight;
+	size_t num_bytes = size * 4;
+	vector<unsigned char> output_pixels(num_bytes);
+	vector<float> buffer(size);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+	//glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
+	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0]);
+
+
+
+	for (int i = 0; i < shadowMapHeight; i++)
+		for (int j = 0; j < shadowMapWidth; j++)
+		{
+			size_t imgIdx = 4 * ((i * shadowMapWidth) + j);
+			size_t bufIdx = ((shadowMapHeight - i - 1) * shadowMapWidth) + j;
+
+			// This is just to make a more visible image.  Scale so that
+			// the range (minVal, 1.0) maps to (0.0, 1.0).  This probably should
+			// be tweaked for different light configurations.
+			float minVal = 0.88f;
+			float scale = (buffer[bufIdx] - minVal) / (1.0f - minVal);
+			unsigned char val = (unsigned char)(scale * 255);
+			output_pixels[imgIdx] = val;
+			output_pixels[imgIdx + 1] = val;
+			output_pixels[imgIdx + 2] = val;
+			output_pixels[imgIdx + 3] = 0xff;
+		}
+
+
+
+	// Set up Targa TGA image data.
+	unsigned char  idlength = 0;
+	unsigned char  colourmaptype = 0;
+	unsigned char  datatypecode = 2;
+	unsigned short int colourmaporigin = 0;
+	unsigned short int colourmaplength = 0;
+	unsigned char  colourmapdepth = 0;
+	unsigned short int x_origin = 0;
+	unsigned short int y_origin = 0;
+
+	unsigned short int px = shadowMapWidth;
+	unsigned short int py = shadowMapHeight;
+	unsigned char  bitsperpixel = 32;
+	unsigned char  imagedescriptor = 0;
+	vector<char> idstring;
+
+
+
+	// Write Targa TGA file to disk.
+	ofstream out(filename, ios::binary);
+
+	if (!out.is_open())
+	{
+		cout << "Failed to open TGA file for writing: " << filename << endl;
+		return;
+	}
+
+	out.write(reinterpret_cast<char*>(&idlength), 1);
+	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+	out.write(reinterpret_cast<char*>(&datatypecode), 1);
+	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+	out.write(reinterpret_cast<char*>(&x_origin), 2);
+	out.write(reinterpret_cast<char*>(&y_origin), 2);
+	out.write(reinterpret_cast<char*>(&px), 2);
+	out.write(reinterpret_cast<char*>(&py), 2);
+	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+	out.write(reinterpret_cast<char*>(&output_pixels[0]), num_bytes * sizeof(unsigned char));
+
+	out.close();
+
+
+}
+
+
 
 void init_offscreen_fbo(void)
 {
@@ -428,28 +511,55 @@ void draw_stuff(GLuint fbo_handle)
 	std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> elapsed = end_time - start_time;
 
-	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
+	//glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+	//glClearDepth(1.0f);
+	//glEnable(GL_DEPTH_TEST);
+
+
+
 
 	srand(0);
-
-	
-
 
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
 	glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 
+
+
+
+
+
+
+
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
 
+
+	// ------
+	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+
+
+
+
+
+
+
+
+
+	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	point_depth_shader.use_program();
+
 	//// 0. create depth cubemap transformation matrices
 	//// -----------------------------------------------
-	main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
-	float near_plane = main_camera.near_plane;
-	float far_plane = main_camera.far_plane;
+	//main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+	float near_plane = 1.0;// main_camera.near_plane;
+	float far_plane = 25.0;// main_camera.far_plane;
 	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
 	std::vector<glm::mat4> shadowTransforms;
 
@@ -460,46 +570,53 @@ void draw_stuff(GLuint fbo_handle)
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-	//// 1. render scene to depth cubemap
-	//// --------------------------------
-
-	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-
-	point_depth_shader.use_program();
-	glActiveTexture(GL_TEXTURE3);
-glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-
-
-	main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
-
-
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		mat4 st = shadowTransforms[i];
 		string loc_string = "shadowMatrices[" + std::to_string(i) + "]";
-		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &st[0][0]);
-		//simpleDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[i][0][0]);
 	}
 
 	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
 	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
-//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
+	mat4 model = mat4(1.0f);
+
+	glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 
-	glActiveTexture(GL_TEXTURE30);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-	glUniform1i(glGetUniformLocation(point_depth_shader.get_program(), "depthMap"), 30);
+	//// 1. render scene to depth cubemap
+	//// --------------------------------
 
 
 
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
 		player_game_piece_meshes[i].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
+	}
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+//	write_cube_map_to_disk(0, "attachment0.tga");
+//write_cube_map_to_disk(1, "attachment1.tga");
+//write_cube_map_to_disk(2, "attachment2.tga");
+//write_cube_map_to_disk(3, "attachment3.tga");
+//write_cube_map_to_disk(4, "attachment4.tga");
+//write_cube_map_to_disk(5, "attachment5.tga");
+//	
+//exit(0);
+
+	//
+
+
+
+
+	/*
+
+
+	exit(1);
+	*/
 
 
 
@@ -507,6 +624,24 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
 
 
+
+
+
+
+
+
+
+
+
+
+//
+//
+//write_cube_map_to_disk(0, "attachment0.tga");
+//write_cube_map_to_disk(1, "attachment1.tga");
+//write_cube_map_to_disk(2, "attachment2.tga");
+//write_cube_map_to_disk(3, "attachment3.tga");
+//write_cube_map_to_disk(4, "attachment4.tga");
+//write_cube_map_to_disk(5, "attachment5.tga");
 
 
 
@@ -515,14 +650,31 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 	//// 2. render scene as normal 
 	//// -------------------------
 
+	glActiveTexture(GL_TEXTURE25);
+	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_tex_handle());
+
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 25);
+
 	glViewport(0, 0, win_x, win_y);
+
+//	main_camera.calculate_camera_matrices(win_x, win_y);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	point_shader.use_program();
+
+	
+	glActiveTexture(GL_TEXTURE30);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 30);
+
+
+
 	glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
-	mat4 model = mat4(1.0f);
+	model = mat4(1.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -537,6 +689,12 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 		player_game_piece_meshes[i].draw(point_shader.get_program(), win_x, win_y);
 
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+
+	/*
 
 	////shader.setMat4("model", mode);
 	////shader.setMat4("projection", projection);
@@ -930,6 +1088,7 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
 
 	//glDisable(GL_DEPTH_TEST);
+	*/
 
 }
 
