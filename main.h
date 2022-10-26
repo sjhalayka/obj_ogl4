@@ -190,7 +190,7 @@ void init_offscreen_fbo(void)
 	if (offscreen_depth_tex != 0)
 		glDeleteTextures(1, &offscreen_depth_tex);
 
-	glActiveTexture(GL_TEXTURE7);
+
 	glGenTextures(1, &offscreen_depth_tex);
 	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
@@ -199,7 +199,7 @@ void init_offscreen_fbo(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glActiveTexture(GL_TEXTURE12);
+
 	glGenTextures(1, &offscreen_colour_tex);
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
@@ -593,19 +593,30 @@ void draw_stuff(GLuint fbo_handle)
 		//// 2. render scene as normal 
 		//// -------------------------
 
-	glActiveTexture(GL_TEXTURE25);
-	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_tex_handle());
-
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 25);
-
-	glViewport(0, 0, win_x, win_y);
-
-	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	point_shader.use_program();
+
+
+	//glActiveTexture(GL_TEXTURE30);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 30);
+
+	//glActiveTexture(GL_TEXTURE25);
+	//glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_tex_handle());
+
+	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 25);
+
+
+
+
+	glViewport(0, 0, win_x, win_y);
+
+	main_camera.calculate_camera_matrices(win_x, win_y);
+
 
 
 	glActiveTexture(GL_TEXTURE30);

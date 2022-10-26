@@ -145,13 +145,13 @@ void use_buffers(GLuint frame_buffer)
 	// use the shader program
 	glUseProgram(tex_passthrough.get_program());
 
-	glActiveTexture(GL_TEXTURE7);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "depth_tex"), 7);
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "depth_tex"), 0);
 
-	glActiveTexture(GL_TEXTURE12);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
-	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "colour_tex"), 12);
+	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "colour_tex"), 1);
 
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
