@@ -651,11 +651,11 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap1);
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 2);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[0]"), 2);
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap2);
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap2"), 3);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[1]"), 3);
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());

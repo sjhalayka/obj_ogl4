@@ -11,8 +11,10 @@ in VS_OUT {
 } fs_in;
 
 
-uniform samplerCube depthMap;
-uniform samplerCube depthMap2;
+const int max_light_count = 2;
+uniform samplerCube depthMaps[max_light_count];
+
+
 uniform sampler2D diffuseTexture;
 
 
@@ -114,8 +116,8 @@ void main()
 {
 
 
-       float shadow1 = get_shadow(lightPos, depthMap);
-       float shadow2 = get_shadow(lightPos2, depthMap2);
+       float shadow1 = get_shadow(lightPos, depthMaps[0]);
+       float shadow2 = get_shadow(lightPos2, depthMaps[1]);
 
        float shadow = (shadow1 + shadow2 ) / 2.0;
 
