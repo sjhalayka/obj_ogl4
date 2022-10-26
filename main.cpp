@@ -244,7 +244,7 @@ bool init_opengl(const int& width, const int& height)
 
 
 	glGenFramebuffers(1, &depthMapFBO);
-	glActiveTexture(GL_TEXTURE30);
+
 	glGenTextures(1, &depthCubemap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 

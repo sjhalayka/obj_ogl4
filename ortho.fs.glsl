@@ -3,6 +3,7 @@
 uniform sampler2D depth_tex; // texture uniform
 uniform sampler2D colour_tex; // texture uniform
 
+
 uniform int img_width;
 uniform int img_height;
 uniform float model_distance;

@@ -105,7 +105,6 @@ void write_cube_map_to_disk(size_t i, string filename)
 	vector<unsigned char> output_pixels(num_bytes);
 	vector<float> buffer(size);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-	//glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0]);
 
 
@@ -593,41 +592,22 @@ void draw_stuff(GLuint fbo_handle)
 		//// 2. render scene as normal 
 		//// -------------------------
 
-
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	point_shader.use_program();
 
-
-	//glActiveTexture(GL_TEXTURE30);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-
-	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 30);
-
-	//glActiveTexture(GL_TEXTURE25);
-	//glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_tex_handle());
-
-	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 25);
-
-
-
-
 	glViewport(0, 0, win_x, win_y);
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
-
-
-	glActiveTexture(GL_TEXTURE30);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 2);
 
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMap"), 30);
-
-	glActiveTexture(GL_TEXTURE31);
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
-
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 31);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 3);
 
 
 
@@ -685,7 +665,7 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 
