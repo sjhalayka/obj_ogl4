@@ -616,6 +616,9 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	}
 
 	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
+
+
+	// MAKE SURE TO SET THIS FOR EACH FBO!
 	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos"), lightPos2.x, lightPos2.y, lightPos2.z);
 
 
