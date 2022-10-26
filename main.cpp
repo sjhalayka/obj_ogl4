@@ -243,19 +243,45 @@ bool init_opengl(const int& width, const int& height)
 
 
 
-	glGenFramebuffers(1, &depthMapFBO);
+	glGenFramebuffers(1, &depthMapFBO1);
 
-	glGenTextures(1, &depthCubemap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-
-	vector<float> input_pixels(shadowMapWidth * shadowMapHeight, 0.5f);
-
-	for (size_t i = 0; i < input_pixels.size(); i++)
-		input_pixels[i] = rand() / static_cast<float>(RAND_MAX);
-
+	glGenTextures(1, &depthCubemap1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap1);
 
 	for (unsigned int i = 0; i < 6; ++i)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &input_pixels[0]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+	//		glTexImag
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	// attach depth texture as FBO's depth buffer
+		
+
+
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO1);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap1, 0);
+
+	GLenum drawBuffers[] = { GL_NONE };
+	glDrawBuffers(1, drawBuffers);
+
+	glReadBuffer(GL_NONE);
+
+
+
+
+
+	glGenFramebuffers(1, &depthMapFBO2);
+
+	glGenTextures(1, &depthCubemap2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap2);
+
+	for (unsigned int i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
 	//		glTexImag
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -269,14 +295,13 @@ bool init_opengl(const int& width, const int& height)
 
 
 
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO2);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap2, 0);
 
-	GLenum drawBuffers[] = { GL_NONE };
+	drawBuffers[0] = { GL_NONE };
 	glDrawBuffers(1, drawBuffers);
 
 	glReadBuffer(GL_NONE);
-
 
 
 

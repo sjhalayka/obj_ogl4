@@ -12,10 +12,12 @@ in VS_OUT {
 
 
 uniform samplerCube depthMap;
+uniform samplerCube depthMap2;
 uniform sampler2D diffuseTexture;
 
 
 uniform vec3 lightPos;
+uniform vec3 lightPos2;
 uniform vec3 viewPos;
 
 uniform float far_plane;
@@ -29,12 +31,10 @@ vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 10.0;
 
 
-vec3 phongModelDiffAndSpec(bool do_specular)
+vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp)
 {
-
-
     vec3 n = fs_in.Normal;
-    vec3 s_light1 = normalize(vec3(lightPos.xyz) - fs_in.mvPosition);
+    vec3 s_light1 = normalize(vec3(lp.xyz) - fs_in.mvPosition);
 
     vec3 v = normalize(-fs_in.mvPosition.xyz);
     vec3 r_light1 = reflect( -s_light1, n );
@@ -54,7 +54,7 @@ vec3 phongModelDiffAndSpec(bool do_specular)
 
     vec3 n2 = fs_in.Normal;
 
-    vec3 s2_light1 = normalize(vec3(-lightPos) - fs_in.mvPosition);
+    vec3 s2_light1 = normalize(vec3(-lp) - fs_in.mvPosition);
 
     vec3 v2 = normalize(-fs_in.mvPosition.xyz);
     
@@ -86,23 +86,14 @@ vec3 phongModelDiffAndSpec(bool do_specular)
 }
 
 
-void main()
+float get_shadow(vec3 lp, samplerCube dmap)
 {
-
-
-
-
-
-
-
-    float shadow = 1.0;           
-    
-   
+    float shadow = 0.0;
     
     // get vector between fragment position and light position
-    vec3 fragToLight = fs_in.FragPos - lightPos;
+    vec3 fragToLight = fs_in.FragPos - lp;
     // ise the fragment to light vector to sample from the depth map    
-    float closestDepth = texture(depthMap, fragToLight).r;
+    float closestDepth = texture(dmap, fragToLight).r;
     // it is currently in linear range between [0,1], let's re-transform it back to original depth value
     closestDepth *= far_plane;
     // now get current linear depth as the length between the fragment and light position
@@ -112,16 +103,34 @@ void main()
      shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;        
      
      shadow = 1 - shadow;
-       vec3 diffAndSpec;
     
+       return shadow;
+
+     }
+
+
+
+void main()
+{
+
+
+       float shadow1 = get_shadow(lightPos, depthMap);
+       float shadow2 = get_shadow(lightPos2, depthMap2);
+
+       float shadow = (shadow1 + shadow2 ) / 2.0;
+
     if(shadow == 1.0)
     {
-        diffAndSpec = phongModelDiffAndSpec(true);
+        vec3 diffAndSpec = phongModelDiffAndSpec(true, lightPos);
+        diffAndSpec += phongModelDiffAndSpec(true, lightPos2);
+
         FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
     }
     else
     {
-        diffAndSpec = phongModelDiffAndSpec(false);
+        vec3 diffAndSpec = phongModelDiffAndSpec(false, lightPos);
+        diffAndSpec += phongModelDiffAndSpec(false, lightPos2);
+
         FragColor = vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
         FragColor /= 3;
     }
@@ -130,14 +139,5 @@ void main()
 
 
     return;
-
-    
-    
-    
-    
-    
- //   vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
-    
- //   FragColor = vec4(lighting, 1.0);
 }
 
