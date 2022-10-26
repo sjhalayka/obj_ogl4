@@ -117,7 +117,7 @@ void main()
        float shadow1 = get_shadow(lightPos, depthMap);
        float shadow2 = get_shadow(lightPos2, depthMap2);
 
-       float shadow = max(shadow1, shadow2);// (shadow1 + shadow2 ) / 2.0;
+       float shadow = (shadow1 + shadow2 ) / 2.0;
 
     if(shadow == 1.0)
     {
