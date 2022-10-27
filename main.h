@@ -524,17 +524,17 @@ void draw_stuff(GLuint fbo_handle)
 	lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2;
 
-	vec3 lightPos3 = vec3(0.0, 0.0, 10.0);
+	vec3 lightPos3 = vec3(0.0, 10.0, 10.0);
 	lightPositions[2] = lightPos3;
 
 
-	lightColours[0].x = 0.7;
-	lightColours[0].y = 0.5;
-	lightColours[0].z = 0.5;
+	lightColours[0].x = 1.0;
+	lightColours[0].y = 1.0;
+	lightColours[0].z = 1.0;
 
-	lightColours[1].x = 0.5;
-	lightColours[1].y = 0.7;
-	lightColours[1].z = 0.5;
+	lightColours[1].x = 1.0;
+	lightColours[1].y = 1.0;
+	lightColours[1].z = 1.0;
 
 	lightColours[2].x = 0.5;
 	lightColours[2].y = 0.5;
@@ -542,7 +542,14 @@ void draw_stuff(GLuint fbo_handle)
 
 	lightEnabled[0] = 1;
 	lightEnabled[1] = 1;
-	lightEnabled[2] = 1;
+	lightEnabled[2] = 0;
+
+
+
+
+
+
+
 
 
 
@@ -556,6 +563,9 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
+		if (lightEnabled[i] == 0)
+			continue;
+
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
 		glViewport(0, 0, shadowMapWidth, shadowMapHeight);
@@ -595,7 +605,6 @@ void draw_stuff(GLuint fbo_handle)
 			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	}
 
 

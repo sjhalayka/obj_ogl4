@@ -3,11 +3,11 @@
 #version 430 core
 out vec4 FragColor;
 
-in VS_OUT {
-    vec3 FragPos;
-    vec3 Normal;
-    vec2 TexCoords;
-    vec3 mvPosition;
+in VS_OUT{
+	vec3 FragPos;
+	vec3 Normal;
+	vec2 TexCoords;
+	vec3 mvPosition;
 } fs_in;
 
 
@@ -27,64 +27,64 @@ uniform float far_plane;
 uniform int shadows = 1;
 
 
-    vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
-    vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
+vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
+vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 10.0;
 
 
 vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 {
-    vec3 n = fs_in.Normal;
-    vec3 s_light1 = normalize(vec3(lp.xyz) - fs_in.mvPosition);
+	vec3 n = fs_in.Normal;
+	vec3 s_light1 = normalize(vec3(lp.xyz) - fs_in.mvPosition);
 
-    vec3 v = normalize(-fs_in.mvPosition.xyz);
-    vec3 r_light1 = reflect( -s_light1, n );
+	vec3 v = normalize(-fs_in.mvPosition.xyz);
+	vec3 r_light1 = reflect(-s_light1, n);
 
-    float sDotN_light1 = max( dot(s_light1,n), 0.0 );
+	float sDotN_light1 = max(dot(s_light1, n), 0.0);
 
-    vec3 diffuse_light1 = lightColours[index] * texture(diffuseTexture, fs_in.TexCoords).rgb * sDotN_light1;
+	vec3 diffuse_light1 = lightColours[index] * texture(diffuseTexture, fs_in.TexCoords).rgb * sDotN_light1;
 
-    vec3 spec_light1 = vec3(0.0);
+	vec3 spec_light1 = vec3(0.0);
 
-    if( sDotN_light1 > 0.0 )
-    {
-        spec_light1.x = MaterialKs.x * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
-        spec_light1.y = MaterialKs.y * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
-        spec_light1.z = MaterialKs.z * pow( max( dot(r_light1,v), 0.0 ), MaterialShininess );
-    }
+	if (sDotN_light1 > 0.0)
+	{
+		spec_light1.x = MaterialKs.x * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
+		spec_light1.y = MaterialKs.y * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
+		spec_light1.z = MaterialKs.z * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
+	}
 
-    vec3 n2 = fs_in.Normal;
+	vec3 n2 = fs_in.Normal;
 
-    vec3 s2_light1 = normalize(vec3(-lp) - fs_in.mvPosition);
+	vec3 s2_light1 = normalize(vec3(-lp) - fs_in.mvPosition);
 
-    vec3 v2 = normalize(-fs_in.mvPosition.xyz);
-    
-    vec3 r2_light1 = reflect( -s2_light1, n2 );
-    
-    
-    
-    float sDotN2_light1 = max( dot(s2_light1,n2)*0.5f, 0.0 );
+	vec3 v2 = normalize(-fs_in.mvPosition.xyz);
+
+	vec3 r2_light1 = reflect(-s2_light1, n2);
 
 
 
-
-    vec3 diffuse2_light1 = lightColours[index]*0.25 * MaterialKa * sDotN2_light1;
-
-
-
-    float k_light1 = (1.0 - sDotN_light1)/2.0;
+	float sDotN2_light1 = max(dot(s2_light1, n2) * 0.5f, 0.0);
 
 
 
-    vec3 ret_light1 = diffuse_light1 + diffuse2_light1 + MaterialKa*k_light1;
 
-    if(do_specular)
-    {
-        ret_light1 = ret_light1 + spec_light1;
-    }
+	vec3 diffuse2_light1 = lightColours[index] * 0.25 * MaterialKa * sDotN2_light1;
 
-    return (ret_light1);// + ret_light2);///2.0;
+
+
+	float k_light1 = (1.0 - sDotN_light1) / 2.0;
+
+
+
+	vec3 ret_light1 = diffuse_light1 + diffuse2_light1 + MaterialKa * k_light1;
+
+	if (do_specular)
+	{
+		ret_light1 = ret_light1 + spec_light1;
+	}
+
+	return (ret_light1);// + ret_light2);///2.0;
 }
 
 
@@ -93,74 +93,74 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 
 float get_shadow(vec3 lp, samplerCube dmap)
 {
-    float shadow = 0.0;
-    
-    // get vector between fragment position and light position
-    vec3 fragToLight = fs_in.FragPos - lp;
-    // ise the fragment to light vector to sample from the depth map    
-    float closestDepth = texture(dmap, fragToLight).r;
-    // it is currently in linear range between [0,1], let's re-transform it back to original depth value
-    closestDepth *= far_plane;
-    // now get current linear depth as the length between the fragment and light position
-    float currentDepth = length(fragToLight);
-    // test for shadows
-    float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
-     shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;        
-     
-     shadow = 1 - shadow;
-    
-       return shadow;
+	float shadow = 0.0;
 
-     }
+	// get vector between fragment position and light position
+	vec3 fragToLight = fs_in.FragPos - lp;
+	// ise the fragment to light vector to sample from the depth map    
+	float closestDepth = texture(dmap, fragToLight).r;
+	// it is currently in linear range between [0,1], let's re-transform it back to original depth value
+	closestDepth *= far_plane;
+	// now get current linear depth as the length between the fragment and light position
+	float currentDepth = length(fragToLight);
+	// test for shadows
+	float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
+	shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	shadow = 1 - shadow;
+
+	return shadow;
+
+}
 
 
 
 void main()
 {
-        float brightest_contribution = 0.0;
+	float brightest_contribution = 0.0;
 
-       for(int i = 0; i < max_num_lights; i++)
-        {
-            if(lightEnabled[i] == 0)
-                continue;
+	for (int i = 0; i < max_num_lights; i++)
+	{
+		if (lightEnabled[i] == 0)
+			continue;
 
-            float s = get_shadow(lightPositions[i], depthMaps[i]);
-            
-            if(s > brightest_contribution)
-                brightest_contribution = s;
-        }
+		float s = get_shadow(lightPositions[i], depthMaps[i]);
 
-         vec3 diffAndSpec = vec3(0, 0, 0);
+		if (s > brightest_contribution)
+			brightest_contribution = s;
+	}
 
-    if(brightest_contribution == 1.0)
-    {
-        for(int i = 0; i < max_num_lights; i++)
-        {
-            if(lightEnabled[i] == 0)
-                continue;
+	vec3 diffAndSpec = vec3(0, 0, 0);
 
-            diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i], i++);
-        }
+	if (brightest_contribution == 1.0)
+	{
+		for (int i = 0; i < max_num_lights; i++)
+		{
+			if (lightEnabled[i] == 0)
+				continue;
 
-        FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
-    }
-    else
-    {
-        for(int i = 0; i < max_num_lights; i++)
-        {
-            if(lightEnabled[i] == 0)
-                continue;
+			diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i], i++);
+		}
 
-            diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i], i++);
-         }
+		FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+	}
+	else
+	{
+		for (int i = 0; i < max_num_lights; i++)
+		{
+			if (lightEnabled[i] == 0)
+				continue;
 
-        FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0);
-        FragColor /= 3;
-    }
+			diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i], i++);
+		}
 
-    FragColor = pow( FragColor, vec4(1.0 / 2.2) );
+		FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0);
+		FragColor /= 3;
+	}
+
+	FragColor = pow(FragColor, vec4(1.0 / 2.2));
 
 
-    return;
+	return;
 }
 
