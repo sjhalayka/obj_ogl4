@@ -59,15 +59,15 @@ vertex_geometry_fragment_shader line_shader;
 
 int cam_factor = 2;
 
-size_t shadowMapWidth = 2048;
-size_t shadowMapHeight = 2048;
+size_t shadowMapWidth = 512;
+size_t shadowMapHeight = 512;
 
 size_t max_num_lights = 2;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
-
-
+vector<vec3> lightColours(max_num_lights, vec3(0, 0, 0));
+vector<GLuint> lightEnabled(max_num_lights, 0);
 
 GLuint offscreen_fbo = 0;
 GLuint offscreen_colour_tex = 0;
@@ -524,8 +524,16 @@ void draw_stuff(GLuint fbo_handle)
 	lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2;
 
+	lightColours[0].x = 1;
+	lightColours[0].y = 0.9;
+	lightColours[0].z = 0.9;
 
+	lightColours[1].x = 0.9;
+	lightColours[1].y = 1;
+	lightColours[1].z = 0.9;
 
+	lightEnabled[0] = 1;
+	lightEnabled[1] = 1;
 
 
 
@@ -632,6 +640,18 @@ void draw_stuff(GLuint fbo_handle)
 	{
 		string s = "lightPositions[" + to_string(i) + "]";
 		glUniform3f(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
+	}
+
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		string s = "lightColours[" + to_string(i) + "]";
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightColours[i].x, lightColours[i].y, lightColours[i].z);
+	}
+
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		string s = "lightEnabled[" + to_string(i) + "]";
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightEnabled[i]);
 	}
 
 	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);

@@ -11,13 +11,15 @@ in VS_OUT {
 } fs_in;
 
 
-const int max_num_lights = 2;
+const int max_num_lights = 24;
 uniform samplerCube depthMaps[max_num_lights];
+uniform vec3 lightPositions[max_num_lights];
+uniform vec3 lightColours[max_num_lights];
+uniform int lightEnabled[max_num_lights];
 
 
 uniform sampler2D diffuseTexture;
 
-uniform vec3 lightPositions[max_num_lights];
 
 uniform vec3 viewPos;
 
@@ -32,7 +34,7 @@ vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 10.0;
 
 
-vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp)
+vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 {
     vec3 n = fs_in.Normal;
     vec3 s_light1 = normalize(vec3(lp.xyz) - fs_in.mvPosition);
@@ -42,7 +44,7 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp)
 
     float sDotN_light1 = max( dot(s_light1,n), 0.0 );
 
-    vec3 diffuse_light1 = LightIntensity * texture(diffuseTexture, fs_in.TexCoords).rgb * sDotN_light1;
+    vec3 diffuse_light1 = lightColours[index] * texture(diffuseTexture, fs_in.TexCoords).rgb * sDotN_light1;
 
     vec3 spec_light1 = vec3(0.0);
 
@@ -68,7 +70,7 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp)
 
 
 
-    vec3 diffuse2_light1 = LightIntensity*0.25 * MaterialKa * sDotN2_light1;
+    vec3 diffuse2_light1 = lightColours[index]*0.25 * MaterialKa * sDotN2_light1;
 
 
 
@@ -117,6 +119,9 @@ void main()
 
        for(int i = 0; i < max_num_lights; i++)
         {
+            if(lightEnabled[i] == 0)
+                continue;
+
             float s = get_shadow(lightPositions[i], depthMaps[i]);
             
             if(s > brightest_contribution)
@@ -128,14 +133,24 @@ void main()
     if(brightest_contribution == 1.0)
     {
         for(int i = 0; i < max_num_lights; i++)
-            diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i]);
-  
+        {
+            if(lightEnabled[i] == 0)
+                continue;
+
+            diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i], i++);
+        }
+
         FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
     }
     else
     {
         for(int i = 0; i < max_num_lights; i++)
-            diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i]);
+        {
+            if(lightEnabled[i] == 0)
+                continue;
+
+            diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i], i++);
+         }
 
         FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0);
         FragColor /= 3;
