@@ -62,14 +62,6 @@ int cam_factor = 2;
 size_t shadowMapWidth = 2048;
 size_t shadowMapHeight = 2048;
 
-
-
-unsigned int depthCubemap1 = 0;
-unsigned int depthMapFBO1 = 0;
-
-unsigned int depthCubemap2 = 0;
-unsigned int depthMapFBO2 = 0;
-
 size_t max_num_lights = 2;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
@@ -551,7 +543,7 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO1);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[0]);
 
 
 	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
@@ -597,7 +589,7 @@ void draw_stuff(GLuint fbo_handle)
 
 
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO2);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[1]);
 
 
 	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
@@ -661,11 +653,11 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[0]);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[0]"), 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[1]);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[1]"), 3);
 
 	glActiveTexture(GL_TEXTURE4);
