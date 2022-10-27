@@ -113,28 +113,31 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-        float total_shadow = 0.0;
+        float brightest_contribution = 0.0;
 
        for(int i = 0; i < max_num_lights; i++)
         {
-            total_shadow += get_shadow(lightPositions[i], depthMaps[i]);
+            float s = get_shadow(lightPositions[i], depthMaps[i]);
+            
+            if(s > brightest_contribution)
+                brightest_contribution = s;
         }
 
-       total_shadow = total_shadow / max_num_lights;
+         vec3 diffAndSpec = vec3(0, 0, 0);
 
-    if(total_shadow == 1.0)
+    if(brightest_contribution == 1.0)
     {
-        vec3 diffAndSpec = phongModelDiffAndSpec(true, lightPositions[0]);
-        diffAndSpec += phongModelDiffAndSpec(true, lightPositions[1]);
-
+        for(int i = 0; i < max_num_lights; i++)
+            diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i]);
+  
         FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
     }
     else
     {
-        vec3 diffAndSpec = phongModelDiffAndSpec(false, lightPositions[0]);
-        diffAndSpec += phongModelDiffAndSpec(false, lightPositions[1]);
+        for(int i = 0; i < max_num_lights; i++)
+            diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i]);
 
-        FragColor = vec4(diffAndSpec * total_shadow + MaterialKa*(1.0 - total_shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * total_shadow + MaterialKa*(1.0 - total_shadow), 1.0);
+        FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa*(1.0 - brightest_contribution), 1.0);
         FragColor /= 3;
     }
 

@@ -61,6 +61,9 @@ int cam_factor = 2;
 
 size_t shadowMapWidth = 2048;
 size_t shadowMapHeight = 2048;
+
+
+
 unsigned int depthCubemap1 = 0;
 unsigned int depthMapFBO1 = 0;
 
