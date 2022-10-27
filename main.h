@@ -568,10 +568,10 @@ void draw_stuff(GLuint fbo_handle)
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-	for (unsigned int i = 0; i < 6; i++)
+	for (unsigned int j = 0; j < 6; j++)
 	{
-		string loc_string = "shadowMatrices[" + std::to_string(i) + "]";
-		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[i][0][0]);
+		string loc_string = "shadowMatrices[" + std::to_string(j) + "]";
+		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[j][0][0]);
 	}
 
 	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
@@ -582,8 +582,8 @@ void draw_stuff(GLuint fbo_handle)
 
 	glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-		player_game_piece_meshes[i].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
+	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+		player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -615,10 +615,10 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-	for (unsigned int i = 0; i < 6; i++)
+	for (unsigned int j = 0; j < 6; j++)
 	{
-		string loc_string = "shadowMatrices[" + std::to_string(i) + "]";
-		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[i][0][0]);
+		string loc_string = "shadowMatrices[" + std::to_string(j) + "]";
+		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[j][0][0]);
 	}
 
 	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
@@ -634,8 +634,8 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 
 
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-		player_game_piece_meshes[i].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
+	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+		player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -686,8 +686,8 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), far_plane);
 
 
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-		player_game_piece_meshes[i].draw(point_shader.get_program(), win_x, win_y);
+	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y);
 
 
 
@@ -695,7 +695,7 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
 	glUseProgram(line_shader.get_program());
 
-	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 	{
 		glDepthRange(0.025, 1.0);
 
