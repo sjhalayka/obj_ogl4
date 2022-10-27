@@ -70,6 +70,10 @@ unsigned int depthMapFBO1 = 0;
 unsigned int depthCubemap2 = 0;
 unsigned int depthMapFBO2 = 0;
 
+size_t max_num_lights = 2;
+vector<GLuint> depthCubemaps(max_num_lights, 0);
+vector<GLuint> depthMapFBOs(max_num_lights, 0);
+vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
 
 
 
@@ -520,12 +524,13 @@ void draw_stuff(GLuint fbo_handle)
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos = normalize(lightPos) * 10.0f;
-
+	lightPositions[0] = lightPos;
 
 	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos2 = normalize(lightPos2) * 10.0f;
 	lightPos2.x = -lightPos2.x;
 	lightPos2.z = -lightPos2.z;
+	lightPositions[1] = lightPos2;
 
 
 
