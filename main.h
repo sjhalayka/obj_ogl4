@@ -536,105 +536,52 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-
-
-
-
-
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[0]);
-
-
-	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-	main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	point_depth_shader.use_program();
-
-	//// 0. create depth cubemap transformation matrices
-	//// -----------------------------------------------
-	float near_plane = 1.0;// main_camera.near_plane;
-	float far_plane = 25.0;// main_camera.far_plane;
-	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
-	std::vector<glm::mat4> shadowTransforms;
-
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-
-	for (unsigned int j = 0; j < 6; j++)
+	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		string loc_string = "shadowMatrices[" + std::to_string(j) + "]";
-		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[j][0][0]);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
+
+		glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+		main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		point_depth_shader.use_program();
+
+		//// 0. create depth cubemap transformation matrices
+		//// -----------------------------------------------
+		float near_plane = 1.0;// main_camera.near_plane;
+		float far_plane = 25.0;// main_camera.far_plane;
+		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
+		std::vector<glm::mat4> shadowTransforms;
+
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+		for (unsigned int j = 0; j < 6; j++)
+		{
+			string loc_string = "shadowMatrices[" + std::to_string(j) + "]";
+			glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[j][0][0]);
+		}
+
+		glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
+		glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos"), lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
+		//	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos2"), lightPos2.x, lightPos2.y, lightPos2.z);
+
+		mat4 model = mat4(1.0f);
+
+		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
+		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	}
 
-	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
-	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-//	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos2"), lightPos2.x, lightPos2.y, lightPos2.z);
-
-	mat4 model = mat4(1.0f);
-
-	glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-		player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-
-
-
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[1]);
-
-
-	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-	main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	point_depth_shader.use_program();
-
-	//// 0. create depth cubemap transformation matrices
-	//// -----------------------------------------------
-near_plane = 1.0;// main_camera.near_plane;
-far_plane = 25.0;// main_camera.far_plane;
-shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
-
-
-	shadowTransforms.clear();
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos2, lightPos2 + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-
-	for (unsigned int j = 0; j < 6; j++)
-	{
-		string loc_string = "shadowMatrices[" + std::to_string(j) + "]";
-		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), loc_string.c_str()), 1, GL_FALSE, &shadowTransforms[j][0][0]);
-	}
-
-	glUniform1f(glGetUniformLocation(point_depth_shader.get_program(), "far_plane"), far_plane);
-
-
-	// MAKE SURE TO SET THIS FOR EACH FBO!
-	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos"), lightPos2.x, lightPos2.y, lightPos2.z);
-
-
-	model = mat4(1.0f);
-
-	glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-
-
-	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-		player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 
@@ -657,7 +604,6 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
-
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
 		glActiveTexture(GL_TEXTURE3 + i);
@@ -667,13 +613,6 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
 	}
 
-	//glActiveTexture(GL_TEXTURE3);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[0]);
-	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[0]"), 3);
-
-	//glActiveTexture(GL_TEXTURE4);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[1]);
-	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[1]"), 4);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
@@ -681,27 +620,27 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 
 
-
 	glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
-	model = mat4(1.0f);
+	mat4 model = mat4(1.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[0]"), lightPositions[0].x, lightPositions[0].y, lightPositions[0].z);
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[1]"), lightPositions[1].x, lightPositions[1].y, lightPositions[1].z);
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		string s = "lightPositions[" + to_string(i) + "]";
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
+	}
 
 	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "shadows"), 1);
-	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), far_plane);
+	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), 25);
 
 
 	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y);
-
-
 
 	glEnable(GL_BLEND); //Enable blending.
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
