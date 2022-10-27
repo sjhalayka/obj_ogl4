@@ -59,10 +59,10 @@ vertex_geometry_fragment_shader line_shader;
 
 int cam_factor = 2;
 
-size_t shadowMapWidth = 512;
-size_t shadowMapHeight = 512;
+size_t shadowMapWidth = 1024;
+size_t shadowMapHeight = 1024;
 
-size_t max_num_lights = 2;
+const size_t max_num_lights = 24;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
