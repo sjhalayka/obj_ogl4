@@ -11,15 +11,14 @@ in VS_OUT {
 } fs_in;
 
 
-const int max_light_count = 2;
-uniform samplerCube depthMaps[max_light_count];
+const int max_num_lights = 2;
+uniform samplerCube depthMaps[max_num_lights];
 
 
 uniform sampler2D diffuseTexture;
 
+uniform vec3 lightPositions[max_num_lights];
 
-uniform vec3 lightPos;
-uniform vec3 lightPos2;
 uniform vec3 viewPos;
 
 uniform float far_plane;
@@ -114,26 +113,28 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
+        float total_shadow = 0.0;
 
+       for(int i = 0; i < max_num_lights; i++)
+        {
+            total_shadow += get_shadow(lightPositions[i], depthMaps[i]);
+        }
 
-       float shadow1 = get_shadow(lightPos, depthMaps[0]);
-       float shadow2 = get_shadow(lightPos2, depthMaps[1]);
+       total_shadow = total_shadow / max_num_lights;
 
-       float shadow = (shadow1 + shadow2 ) / 2.0;
-
-    if(shadow == 1.0)
+    if(total_shadow == 1.0)
     {
-        vec3 diffAndSpec = phongModelDiffAndSpec(true, lightPos);
-        diffAndSpec += phongModelDiffAndSpec(true, lightPos2);
+        vec3 diffAndSpec = phongModelDiffAndSpec(true, lightPositions[0]);
+        diffAndSpec += phongModelDiffAndSpec(true, lightPositions[1]);
 
         FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
     }
     else
     {
-        vec3 diffAndSpec = phongModelDiffAndSpec(false, lightPos);
-        diffAndSpec += phongModelDiffAndSpec(false, lightPos2);
+        vec3 diffAndSpec = phongModelDiffAndSpec(false, lightPositions[0]);
+        diffAndSpec += phongModelDiffAndSpec(false, lightPositions[1]);
 
-        FragColor = vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
+        FragColor = vec4(diffAndSpec * total_shadow + MaterialKa*(1.0 - total_shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * total_shadow + MaterialKa*(1.0 - total_shadow), 1.0);
         FragColor /= 3;
     }
 

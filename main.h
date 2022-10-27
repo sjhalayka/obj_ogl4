@@ -68,6 +68,8 @@ unsigned int depthCubemap2 = 0;
 unsigned int depthMapFBO2 = 0;
 
 
+
+
 GLuint offscreen_fbo = 0;
 GLuint offscreen_colour_tex = 0;
 GLuint offscreen_depth_tex = 0;
@@ -516,6 +518,7 @@ void draw_stuff(GLuint fbo_handle)
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos = normalize(lightPos) * 10.0f;
 
+
 	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos2 = normalize(lightPos2) * 10.0f;
 	lightPos2.x = -lightPos2.x;
@@ -671,8 +674,9 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPos2"), lightPos2.x, lightPos2.y, lightPos2.z);
+
+	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[0]"), lightPos.x, lightPos.y, lightPos.z);
+	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[1]"), lightPos2.x, lightPos2.y, lightPos2.z);
 
 	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "shadows"), 1);
