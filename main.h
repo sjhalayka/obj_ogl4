@@ -640,6 +640,11 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 
 
+
+
+
+
+
 		//// 2. render scene as normal 
 		//// -------------------------
 
@@ -652,17 +657,27 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
 
+
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		glActiveTexture(GL_TEXTURE3 + i);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
+
+		string s = "depthMaps[" + to_string(i) + "]";
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
+	}
+
+	//glActiveTexture(GL_TEXTURE3);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[0]);
+	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[0]"), 3);
+
+	//glActiveTexture(GL_TEXTURE4);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[1]);
+	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[1]"), 4);
+
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[0]);
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[0]"), 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[1]);
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "depthMaps[1]"), 3);
-
-	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 4);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
 
 
@@ -675,8 +690,8 @@ shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (floa
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[0]"), lightPos.x, lightPos.y, lightPos.z);
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[1]"), lightPos2.x, lightPos2.y, lightPos2.z);
+	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[0]"), lightPositions[0].x, lightPositions[0].y, lightPositions[0].z);
+	glUniform3f(glGetUniformLocation(point_shader.get_program(), "lightPositions[1]"), lightPositions[1].x, lightPositions[1].y, lightPositions[1].z);
 
 	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "shadows"), 1);
