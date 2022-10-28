@@ -54,7 +54,7 @@ void mesh::draw(GLint render_shader_program,
 	const GLuint components_per_normal = 3;
 	const GLuint components_per_texcoord = 2;
 
-	if (colour_tex == 0)
+	if (1)//colour_tex == 0)
 	{
 		std::vector<unsigned char> buffer, image;
 		loadFile(buffer, texture_filename.c_str());
@@ -76,7 +76,7 @@ void mesh::draw(GLint render_shader_program,
 	}
 
 
-	if (specular_tex == 0)
+	if (1)//specular_tex == 0)
 	{
 		std::vector<unsigned char> buffer, image;
 		loadFile(buffer, specular_texture_filename.c_str());

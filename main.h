@@ -647,11 +647,11 @@ void draw_stuff(GLuint fbo_handle)
 
 
 	glActiveTexture(GL_TEXTURE20);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_colour_tex_handle());
+	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_colour_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"),20);
 
 	glActiveTexture(GL_TEXTURE15);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_specular_tex_handle());
+	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_specular_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 15);
 
 
