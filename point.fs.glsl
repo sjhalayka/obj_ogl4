@@ -66,7 +66,6 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 		spec_light1.z = MaterialKs.z * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
 	}
 
-	spec_light1.xyz *= texture(specularTexture, fs_in.TexCoords).rgb;
 
 	vec3 n2 = fs_in.Normal;
 
@@ -131,11 +130,12 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-	FragColor = texture(diffuseTexture, fs_in.TexCoords);
+	FragColor =  texture(specularTexture, fs_in.TexCoords);
 	return;
 
 
-
+	MaterialKs = vec3(1.0, 0.5, 0.0);
+	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 
 
 	if(flat_draw == 1)
