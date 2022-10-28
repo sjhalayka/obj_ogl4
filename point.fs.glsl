@@ -130,8 +130,13 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-	FragColor =  texture(specularTexture, fs_in.TexCoords);
-	return;
+
+//	MaterialKs = vec3(1.0, 0.5, 0.0);
+	MaterialKs *= 	texture(specularTexture, fs_in.TexCoords).rgb;
+
+
+//	FragColor =  texture(specularTexture, fs_in.TexCoords);
+//	return;
 
 
 	MaterialKs = vec3(1.0, 0.5, 0.0);
