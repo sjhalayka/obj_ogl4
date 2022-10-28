@@ -11,14 +11,22 @@ in VS_OUT{
 } fs_in;
 
 
+
+
 const int max_num_lights = 24;
 uniform samplerCube depthMaps[max_num_lights];
+uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
+
 uniform vec3 lightPositions[max_num_lights];
 uniform vec3 lightColours[max_num_lights];
 uniform int lightEnabled[max_num_lights];
 
 
-uniform sampler2D diffuseTexture;
+
+
+
+
 
 
 uniform vec3 viewPos;
@@ -55,6 +63,8 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 		spec_light1.y = MaterialKs.y * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
 		spec_light1.z = MaterialKs.z * pow(max(dot(r_light1, v), 0.0), MaterialShininess);
 	}
+
+	spec_light1.xyz *= texture(specularTexture, fs_in.TexCoords).rgb;
 
 	vec3 n2 = fs_in.Normal;
 
@@ -119,6 +129,9 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
+	FragColor = texture(diffuseTexture, fs_in.TexCoords);
+	return;
+
 	if(flat_draw == 1)
 	{
 		FragColor = vec4(flat_colour, 1.0);
