@@ -25,6 +25,8 @@ uniform vec3 viewPos;
 
 uniform float far_plane;
 uniform int shadows = 1;
+uniform int flat_draw = 0;
+uniform vec3 flat_colour;
 
 
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
@@ -117,6 +119,12 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
+	if(flat_draw == 1)
+	{
+		FragColor = vec4(flat_colour, 1.0);
+		return;
+	}
+
 	float brightest_contribution = 0.0;
 
 	for (int i = 0; i < max_num_lights; i++)

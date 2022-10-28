@@ -46,15 +46,17 @@ mt19937 mt_rand(0);// static_cast<unsigned int>(time(0)));
 
 vector<mesh> player_game_piece_meshes; 
 
+mesh light_mesh;
+
 vector<vec3> colours;
 
 
 
 vertex_fragment_shader point_shader;
 vertex_geometry_fragment_shader point_depth_shader;
-
 vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
+
 
 
 int cam_factor = 2;
@@ -575,7 +577,7 @@ void draw_stuff(GLuint fbo_handle)
 
 		//// 0. create depth cubemap transformation matrices
 		//// -----------------------------------------------
-		float near_plane = 1.0;// main_camera.near_plane;
+		float near_plane = 0.1;// main_camera.near_plane;
 		float far_plane = 25.0;// main_camera.far_plane;
 		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
 		std::vector<glm::mat4> shadowTransforms;
@@ -602,7 +604,7 @@ void draw_stuff(GLuint fbo_handle)
 		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight);
+			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -640,6 +642,7 @@ void draw_stuff(GLuint fbo_handle)
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
 	}
 
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
@@ -679,7 +682,38 @@ void draw_stuff(GLuint fbo_handle)
 
 
 	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y);
+		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png");
+
+
+	for (size_t j = 0; j < max_num_lights; j++)
+	{
+		if (lightEnabled[j] == 0)
+			continue;
+
+		glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
+		mat4 model = mat4(1.0f);
+		model[3] = vec4(lightPositions[j], 1.0f);
+
+		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
+ 
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, light_mesh.get_tex_handle());
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
+
+		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png");
+	}
+
+
+
+
+
 
 	glEnable(GL_BLEND); //Enable blending.
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
@@ -710,10 +744,48 @@ void draw_stuff(GLuint fbo_handle)
 	}
 
 
+
+
+
+
+
+	//glUseProgram(flat_shader.get_program());
+
+	//for (size_t j = 0; j < max_num_lights; j++)
+	//{
+	//	if (lightEnabled[j] == 0)
+	//		continue;
+
+	//	cout << lightPositions[j].x << " " << lightPositions[j].y << " " << lightPositions[j].z << endl;
+
+	//	mat4 m = mat4(1.0f);
+	//	m[3].x = lightPositions[j].x;
+	//	m[3].y = lightPositions[j].y;
+	//	m[3].z = lightPositions[j].z;
+	//	m[3].w = 1;
+
+	//	mat4 mv = main_camera.view_mat * m;
+	//	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * m;
+
+	//	glUniformMatrix4fv(glGetUniformLocation(flat_shader.get_program(), "mv_matrix"), 1, GL_FALSE, &mv[0][0]);
+	//	glUniformMatrix4fv(glGetUniformLocation(flat_shader.get_program(), "mvp_matrix"), 1, GL_FALSE, &mvp[0][0]);
+	//	glUniform3f(glGetUniformLocation(flat_shader.get_program(), "flat_colour"), 0, 0.5, 1.0);
+
+	//	light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png");
+
+
+	//}
+
+
+	//cout << endl;
+
+
+
+
 	glDisable(GL_BLEND);
 
 
-
+	glFlush();
 
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);

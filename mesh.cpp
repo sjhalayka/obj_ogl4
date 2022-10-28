@@ -44,7 +44,8 @@ void mesh::init_opengl_data(void)
 
 void mesh::draw(GLint render_shader_program,
 	int win_x,
-	int win_y)
+	int win_y,
+	string texture_filename)
 {
 	glUseProgram(render_shader_program);
 
@@ -56,7 +57,7 @@ void mesh::draw(GLint render_shader_program,
 	if (tex == 0)
 	{
 		std::vector<unsigned char> buffer, image;
-		loadFile(buffer, "chr_knight.png");
+		loadFile(buffer, texture_filename.c_str());
 		unsigned long w, h;
 		decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 

@@ -386,7 +386,7 @@ public:
 
 
 
-	void draw(GLint render_shader_program, int win_x, int win_y);
+	void draw(GLint render_shader_program, int win_x, int win_y, string texture_filename);
 
 	vec3 geodesic_dir;
 	vec3 geodesic_left;

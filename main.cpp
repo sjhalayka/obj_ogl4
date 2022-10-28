@@ -9,13 +9,17 @@ int main(int argc, char** argv)
 
 	if (false == game_piece_mesh.read_triangles_from_wavefront_obj_file("chr_knight.obj"))
 	{
-		cout << "Error: Could not properly read file " << argv[1] << endl;
+		cout << "Error: Could not properly read file chr_knight.obj" << endl;
 		return 2;
 	}
 
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
-
+	if (false == light_mesh.read_triangles_from_wavefront_obj_file("3x3x3.obj"))
+	{
+		cout << "Error: Could not properly read file 3x3x3.obj" << endl;
+		return 2;
+	}
 
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
@@ -240,6 +244,7 @@ bool init_opengl(const int& width, const int& height)
 		cout << "Could not load line shader" << endl;
 		return false;
 	}
+
 
 
 	for (size_t i = 0; i < max_num_lights; i++)
