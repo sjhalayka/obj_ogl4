@@ -64,7 +64,7 @@ int cam_factor = 2;
 size_t shadowMapWidth = 1024;
 size_t shadowMapHeight = 1024;
 
-const size_t max_num_lights = 24;
+const size_t max_num_lights = 3;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
@@ -635,22 +635,24 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		glActiveTexture(GL_TEXTURE4 + i);
+		glActiveTexture(GL_TEXTURE24 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
-
+			
 		string s = "depthMaps[" + to_string(i) + "]";
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 4 + i);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 24 + i);
 	}
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
-	glActiveTexture(GL_TEXTURE3);
+
+	glActiveTexture(GL_TEXTURE20);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_colour_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"),20);
+
+	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 15);
 
 
 	glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

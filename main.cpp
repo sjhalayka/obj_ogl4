@@ -157,6 +157,7 @@ void use_buffers(GLuint frame_buffer)
 	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "colour_tex"), 1);
 
+
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 

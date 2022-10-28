@@ -13,10 +13,12 @@ in VS_OUT{
 
 
 
-const int max_num_lights = 24;
-uniform samplerCube depthMaps[max_num_lights];
+const int max_num_lights = 3;
+
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
+
+uniform samplerCube depthMaps[max_num_lights];
 
 uniform vec3 lightPositions[max_num_lights];
 uniform vec3 lightColours[max_num_lights];
@@ -129,8 +131,12 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-	FragColor = texture(specularTexture, fs_in.TexCoords);
+	FragColor = texture(diffuseTexture, fs_in.TexCoords);
 	return;
+
+
+
+
 
 	if(flat_draw == 1)
 	{
