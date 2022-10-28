@@ -604,7 +604,7 @@ void draw_stuff(GLuint fbo_handle)
 		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png");
+			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -635,19 +635,22 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		glActiveTexture(GL_TEXTURE3 + i);
+		glActiveTexture(GL_TEXTURE4 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
 
 		string s = "depthMaps[" + to_string(i) + "]";
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 4 + i);
 	}
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_tex_handle());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_colour_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, player_game_piece_meshes[0].get_specular_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
 
 	glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -682,9 +685,9 @@ void draw_stuff(GLuint fbo_handle)
 
 
 	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png");
+		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
-
+	/*
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
 		if (lightEnabled[j] == 0)
@@ -704,13 +707,13 @@ void draw_stuff(GLuint fbo_handle)
  
 
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, light_mesh.get_tex_handle());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, light_mesh.get_colour_tex_handle());
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
-		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png");
+		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
 	}
 
-
+	*/
 
 
 

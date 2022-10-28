@@ -45,7 +45,7 @@ void mesh::init_opengl_data(void)
 void mesh::draw(GLint render_shader_program,
 	int win_x,
 	int win_y,
-	string texture_filename)
+	string texture_filename, string specular_texture_filename)
 {
 	glUseProgram(render_shader_program);
 
@@ -54,7 +54,7 @@ void mesh::draw(GLint render_shader_program,
 	const GLuint components_per_normal = 3;
 	const GLuint components_per_texcoord = 2;
 
-	if (tex == 0)
+	if (colour_tex == 0)
 	{
 		std::vector<unsigned char> buffer, image;
 		loadFile(buffer, texture_filename.c_str());
@@ -64,10 +64,8 @@ void mesh::draw(GLint render_shader_program,
 		const size_t tex_width = w;
 		const size_t tex_height = h;
 
-		glEnable(GL_TEXTURE_2D);
-
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		glGenTextures(1, &colour_tex);
 
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -76,6 +74,33 @@ void mesh::draw(GLint render_shader_program,
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 	}
+
+
+	if (specular_tex == 0)
+	{
+		std::vector<unsigned char> buffer, image;
+		loadFile(buffer, specular_texture_filename.c_str());
+		unsigned long w, h;
+		decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		const size_t tex_width = w;
+		const size_t tex_height = h;
+
+		glBindTexture(GL_TEXTURE_2D, specular_tex);
+		glGenTextures(1, &specular_tex);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+	}
+
+
+
+
+
 
 	GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data.size()) / components_per_vertex;
 

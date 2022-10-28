@@ -129,7 +129,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-	FragColor = texture(diffuseTexture, fs_in.TexCoords);
+	FragColor = texture(specularTexture, fs_in.TexCoords);
 	return;
 
 	if(flat_draw == 1)

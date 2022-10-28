@@ -60,12 +60,19 @@ class mesh
 {
 public:
 
-	GLuint tex = 0;
+	GLuint colour_tex = 0;
+	GLuint specular_tex = 0;
 
-	GLuint get_tex_handle(void)
+	GLuint get_colour_tex_handle(void)
 	{
-		return tex;
+		return colour_tex;
 	}
+
+	GLuint get_specular_tex_handle(void)
+	{
+		return specular_tex;
+	}
+
 
 	vector<triangle> triangles;
 
@@ -386,7 +393,10 @@ public:
 
 
 
-	void draw(GLint render_shader_program, int win_x, int win_y, string texture_filename);
+	void draw(GLint render_shader_program,
+		int win_x,
+		int win_y,
+		string texture_filename, string specular_texture_filename);
 
 	vec3 geodesic_dir;
 	vec3 geodesic_left;
