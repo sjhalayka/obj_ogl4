@@ -552,7 +552,7 @@ void draw_stuff(GLuint fbo_handle)
 
 
 	lightEnabled[0] = 0;
-	lightEnabled[1] = 0;
+	lightEnabled[1] = 1;
 	lightEnabled[2] = 0;
 	lightEnabled[3] = 1;
 

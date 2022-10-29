@@ -132,14 +132,14 @@ void main()
 {
 //	FragColor = texture(diffuseTexture, fs_in.TexCoords);
 //	return;	
-
-	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
-
+	
 	if(flat_draw == 1)
 	{
 		FragColor = vec4(flat_colour, 1.0);
 		return;
 	}
+
+	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 
 	float brightest_contribution = 0.0;
 
