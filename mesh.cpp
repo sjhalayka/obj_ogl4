@@ -54,53 +54,49 @@ void mesh::draw(GLint render_shader_program,
 	const GLuint components_per_normal = 3;
 	const GLuint components_per_texcoord = 2;
 
-	if (1)//colour_tex == 0)
+	if (colour_tex == 0)
 	{
-		std::vector<unsigned char> buffer, image;
+		std::vector<unsigned char> buffer;
 		loadFile(buffer, texture_filename.c_str());
 		unsigned long w, h;
-		decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+		decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-		const size_t tex_width = w;
-		const size_t tex_height = h;
-
-		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		colour_data_x = w;
+		colour_data_y = h;
+		
 		glGenTextures(1, &colour_tex);
-
+		glBindTexture(GL_TEXTURE_2D, colour_tex);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 	}
 
 
-	if (1)//specular_tex == 0)
+	if (specular_tex == 0)
 	{
-		std::vector<unsigned char> buffer, image;
+		std::vector<unsigned char> buffer;
 		loadFile(buffer, specular_texture_filename.c_str());
 		unsigned long w, h;
-		decodePNG(image, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+		decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-		const size_t tex_width = w;
-		const size_t tex_height = h;
+		specular_data_x = w;
+		specular_data_y = h;
 
-		glBindTexture(GL_TEXTURE_2D, specular_tex);
 		glGenTextures(1, &specular_tex);
+		glBindTexture(GL_TEXTURE_2D, specular_tex);
 
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(tex_width), static_cast<GLsizei>(tex_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 	}
 
+	glBindTexture(GL_TEXTURE_2D, colour_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(colour_data_x), static_cast<GLsizei>(colour_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);
 
-
-
-
+	glBindTexture(GL_TEXTURE_2D, specular_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(specular_data_x), static_cast<GLsizei>(specular_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &specular_data[0]);
 
 	GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data.size()) / components_per_vertex;
 

@@ -63,6 +63,13 @@ public:
 	GLuint colour_tex = 0;
 	GLuint specular_tex = 0;
 
+	vector<unsigned char> colour_data;
+	vector<unsigned char> specular_data;
+
+	size_t colour_data_x = 0, colour_data_y = 0;
+	size_t specular_data_x = 0, specular_data_y = 0;
+
+
 	GLuint get_colour_tex_handle(void)
 	{
 		return colour_tex;
