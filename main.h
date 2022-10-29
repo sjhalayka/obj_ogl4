@@ -66,7 +66,7 @@ int cam_factor = 2;
 size_t shadowMapWidth = 1024;
 size_t shadowMapHeight = 1024;
 
-const size_t max_num_lights = 3;
+const size_t max_num_lights = 4;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
@@ -529,9 +529,8 @@ void draw_stuff(GLuint fbo_handle)
 	lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2;
 
-	vec3 lightPos3 = vec3(0.0, 10.0, 10.0);
-	lightPositions[2] = lightPos3;
-
+	lightPositions[2] = vec3(0.0, 0.5, 2);
+	lightPositions[3] = vec3(0.0, 0.5, 4);
 
 	lightColours[0].x = 1.0;
 	lightColours[0].y = 1.0;
@@ -542,12 +541,17 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[1].z = 1.0;
 
 	lightColours[2].x = 0.0;
-	lightColours[2].y = 0.0;
-	lightColours[2].z = 0.1;
+	lightColours[2].y = 1.0;
+	lightColours[2].z = 0.0;
 
-	lightEnabled[0] = 1;
-	lightEnabled[1] = 1;
+	lightColours[3].x = 0.0;
+	lightColours[3].y = 0.0;
+	lightColours[3].z = 1.0;
+
+	lightEnabled[0] = 0;
+	lightEnabled[1] = 0;
 	lightEnabled[2] = 0;
+	lightEnabled[3] = 1;
 
 
 
@@ -568,7 +572,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		if (lightEnabled[i] == 0)
+		if (0)//lightEnabled[i] == 0)
 			continue;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
@@ -707,7 +711,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
-		if (lightEnabled[j] == 0)
+		if (0)//lightEnabled[j] == 0)
 			continue;
 
 		glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

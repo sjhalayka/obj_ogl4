@@ -141,24 +141,7 @@ void main()
 		return;
 	}
 
-
-
-	float shadow = 0.0;
-
-	for (int i = 0; i < max_num_lights; i++)
-	{
-		if (lightEnabled[i] == 0)
-			continue;
-
-		shadow += get_shadow(lightPositions[i], depthMaps[i]);
-
-		
-	}
-
-/*
-
 	float brightest_contribution = 0.0;
-
 
 	for (int i = 0; i < max_num_lights; i++)
 	{
@@ -170,11 +153,10 @@ void main()
 		if (s > brightest_contribution)
 			brightest_contribution = s;
 	}
-*/
 
 	vec3 diffAndSpec = vec3(0, 0, 0);
 
-	if (shadow == 1.0)
+	if (brightest_contribution == 1.0)
 	{
 		for (int i = 0; i < max_num_lights; i++)
 		{
@@ -196,7 +178,7 @@ void main()
 			diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i], i++);
 		}
 
-		FragColor = vec4(diffAndSpec * shadow + MaterialKa * (1.0 - shadow), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * shadow + MaterialKa * (1.0 - shadow), 1.0);
+		FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0);
 		FragColor /= 3;
 	}
 
