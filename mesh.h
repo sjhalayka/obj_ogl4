@@ -8,6 +8,12 @@
 #include "uv_camera.h"
 
 
+#include <filesystem>
+using std::filesystem::current_path;
+using std::filesystem::path;
+using std::filesystem::directory_entry;
+using std::filesystem::recursive_directory_iterator;
+using std::filesystem::directory_iterator;
 
 #include <cstdlib>
 #include "GL/glew.h"
@@ -113,15 +119,63 @@ public:
 			tokens.push_back(*iter++);
 	}
 
+	vector<string> get_masked_paths(string filemask)
+	{
+		vector<string> ret;
+
+		// Get current working directory
+		const path p{ current_path() };
+
+		// Recursively enumerate files and sub-directories
+		for (const directory_entry dir_entry : directory_iterator{ p })
+		{
+			if (dir_entry.path().extension() == ".obj" && dir_entry.is_regular_file())
+			{
+				string s = dir_entry.path().string();
+
+				for (size_t i = 0; i < s.size(); i++)
+					if (s[i] == '/')
+						s[i] = '\\';
+
+				vector<string> tokens;
+				std_strtok(s, "[\\\\]", tokens);
+
+				string filename = tokens[tokens.size() - 1];
+				string truncated_filename = filename;
+				truncated_filename.resize(filename.size() - 4);
+
+				string truncated_filename_without_extension = truncated_filename;
+
+				truncated_filename_without_extension.resize(filemask.size());
+
+				if (truncated_filename_without_extension == filemask)
+				{
+					ret.push_back(filename);
+				}
+			}
+		}
+
+		return ret;
+	}
 
 	bool read_quads_from_obj_array(string filename_base)
 	{
 		tri_vec.clear();
 		tri_vec.resize(1);
 
-		// Get filename_base*.obj
+
+		vector<string> filenames = get_masked_paths(filename_base);
+
+		cout << filenames.size() << endl;
+
+		for (size_t i = 0; i < filenames.size(); i++)
+			cout << filenames[i] << endl;
 
 		string filename = filename_base + ".obj";
+
+
+
+
 		if (false == read_quads_from_wavefront_obj_file(filename, 0))
 			return false;
 
