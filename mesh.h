@@ -118,6 +118,9 @@ public:
 	{
 		tri_vec.clear();
 		tri_vec.resize(1);
+
+		// Get filename_base*.obj
+
 		string filename = filename_base + ".obj";
 		if (false == read_quads_from_wavefront_obj_file(filename, 0))
 			return false;
