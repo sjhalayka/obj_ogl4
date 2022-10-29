@@ -22,6 +22,10 @@ public:
 	float u = 0, v = 0;
 };
 
+
+
+
+
 class vertex_3
 {
 public:
@@ -172,7 +176,11 @@ public:
 };
 
 
-
+class quad
+{
+public:
+	vertex_3 vertex[4];
+};
 
 
 #endif

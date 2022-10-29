@@ -106,52 +106,6 @@ public:
 
 
 
-	void draw_basis()
-	{
-		draw_dir();
-		draw_tangent();
-		draw_left();
-
-	}
-
-	void draw_left(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 left = geodesic_left * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + left.x, centre.y + left.y, centre.z + left.z);
-
-		glEnd();
-	}
-	void draw_dir(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 dir = geodesic_dir * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + dir.x, centre.y + dir.y, centre.z + dir.z);
-
-		glEnd();
-	}
-
-	void draw_tangent(void)
-	{
-		vec3 centre = model_mat * vec4((max_location + min_location) / 2.0f, 1.0f);
-		vec3 tangent = geodesic_tangent * 0.5f;
-
-		glBegin(GL_LINES);
-
-		glVertex3f(centre.x, centre.y, centre.z);
-		glVertex3f(centre.x + tangent.x, centre.y + tangent.y, centre.z + tangent.z);
-
-		glEnd();
-	}
-
 	bool read_triangles_from_wavefront_obj_file(const char* const file_name)
 	{
 		triangles.clear();
@@ -397,6 +351,314 @@ public:
 
 		return true;
 	}
+
+
+
+
+
+	bool read_quads_from_wavefront_obj_file(const char* const file_name)
+	{
+		triangles.clear();
+
+		// Write to file.
+		ifstream infile(file_name);
+
+		if (infile.fail())
+			return false;
+
+		vector<vertex_3> verts;
+		vector<uv_coord> tex_coords;
+		vector<vertex_3> norms;
+
+		string mtllib_filename_string;
+		string usemtl_palette_string;
+
+		string line;
+
+		map<vertex_3, size_t> face_normal_counts;
+		vertex_3 vtemp;
+
+
+
+		while (getline(infile, line))
+		{
+			if (line == "")
+				continue;
+
+			vector<string> tokens;
+
+			std_strtok(line, "[ \t]", tokens);
+
+			if (tokens[0] == "mtllib")
+			{
+				for (size_t i = 1; i < tokens.size() - 1; i++)
+				{
+					mtllib_filename_string += tokens[i];
+					mtllib_filename_string += ' ';
+				}
+
+				mtllib_filename_string += tokens[tokens.size() - 1];
+			}
+			else if (tokens[0] == "usemtl")
+			{
+				for (size_t i = 1; i < tokens.size() - 1; i++)
+				{
+					usemtl_palette_string += tokens[i];
+					usemtl_palette_string += ' ';
+				}
+
+				usemtl_palette_string += tokens[tokens.size() - 1];
+			}
+			else if (tokens[0] == "vn")
+			{
+				if (tokens.size() != 4)
+					continue;
+
+				vertex_3 vn;
+
+				istringstream iss(tokens[1]);
+				iss >> vn.x;
+
+				iss.clear();
+				iss.str(tokens[2]);
+				iss >> vn.y;
+
+				iss.clear();
+				iss.str(tokens[3]);
+				iss >> vn.z;
+
+				norms.push_back(vn);
+			}
+			else if (tokens[0] == "vt")
+			{
+				if (tokens.size() != 3)
+					continue;
+
+				uv_coord c;
+
+				istringstream iss(tokens[1]);
+				iss >> c.u;
+
+				iss.clear();
+				iss.str(tokens[2]);
+				iss >> c.v;
+
+				tex_coords.push_back(c);
+			}
+			else if (tokens[0] == "v")
+			{
+				if (tokens.size() != 4)
+					continue;
+
+				vertex_3 v;
+
+				istringstream iss(tokens[1]);
+				iss >> v.x;
+
+				iss.clear();
+				iss.str(tokens[2]);
+				iss >> v.y;
+
+				iss.clear();
+				iss.str(tokens[3]);
+				iss >> v.z;
+
+				verts.push_back(v);
+			}
+			else if (tokens[0] == "f")
+			{
+				if (tokens.size() != 5)
+					continue;
+
+				//v / vt / vn
+
+				quad q;
+				//triangle t;
+
+				vector<string> face_tokens;
+
+
+				std_strtok(tokens[1], "[/]", face_tokens);
+
+				if (face_tokens.size() != 3)
+					continue;
+
+				istringstream iss;
+				size_t v_index = 0;
+				size_t vt_index = 0;
+				size_t vn_index = 0;
+
+				iss.clear();
+				iss.str(face_tokens[0]);
+				iss >> v_index;
+				v_index--;
+
+				iss.clear();
+				iss.str(face_tokens[1]);
+				iss >> vt_index;
+				vt_index--;
+
+				iss.clear();
+				iss.str(face_tokens[2]);
+				iss >> vn_index;
+				vn_index--;
+
+				q.vertex[0].x = verts[v_index].x;
+				q.vertex[0].y = verts[v_index].y;
+				q.vertex[0].z = verts[v_index].z;
+				q.vertex[0].u = tex_coords[vt_index].u;
+				q.vertex[0].v = tex_coords[vt_index].v;
+				q.vertex[0].nx = norms[vn_index].x;
+				q.vertex[0].ny = norms[vn_index].y;
+				q.vertex[0].nz = norms[vn_index].z;
+
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
+
+
+
+
+
+
+
+
+				std_strtok(tokens[2], "[/]", face_tokens);
+
+				if (face_tokens.size() != 3)
+					continue;
+
+				iss.clear();
+				iss.str(face_tokens[0]);
+				iss >> v_index;
+				v_index--;
+
+				iss.clear();
+				iss.str(face_tokens[1]);
+				iss >> vt_index;
+				vt_index--;
+
+				iss.clear();
+				iss.str(face_tokens[2]);
+				iss >> vn_index;
+				vn_index--;
+
+				q.vertex[1].x = verts[v_index].x;
+				q.vertex[1].y = verts[v_index].y;
+				q.vertex[1].z = verts[v_index].z;
+				q.vertex[1].u = tex_coords[vt_index].u;
+				q.vertex[1].v = tex_coords[vt_index].v;
+				q.vertex[1].nx = norms[vn_index].x;
+				q.vertex[1].ny = norms[vn_index].y;
+				q.vertex[1].nz = norms[vn_index].z;
+
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
+
+
+				std_strtok(tokens[3], "[/]", face_tokens);
+
+				if (face_tokens.size() != 3)
+					continue;
+
+
+				iss.clear();
+				iss.str(face_tokens[0]);
+				iss >> v_index;
+				v_index--;
+
+				iss.clear();
+				iss.str(face_tokens[1]);
+				iss >> vt_index;
+				vt_index--;
+
+				iss.clear();
+				iss.str(face_tokens[2]);
+				iss >> vn_index;
+				vn_index--;
+
+				q.vertex[2].x = verts[v_index].x;
+				q.vertex[2].y = verts[v_index].y;
+				q.vertex[2].z = verts[v_index].z;
+				q.vertex[2].u = tex_coords[vt_index].u;
+				q.vertex[2].v = tex_coords[vt_index].v;
+				q.vertex[2].nx = norms[vn_index].x;
+				q.vertex[2].ny = norms[vn_index].y;
+				q.vertex[2].nz = norms[vn_index].z;
+
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
+
+
+				std_strtok(tokens[4], "[/]", face_tokens);
+
+				if (face_tokens.size() != 3)
+					continue;
+
+
+				iss.clear();
+				iss.str(face_tokens[0]);
+				iss >> v_index;
+				v_index--;
+
+				iss.clear();
+				iss.str(face_tokens[1]);
+				iss >> vt_index;
+				vt_index--;
+
+				iss.clear();
+				iss.str(face_tokens[2]);
+				iss >> vn_index;
+				vn_index--;
+
+				q.vertex[3].x = verts[v_index].x;
+				q.vertex[3].y = verts[v_index].y;
+				q.vertex[3].z = verts[v_index].z;
+				q.vertex[3].u = tex_coords[vt_index].u;
+				q.vertex[3].v = tex_coords[vt_index].v;
+				q.vertex[3].nx = norms[vn_index].x;
+				q.vertex[3].ny = norms[vn_index].y;
+				q.vertex[3].nz = norms[vn_index].z;
+
+				vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
+				face_normal_counts[vtemp]++;
+
+
+				triangle t;
+				t.vertex[0] = q.vertex[0];
+				t.vertex[1] = q.vertex[1];
+				t.vertex[2] = q.vertex[2];
+				triangles.push_back(t);
+
+				t.vertex[0] = q.vertex[0];
+				t.vertex[1] = q.vertex[2];
+				t.vertex[2] = q.vertex[3];
+				triangles.push_back(t);
+
+			}
+		}
+
+		for (map<vertex_3, size_t>::const_iterator ci = face_normal_counts.begin(); ci != face_normal_counts.end(); ci++)
+		{
+			cout << ci->first.x << " " << ci->first.y << " " << ci->first.z << endl;
+			cout << ci->second << endl << endl;
+		}
+
+
+		init_opengl_data();
+
+		return true;
+	}
+
+
+
+
+
 
 
 
