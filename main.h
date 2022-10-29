@@ -61,7 +61,7 @@ vertex_geometry_fragment_shader line_shader;
 
 
 
-int cam_factor = 24;
+int cam_factor = 4;
 
 size_t shadowMapWidth = 1024;
 size_t shadowMapHeight = 1024;
@@ -543,11 +543,11 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[2].y = 1.0;
 	lightColours[2].z = 0.0;
 
-	lightColours[3].x = 0.0;
+	lightColours[3].x = 1.0;
 	lightColours[3].y = 0.0;
-	lightColours[3].z = 1.0;
+	lightColours[3].z = 0.0;
 
-	lightColours[3] = lightColours[0];
+	//lightColours[3] = lightColours[0];
 	lightPositions[3] = lightPos;
 
 
