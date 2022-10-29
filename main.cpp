@@ -68,8 +68,7 @@ int main(int argc, char** argv)
 
 	if (false == init_opengl(win_x, win_y))
 		return 1;
-
-
+	
 
 	glutReshapeFunc(reshape_func);
 	glutIdleFunc(idle_func);

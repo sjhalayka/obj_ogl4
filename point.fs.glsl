@@ -13,7 +13,7 @@ in VS_OUT{
 
 
 
-const int max_num_lights = 3;
+const int max_num_lights = 24;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
@@ -130,7 +130,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-//	FragColor = texture(specularTexture, fs_in.TexCoords);
+//	FragColor = texture(diffuseTexture, fs_in.TexCoords);
 //	return;	
 
 	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;

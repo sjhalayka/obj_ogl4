@@ -61,12 +61,12 @@ vertex_geometry_fragment_shader line_shader;
 
 
 
-int cam_factor = 2;
+int cam_factor = 24;
 
 size_t shadowMapWidth = 1024;
 size_t shadowMapHeight = 1024;
 
-const size_t max_num_lights = 4;
+const size_t max_num_lights = 24;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
@@ -522,7 +522,6 @@ void draw_stuff(GLuint fbo_handle)
 	lightPos = normalize(lightPos) * 10.0f;
 	lightPositions[0] =  lightPos;
 
-
 	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos2 = normalize(lightPos2) * 10.0f;
 	lightPos2.x = -lightPos2.x;
@@ -548,6 +547,10 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[3].y = 0.0;
 	lightColours[3].z = 1.0;
 
+	lightColours[3] = lightColours[0];
+	lightPositions[3] = lightPos;
+
+
 	lightEnabled[0] = 0;
 	lightEnabled[1] = 0;
 	lightEnabled[2] = 0;
@@ -572,7 +575,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		if (0)//lightEnabled[i] == 0)
+		if (lightEnabled[i] == 0)
 			continue;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
@@ -612,6 +615,8 @@ void draw_stuff(GLuint fbo_handle)
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
+
+		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -697,6 +702,11 @@ void draw_stuff(GLuint fbo_handle)
 		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
 
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+
+
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
@@ -711,7 +721,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
-		if (0)//lightEnabled[j] == 0)
+		if (lightEnabled[j] == 0)
 			continue;
 
 		glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
