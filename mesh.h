@@ -161,23 +161,19 @@ public:
 	bool read_quads_from_obj_array(string filename_base)
 	{
 		tri_vec.clear();
-		tri_vec.resize(1);
-
 
 		vector<string> filenames = get_masked_paths(filename_base);
 
-		cout << filenames.size() << endl;
+		if (filenames.size() == 0)
+			return false;
+
+		tri_vec.resize(filenames.size());
 
 		for (size_t i = 0; i < filenames.size(); i++)
-			cout << filenames[i] << endl;
-
-		string filename = filename_base + ".obj";
-
-
-
-
-		if (false == read_quads_from_wavefront_obj_file(filename, 0))
-			return false;
+		{
+			if (false == read_quads_from_wavefront_obj_file(filenames[i], i))
+				return false;
+		}
 
 		init_opengl_data();
 
