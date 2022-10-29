@@ -6,35 +6,37 @@ void mesh::init_opengl_data(void)
 {
 	opengl_vertex_data.clear();
 
-	for (size_t i = 0; i < triangles.size(); i++)
+	for (size_t v = 0; v < tri_vec.size(); v++)
 	{
-		opengl_vertex_data.push_back(triangles[i].vertex[0].x);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].y);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].z);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].nx);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].ny);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].nz);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].u);
-		opengl_vertex_data.push_back(triangles[i].vertex[0].v);
+		for (size_t i = 0; i < tri_vec[v].size(); i++)
+		{
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].x);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].y);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].z);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].nx);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].ny);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].nz);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].u);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[0].v);
 
-		opengl_vertex_data.push_back(triangles[i].vertex[1].x);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].y);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].z);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].nx);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].ny);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].nz);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].u);
-		opengl_vertex_data.push_back(triangles[i].vertex[1].v);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].x);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].y);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].z);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].nx);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].ny);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].nz);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].u);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[1].v);
 
-		opengl_vertex_data.push_back(triangles[i].vertex[2].x);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].y);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].z);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].nx);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].ny);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].nz);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].u);
-		opengl_vertex_data.push_back(triangles[i].vertex[2].v);
-
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].x);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].y);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].z);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].nx);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].ny);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].nz);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].u);
+			opengl_vertex_data.push_back(tri_vec[v][i].vertex[2].v);
+		}
 	}
 }
 

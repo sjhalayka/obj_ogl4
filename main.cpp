@@ -15,11 +15,11 @@ int main(int argc, char** argv)
 
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
-	//if (false == light_mesh.read_triangles_from_wavefront_obj_file("3x3x3.obj"))
-	//{
-	//	cout << "Error: Could not properly read file 3x3x3.obj" << endl;
-	//	return 2;
-	//}
+	if (false == light_mesh.read_quads_from_wavefront_obj_file("3x3x3.obj"))
+	{
+		cout << "Error: Could not properly read file 3x3x3.obj" << endl;
+		return 2;
+	}
 
 
 	if (false == board_mesh.read_quads_from_wavefront_obj_file("board.obj"))

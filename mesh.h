@@ -63,6 +63,15 @@ public:
 	GLuint colour_tex = 0;
 	GLuint specular_tex = 0;
 
+	~mesh(void)
+	{
+		if (colour_tex != 0)
+			glDeleteTextures(1, &colour_tex);
+
+		if (specular_tex != 0)
+			glDeleteTextures(1, &specular_tex);
+	}
+
 	vector<unsigned char> colour_data;
 	vector<unsigned char> specular_data;
 
@@ -81,7 +90,7 @@ public:
 	}
 
 
-	vector<triangle> triangles;
+	vector<vector<triangle>> tri_vec;
 
 	vector<float> opengl_vertex_data;
 
@@ -104,7 +113,7 @@ public:
 			tokens.push_back(*iter++);
 	}
 
-
+	/*
 
 	bool read_triangles_from_wavefront_obj_file(const char* const file_name)
 	{
@@ -352,13 +361,15 @@ public:
 		return true;
 	}
 
-
+	*/
 
 
 
 	bool read_quads_from_wavefront_obj_file(const char* const file_name)
 	{
-		triangles.clear();
+		tri_vec.clear();
+
+		vector<triangle> triangles;
 
 		// Write to file.
 		ifstream infile(file_name);
@@ -643,11 +654,12 @@ public:
 			}
 		}
 
-		for (map<vertex_3, size_t>::const_iterator ci = face_normal_counts.begin(); ci != face_normal_counts.end(); ci++)
-		{
-			cout << ci->first.x << " " << ci->first.y << " " << ci->first.z << endl;
-			cout << ci->second << endl << endl;
-		}
+		tri_vec.push_back(triangles);
+		//for (map<vertex_3, size_t>::const_iterator ci = face_normal_counts.begin(); ci != face_normal_counts.end(); ci++)
+		//{
+		//	cout << ci->first.x << " " << ci->first.y << " " << ci->first.z << endl;
+		//	cout << ci->second << endl << endl;
+		//}
 
 
 		init_opengl_data();
@@ -694,139 +706,7 @@ public:
 	}
 
 
-	bool intersect_triangles(vec3 ray_origin, vec3 ray_dir, vec3& closest_intersection_point)
-	{
-		bool global_found_intersection = false;
-		bool first_assignment = true;
-
-		for (size_t i = 0; i < triangles.size(); i++)
-		{
-			vec3 v0;
-			v0.x = triangles[i].vertex[0].x;
-			v0.y = triangles[i].vertex[0].y;
-			v0.z = triangles[i].vertex[0].z;
-
-			vec3 v1;
-			v1.x = triangles[i].vertex[1].x;
-			v1.y = triangles[i].vertex[1].y;
-			v1.z = triangles[i].vertex[1].z;
-
-			vec3 v2;
-			v2.x = triangles[i].vertex[2].x;
-			v2.y = triangles[i].vertex[2].y;
-			v2.z = triangles[i].vertex[2].z;
-
-			vec3 closest;
-			bool found_intersection = RayIntersectsTriangle(ray_origin,
-				ray_dir,
-				v0, v1, v2,
-				closest);
-
-			if (true == found_intersection)
-			{
-				global_found_intersection = true;
-
-				if (first_assignment)
-				{
-					closest_intersection_point = closest;
-					first_assignment = false;
-				}
-				else
-				{
-					vec3 c0 = ray_origin - closest;
-					vec3 c1 = ray_origin - closest_intersection_point;
-
-					if (length(c0) < length(c1))
-						closest_intersection_point = closest;
-				}
-			}
-		}
-
-		return global_found_intersection;
-	}
-
-	bool RayIntersectsTriangle(const vec3 rayOrigin,
-		const vec3 rayVector,
-		const vec3 v0, const vec3 v1, const vec3 v2,
-		vec3& outIntersectionPoint)
-	{
-		const float EPSILON = 0.0000001f;
-		vec3 vertex0 = v0;// inTriangle->vertex0;
-		vec3 vertex1 = v1;// inTriangle->vertex1;
-		vec3 vertex2 = v2;// inTriangle->vertex2;
-		vec3 edge1, edge2, h, s, q;
-		float a, f, u, v;
-		edge1 = vertex1 - vertex0;
-		edge2 = vertex2 - vertex0;
-		h = cross(rayVector, edge2);
-		a = dot(edge1, h);
-		if (a > -EPSILON && a < EPSILON)
-			return false;    // This ray is parallel to this triangle.
-		f = 1.0f / a;
-		s = rayOrigin - vertex0;
-		u = f * dot(s, h);
-		if (u < 0.0f || u > 1.0f)
-			return false;
-		q = cross(s, edge1);
-		v = f * dot(rayVector, q);
-		if (v < 0.0f || u + v > 1.0f)
-			return false;
-
-		// At this stage we can compute t to find out where the intersection point is on the line.
-
-		float t = f * dot(edge2, q);
-
-		if (t > EPSILON) // ray intersection
-		{
-			outIntersectionPoint = rayOrigin + rayVector * t;
-			return true;
-		}
-		else // This means that there is a line intersection but not a ray intersection.
-			return false;
-	}
-
-	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	bool intersect_AABB(vec3 ray_origin, vec3 ray_dir)
-	{
-		float tmin = (min_location.x - ray_origin.x) / ray_dir.x;
-		float tmax = (max_location.x - ray_origin.x) / ray_dir.x;
-
-		if (tmin > tmax) swap(tmin, tmax);
-
-		float tymin = (min_location.y - ray_origin.y) / ray_dir.y;
-		float tymax = (max_location.y - ray_origin.y) / ray_dir.y;
-
-		if (tymin > tymax) swap(tymin, tymax);
-
-		if ((tmin > tymax) || (tymin > tmax))
-			return false;
-
-		if (tymin > tmin)
-			tmin = tymin;
-
-		if (tymax < tmax)
-			tmax = tymax;
-
-		float tzmin = (min_location.z - ray_origin.z) / ray_dir.z;
-		float tzmax = (max_location.z - ray_origin.z) / ray_dir.z;
-
-		if (tzmin > tzmax) swap(tzmin, tzmax);
-
-		if ((tmin > tzmax) || (tzmin > tmax))
-			return false;
-
-		if (tzmin > tmin)
-			tmin = tzmin;
-
-		if (tzmax < tmax)
-			tmax = tzmax;
-
-		return true;
-	}
-
-
 protected:
-void get_vertices_and_normals_from_triangles();
 	void init_opengl_data(void);
 };
 

@@ -323,28 +323,28 @@ void draw_triangle_lines(GLuint program)
 
 	vector<GLfloat> flat_data;
 
-	for (size_t t = 0; t < player_game_piece_meshes[0].triangles.size(); t++)
+	for (size_t t = 0; t < player_game_piece_meshes[0].tri_vec[0].size(); t++)
 	{
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].z);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].z);
 
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[1].z);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[1].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].z);
 
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[2].z);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].x);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].y);
-		flat_data.push_back(player_game_piece_meshes[0].triangles[t].vertex[0].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[2].z);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].x);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].y);
+		flat_data.push_back(player_game_piece_meshes[0].tri_vec[0][t].vertex[0].z);
 	}
 
 	//flat_data.push_back(0);
@@ -520,8 +520,8 @@ void draw_stuff(GLuint fbo_handle)
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos = normalize(lightPos) * 10.0f;
-	lightPositions[0] = -main_camera.eye;// lightPos;
-	lightPositions[0].y = -lightPositions[0].y;
+	lightPositions[0] =  lightPos;
+
 
 	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos2 = normalize(lightPos2) * 10.0f;
@@ -638,11 +638,11 @@ void draw_stuff(GLuint fbo_handle)
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		glActiveTexture(GL_TEXTURE24 + i);
+		glActiveTexture(GL_TEXTURE4 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
 			
 		string s = "depthMaps[" + to_string(i) + "]";
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 24 + i);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 4 + i);
 	}
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
@@ -694,17 +694,17 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-	glActiveTexture(GL_TEXTURE20);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 20);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
-	glActiveTexture(GL_TEXTURE15);
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 15);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
 	board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
-	/*
+
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
 		if (lightEnabled[j] == 0)
@@ -727,10 +727,12 @@ void draw_stuff(GLuint fbo_handle)
 		glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+
 		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
 	}
-
-	*/
 
 
 
