@@ -48,6 +48,8 @@ vector<mesh> player_game_piece_meshes;
 
 mesh light_mesh;
 
+mesh board_mesh;
+
 vector<vec3> colours;
 
 
@@ -514,7 +516,7 @@ void draw_stuff(GLuint fbo_handle)
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
-
+	// todo: set light at negative eye
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	lightPos = normalize(lightPos) * 10.0f;
@@ -538,13 +540,13 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[1].y = 1.0;
 	lightColours[1].z = 1.0;
 
-	lightColours[2].x = 0.5;
-	lightColours[2].y = 0.5;
-	lightColours[2].z = 0.7;
+	lightColours[2].x = 0.0;
+	lightColours[2].y = 0.0;
+	lightColours[2].z = 0.1;
 
 	lightEnabled[0] = 1;
 	lightEnabled[1] = 1;
-	lightEnabled[2] = 0;
+	lightEnabled[2] = 1;
 
 
 
@@ -689,6 +691,18 @@ void draw_stuff(GLuint fbo_handle)
 	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
+
+
+	glActiveTexture(GL_TEXTURE20);
+	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 20);
+
+	glActiveTexture(GL_TEXTURE15);
+	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 15);
+
+	board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+
 	/*
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
@@ -709,7 +723,7 @@ void draw_stuff(GLuint fbo_handle)
  
 
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, light_mesh.get_colour_tex_handle());
+		glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
 		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
@@ -747,42 +761,6 @@ void draw_stuff(GLuint fbo_handle)
 
 		glDepthRange(0.0, 1.0);
 	}
-
-
-
-
-
-
-
-	//glUseProgram(flat_shader.get_program());
-
-	//for (size_t j = 0; j < max_num_lights; j++)
-	//{
-	//	if (lightEnabled[j] == 0)
-	//		continue;
-
-	//	cout << lightPositions[j].x << " " << lightPositions[j].y << " " << lightPositions[j].z << endl;
-
-	//	mat4 m = mat4(1.0f);
-	//	m[3].x = lightPositions[j].x;
-	//	m[3].y = lightPositions[j].y;
-	//	m[3].z = lightPositions[j].z;
-	//	m[3].w = 1;
-
-	//	mat4 mv = main_camera.view_mat * m;
-	//	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * m;
-
-	//	glUniformMatrix4fv(glGetUniformLocation(flat_shader.get_program(), "mv_matrix"), 1, GL_FALSE, &mv[0][0]);
-	//	glUniformMatrix4fv(glGetUniformLocation(flat_shader.get_program(), "mvp_matrix"), 1, GL_FALSE, &mvp[0][0]);
-	//	glUniform3f(glGetUniformLocation(flat_shader.get_program(), "flat_colour"), 0, 0.5, 1.0);
-
-	//	light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png");
-
-
-	//}
-
-
-	//cout << endl;
 
 
 

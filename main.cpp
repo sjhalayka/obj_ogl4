@@ -22,6 +22,12 @@ int main(int argc, char** argv)
 	}
 
 
+	if (false == board_mesh.read_triangles_from_wavefront_obj_file("board.obj"))
+	{
+		cout << "Error: Could not properly read file board.obj" << endl;
+		return 2;
+	}
+
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
 		vec3 dir(-1, 0, 0);

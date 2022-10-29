@@ -42,7 +42,7 @@ uniform vec3 flat_colour;
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
-float MaterialShininess = 0.01;
+float MaterialShininess = 1;
 
 
 vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
@@ -130,8 +130,6 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-//FragColor = texture(diffuseTexture, fs_in.TexCoords);
-	//return;	
 
 
 
