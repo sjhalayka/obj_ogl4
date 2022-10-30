@@ -118,7 +118,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 	float currentDepth = length(fragToLight);
 	// test for shadows
 	float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
-	shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	shadow = currentDepth - bias > closestDepth ? 0.1 : 0.0;
 
 	shadow = 1 - shadow;
 
@@ -141,8 +141,27 @@ void main()
 
 	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 
-	float brightest_contribution = 0.0;
+	float shadow = 0.0;
+	int num_enabled_lights = 0;
 
+	for (int i = 0; i < max_num_lights; i++)
+	{
+		if (lightEnabled[i] == 0)
+			continue;
+
+		num_enabled_lights++;
+
+		shadow += get_shadow(lightPositions[i], depthMaps[i]);
+	}
+
+	shadow /= num_enabled_lights;
+
+	shadow = clamp(shadow, 0, 1);
+
+	
+	float brightest_contribution = shadow;
+
+	/*
 	for (int i = 0; i < max_num_lights; i++)
 	{
 		if (lightEnabled[i] == 0)
@@ -153,6 +172,9 @@ void main()
 		if (s > brightest_contribution)
 			brightest_contribution = s;
 	}
+*/
+
+
 
 	vec3 diffAndSpec = vec3(0, 0, 0);
 
