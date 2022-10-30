@@ -64,10 +64,10 @@ vertex_geometry_fragment_shader line_shader;
 
 int cam_factor = 4;
 
-size_t shadowMapWidth = 2000;
-size_t shadowMapHeight = 2000;
+size_t shadowMapWidth = 1024;
+size_t shadowMapHeight = 1024;
 
-const size_t max_num_lights = 24;
+const size_t max_num_lights = 4;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
 vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
@@ -520,20 +520,14 @@ void draw_stuff(GLuint fbo_handle)
 	// todo: set light at negative eye
 	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
 	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	lightPos = normalize(lightPos) * 10.0f;
+	//lightPos = normalize(lightPos) * 10.0f;
 	lightPositions[0] =  lightPos;
 
-	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + -left * 2.0f;
-	lightPos2 = normalize(lightPos2) * 10.0f;
-	//lightPos2.x = -lightPos2.x;
-	//lightPos2.z = -lightPos2.z;
+	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	//lightPos2 = normalize(lightPos2) * 10.0f;
+	lightPos2.x = -lightPos2.x;
+	lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2;
-
-
-
-
-
-
 
 	lightPositions[2] = vec3(0.0, 0.5, 2);
 	lightPositions[3] = vec3(0.0, 0.5, 4);
@@ -546,21 +540,18 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[1].y = 1.0;
 	lightColours[1].z = 1.0;
 
-	lightColours[2].x = 0.0;
-	lightColours[2].y = 1.0;
+	lightColours[2].x = 1.0;
+	lightColours[2].y = 0.0;
 	lightColours[2].z = 0.0;
 
 	lightColours[3].x = 1.0;
 	lightColours[3].y = 0.0;
 	lightColours[3].z = 0.0;
 
-	//lightColours[3] = lightColours[0];
-	lightPositions[3] = lightPos;
 
-
-	lightEnabled[0] = 1;
-	lightEnabled[1] = 1;
-	lightEnabled[2] = 0;
+	lightEnabled[0] = 0;
+	lightEnabled[1] = 0;
+	lightEnabled[2] = 1;
 	lightEnabled[3] = 0;
 
 
@@ -578,7 +569,7 @@ void draw_stuff(GLuint fbo_handle)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
+		
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
@@ -714,9 +705,10 @@ void draw_stuff(GLuint fbo_handle)
 		player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
 
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+
+	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
 
