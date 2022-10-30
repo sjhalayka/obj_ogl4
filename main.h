@@ -61,10 +61,11 @@ vertex_geometry_fragment_shader line_shader;
 
 
 
+
 int cam_factor = 4;
 
-size_t shadowMapWidth = 1024;
-size_t shadowMapHeight = 1024;
+size_t shadowMapWidth = 2000;
+size_t shadowMapHeight = 2000;
 
 const size_t max_num_lights = 24;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
@@ -580,8 +581,11 @@ void draw_stuff(GLuint fbo_handle)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
+
 		glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 		main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+
+
 		glClear(GL_DEPTH_BUFFER_BIT);
 		point_depth_shader.use_program();
 
@@ -590,6 +594,8 @@ void draw_stuff(GLuint fbo_handle)
 		float near_plane = 0.1;// main_camera.near_plane;
 		float far_plane = 25.0;// main_camera.far_plane;
 		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapWidth / (float)shadowMapHeight, near_plane, far_plane);
+
+
 		std::vector<glm::mat4> shadowTransforms;
 
 		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPositions[i], lightPositions[i] + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
@@ -616,7 +622,7 @@ void draw_stuff(GLuint fbo_handle)
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
 
-		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+		board_mesh.draw(point_depth_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -658,13 +664,13 @@ void draw_stuff(GLuint fbo_handle)
 
 
 
-	glActiveTexture(GL_TEXTURE20);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"),20);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
-	glActiveTexture(GL_TEXTURE15);
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 15);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
 
 	glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -779,19 +785,11 @@ void draw_stuff(GLuint fbo_handle)
 		glDepthRange(0.0, 1.0);
 	}
 
-
-
-
 	glDisable(GL_BLEND);
 
 
+
 	glFlush();
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-
 }
 
 
