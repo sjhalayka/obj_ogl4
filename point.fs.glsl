@@ -141,23 +141,27 @@ void main()
 
 	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 
-	float shadow = 0.0;
-	int num_enabled_lights = 0;
+
+	int num_shadows = 0;
 
 	for (int i = 0; i < max_num_lights; i++)
 	{
 		if (lightEnabled[i] == 0)
 			continue;
 
-		num_enabled_lights++;
-
-		shadow += get_shadow(lightPositions[i], depthMaps[i]);
+		float s = get_shadow(lightPositions[i], depthMaps[i]);
+		
+		if(s == 0)
+			num_shadows++;
 	}
 
-	shadow /= num_enabled_lights;
+	float shadow = 1.0;
+
+	for(int i = 0; i < num_shadows; i++)
+		shadow -= 0.1;
+
 
 	shadow = clamp(shadow, 0, 1);
-
 	shadow = pow(shadow, 100.0);
 	
 	float brightest_contribution = shadow;
