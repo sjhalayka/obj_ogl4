@@ -158,6 +158,7 @@ void main()
 
 	shadow = clamp(shadow, 0, 1);
 
+	shadow = pow(shadow, 100.0);
 	
 	float brightest_contribution = shadow;
 

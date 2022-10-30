@@ -532,9 +532,9 @@ void draw_stuff(GLuint fbo_handle)
 	lightPositions[2] = vec3(0.0, 0.5, 2);
 	lightPositions[3] = vec3(0.0, 0.5, 4);
 
-	lightColours[0].x = 1.0;
-	lightColours[0].y = 1.0;
-	lightColours[0].z = 1.0;
+	lightColours[0].x = 0.5;
+	lightColours[0].y = 0.5;
+	lightColours[0].z = 0.5;
 
 	lightColours[1].x = 1.0;
 	lightColours[1].y = 1.0;
@@ -549,7 +549,7 @@ void draw_stuff(GLuint fbo_handle)
 	lightColours[3].z = 0.0;
 
 
-	lightEnabled[0] = 0;
+	lightEnabled[0] = 1;
 	lightEnabled[1] = 0;
 	lightEnabled[2] = 1;
 	lightEnabled[3] = 0;
