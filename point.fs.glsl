@@ -1,5 +1,3 @@
-
-
 #version 430 core
 out vec4 FragColor;
 
@@ -41,7 +39,7 @@ uniform vec3 flat_colour;
 
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
-vec3 MaterialKa = vec3(0, 0, 0);//vec3(0.0, 0.025, 0.075);
+vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 1;
 
 
@@ -106,8 +104,6 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 
 float get_shadow(vec3 lp, samplerCube dmap)
 {
-	float shadow = 0.0;
-
 	// get vector between fragment position and light position
 	vec3 fragToLight = fs_in.FragPos - lp;
 	// ise the fragment to light vector to sample from the depth map    
@@ -118,7 +114,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 	float currentDepth = length(fragToLight);
 	// test for shadows
 	float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
-	shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
 	shadow = 1 - shadow;
 
@@ -155,35 +151,9 @@ void main()
 			num_shadows++;
 	}
 
-	float shadow = 1.0;
-
-	for(int i = 0; i < num_shadows; i++)
-		shadow -= 0.1;
-
-
-	shadow = clamp(shadow, 0, 1);
-	shadow = pow(shadow, 100.0);
-	
-	float brightest_contribution = shadow;
-
-	/*
-	for (int i = 0; i < max_num_lights; i++)
-	{
-		if (lightEnabled[i] == 0)
-			continue;
-
-		float s = get_shadow(lightPositions[i], depthMaps[i]);
-
-		if (s > brightest_contribution)
-			brightest_contribution = s;
-	}
-*/
-
-
-
 	vec3 diffAndSpec = vec3(0, 0, 0);
 
-	if (brightest_contribution == 1.0)
+	if (num_shadows == 0)
 	{
 		for (int i = 0; i < max_num_lights; i++)
 		{
@@ -202,10 +172,12 @@ void main()
 			if (lightEnabled[i] == 0)
 				continue;
 
-			diffAndSpec += phongModelDiffAndSpec(false, lightPositions[i], i);
+			diffAndSpec += get_shadow(lightPositions[i], depthMaps[i]) * phongModelDiffAndSpec(false, lightPositions[i], i);
 		}
+		
+		float brightest_contribution = 1;
 
-		FragColor = vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0);
+		FragColor = vec4(diffAndSpec, 1.0);// * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0);
 		FragColor /= 3;
 	}
 
@@ -214,4 +186,3 @@ void main()
 
 	return;
 }
-
