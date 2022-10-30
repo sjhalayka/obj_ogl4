@@ -162,8 +162,6 @@ void main()
 
 			diffAndSpec += phongModelDiffAndSpec(true, lightPositions[i], i);
 		}
-
-		FragColor = vec4(diffAndSpec, 1.0);// + vec4(diffAndSpec * shadow + MaterialKa*(1.0 - shadow), 1.0);
 	}
 	else
 	{
@@ -174,15 +172,10 @@ void main()
 
 			diffAndSpec += get_shadow(lightPositions[i], depthMaps[i]) * phongModelDiffAndSpec(false, lightPositions[i], i);
 		}
-		
-		float brightest_contribution = 1;
-
-		FragColor = vec4(diffAndSpec, 1.0);// * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0) + vec4(diffAndSpec, 1.0) + vec4(diffAndSpec * brightest_contribution + MaterialKa * (1.0 - brightest_contribution), 1.0);
-		FragColor /= 3;
 	}
-
+	
+	FragColor = vec4(diffAndSpec, 1.0);
 	FragColor = pow(FragColor, vec4(1.0 / 2.2));
-
 
 	return;
 }
