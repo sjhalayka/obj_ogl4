@@ -153,6 +153,10 @@ void main()
 
 	vec3 diffAndSpec = vec3(0, 0, 0);
 
+
+
+
+
 	if (num_shadows == 0)
 	{
 		for (int i = 0; i < max_num_lights; i++)
