@@ -523,11 +523,17 @@ void draw_stuff(GLuint fbo_handle)
 	lightPos = normalize(lightPos) * 10.0f;
 	lightPositions[0] =  lightPos;
 
-	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + -left * 2.0f;
 	lightPos2 = normalize(lightPos2) * 10.0f;
-	lightPos2.x = -lightPos2.x;
-	lightPos2.z = -lightPos2.z;
+	//lightPos2.x = -lightPos2.x;
+	//lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2;
+
+
+
+
+
+
 
 	lightPositions[2] = vec3(0.0, 0.5, 2);
 	lightPositions[3] = vec3(0.0, 0.5, 4);
@@ -552,10 +558,10 @@ void draw_stuff(GLuint fbo_handle)
 	lightPositions[3] = lightPos;
 
 
-	lightEnabled[0] = 0;
+	lightEnabled[0] = 1;
 	lightEnabled[1] = 1;
 	lightEnabled[2] = 0;
-	lightEnabled[3] = 1;
+	lightEnabled[3] = 0;
 
 
 
