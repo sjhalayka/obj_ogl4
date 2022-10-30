@@ -532,9 +532,9 @@ void draw_stuff(GLuint fbo_handle)
 	lightPositions[2] = vec3(0.0, 0.5, 2);
 	lightPositions[3] = vec3(0.0, 0.5, 4);
 
-	lightColours[0].x = 0.5;
-	lightColours[0].y = 0.5;
-	lightColours[0].z = 0.5;
+	lightColours[0].x = 0;
+	lightColours[0].y = 1;
+	lightColours[0].z = 0;
 
 	lightColours[1].x = 1.0;
 	lightColours[1].y = 1.0;
@@ -674,6 +674,8 @@ void draw_stuff(GLuint fbo_handle)
 	glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 	mat4 model = mat4(1.0f);
 
+	//model = scale(model, vec3(1, -1, 1));
+
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
@@ -723,6 +725,8 @@ void draw_stuff(GLuint fbo_handle)
 	board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
 
+
+
 	for (size_t j = 0; j < max_num_lights; j++)
 	{
 		if (lightEnabled[j] == 0)
@@ -732,6 +736,7 @@ void draw_stuff(GLuint fbo_handle)
 		glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 		mat4 model = mat4(1.0f);
 		model[3] = vec4(lightPositions[j], 1.0f);
+
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -753,7 +758,7 @@ void draw_stuff(GLuint fbo_handle)
 	}
 
 
-
+	/*
 
 	glEnable(GL_BLEND); //Enable blending.
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
@@ -785,6 +790,7 @@ void draw_stuff(GLuint fbo_handle)
 
 	glDisable(GL_BLEND);
 
+	*/
 
 
 	glFlush();
