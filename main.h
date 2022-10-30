@@ -576,6 +576,8 @@ void draw_stuff(GLuint fbo_handle)
 		if (lightEnabled[i] == 0)
 			continue;
 
+		lightPositions[i].y = -lightPositions[i].y;
+
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
 
@@ -613,6 +615,7 @@ void draw_stuff(GLuint fbo_handle)
 		//	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos2"), lightPos2.x, lightPos2.y, lightPos2.z);
 
 		mat4 model = mat4(1.0f);
+		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -674,7 +677,9 @@ void draw_stuff(GLuint fbo_handle)
 	glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 	mat4 model = mat4(1.0f);
 
-	//model = scale(model, vec3(1, -1, 1));
+	glCullFace(GL_FRONT);
+
+	model = scale(model, vec3(1, -1, 1));
 
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -757,6 +762,8 @@ void draw_stuff(GLuint fbo_handle)
 		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
 	}
 
+
+	glCullFace(GL_BACK);
 
 	/*
 
