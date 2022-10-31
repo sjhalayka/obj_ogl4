@@ -59,6 +59,8 @@ vertex_geometry_fragment_shader point_depth_shader;
 vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 
+vertex_fragment_shader tex_reflectance;
+
 
 
 

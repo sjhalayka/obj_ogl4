@@ -251,6 +251,11 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
+	if (false == tex_reflectance.init("ortho_reflectance.vs.glsl", "ortho_reflectance.fs.glsl"))
+	{
+		cout << "Could not load ortho reflectance shader" << endl;
+		return false;
+	}
 
 
 	for (size_t i = 0; i < max_num_lights; i++)
