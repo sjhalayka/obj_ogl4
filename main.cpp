@@ -93,7 +93,7 @@ void idle_func(void)
 
 
 
-void use_buffers		(GLuint frame_buffer)
+void use_buffers(GLuint frame_buffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
@@ -335,10 +335,170 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//draw_stuff(offscreen_fbo, true, false, true);
+	glUseProgram(point_shader.get_program());
 
+	GLuint upside_down_white_mask_tex = 0;
+	GLuint upside_down_tex = 0;
+	GLuint reflectance_tex = 0;
+	GLuint regular_tex = 0;
+
+	glGenTextures(1, &upside_down_white_mask_tex);
+	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glGenTextures(1, &upside_down_tex);
+	glBindTexture(GL_TEXTURE_2D, upside_down_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glGenTextures(1, &reflectance_tex);
+	glBindTexture(GL_TEXTURE_2D, reflectance_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glGenTextures(1, &regular_tex);
+	glBindTexture(GL_TEXTURE_2D, regular_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+
+	// Upside down white mask
+	draw_stuff(offscreen_fbo, true, false, true);
+	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+	//// Upside down
+	draw_stuff(offscreen_fbo, true, false, false);
+	glBindTexture(GL_TEXTURE_2D, upside_down_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+	// Reflectance map
+	draw_stuff(offscreen_fbo, false, true, false);
+	glBindTexture(GL_TEXTURE_2D, reflectance_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+	// Regular map
 	draw_stuff(offscreen_fbo, false, false, false);
+	glBindTexture(GL_TEXTURE_2D, regular_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+	// use the shader program
+	glUseProgram(tex_reflectance.get_program());
+
+	glActiveTexture(GL_TEXTURE25);
+	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_white_mask_tex"), 25);
+
+	glActiveTexture(GL_TEXTURE26);
+	glBindTexture(GL_TEXTURE_2D, upside_down_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_tex"), 26);
+
+	glActiveTexture(GL_TEXTURE27);
+	glBindTexture(GL_TEXTURE_2D, reflectance_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "reflectance_tex"), 27);
+
+	glActiveTexture(GL_TEXTURE28);
+	glBindTexture(GL_TEXTURE_2D, regular_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 28);
+
+
+
+
+
+
+
+
+
+
+	// vao and vbo handle
+	GLuint vao, vbo, ibo;
+
+	// https://raw.githubusercontent.com/progschj/OpenGL-Examples/master/03texture.cpp
+
+	// generate and bind the vao
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// generate and bind the vertex buffer object
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// http://www.songho.ca/opengl/gl_transform.html
+
+
+	// data for a fullscreen quad (this time with texture coords)
+	static const GLfloat vertexData[] = {
+		//  X     Y     Z           U     V     
+		   1.0f, 1.0f, 0.0f,       1.0f, 1.0f, // vertex 0
+		  -1.0f, 1.0f, 0.0f,       0.0f, 1.0f, // vertex 1
+		   1.0f,-1.0f, 0.0f,       1.0f, 0.0f, // vertex 2
+		  -1.0f,-1.0f, 0.0f,       0.0f, 0.0f, // vertex 3
+	}; // 4 vertices with 5 components (floats) each
+
+	// fill with data
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 5, vertexData, GL_DYNAMIC_DRAW);
+
+
+	// set up generic attrib pointers
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (char*)0 + 3 * sizeof(GLfloat));
+
+
+	// generate and bind the index buffer object
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	static const GLuint indexData[] = {
+		0,1,2, // first triangle
+		2,1,3, // second triangle
+	};
+
+	// fill with data
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 2 * 3, indexData, GL_DYNAMIC_DRAW);
+
+	// "unbind" vao
+	glBindVertexArray(0);
+
+
+	// bind the vao
+	glBindVertexArray(vao);
+
+	// draw
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ibo);
+
 	use_buffers(0);
+
+
+		glDeleteTextures(1, &upside_down_white_mask_tex);
+		glDeleteTextures(1, &upside_down_tex);
+		glDeleteTextures(1, &reflectance_tex);
+		glDeleteTextures(1, &regular_tex);
+
+
 
 	glutSwapBuffers();
 }

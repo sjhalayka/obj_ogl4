@@ -574,8 +574,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == reflectance_only)
 	{
-
-
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
 			if (lightEnabled[i] == 0)
@@ -658,6 +656,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	point_shader.use_program();
 
+	if (reflectance_only)
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 1);
+	else
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 0);
+
+
+
 	glViewport(0, 0, win_x, win_y);
 
 	main_camera.calculate_camera_matrices(win_x, win_y);
@@ -738,10 +743,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 	}
 
-	if(reflectance_only)
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 1);
-	else
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 0);
 
 	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
