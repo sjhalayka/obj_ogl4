@@ -326,11 +326,9 @@ void reshape_func(int width, int height)
 
 
 
-void draw_scene(void)
+void draw_scene(GLuint fbo_handle)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 
 	glUseProgram(point_shader.get_program());
 
@@ -500,7 +498,7 @@ void draw_scene(void)
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
 
-	use_buffers(0, d_tex, offscreen_colour_tex);
+	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
 	glDeleteTextures(1, &upside_down_white_mask_tex);
@@ -516,7 +514,7 @@ void draw_scene(void)
 
 void display_func(void)
 {
-	draw_scene();
+	draw_scene(0);
 
 	glutSwapBuffers();
 }
@@ -597,7 +595,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		//take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 

@@ -135,11 +135,11 @@ void main()
 	{
 		FragColor = texture(specularTexture, fs_in.TexCoords);
 		
-		vec3 n =  fs_in.untransformed_normal;
-		vec3 n2 = fs_in.FragPos - vec3(0, 0 , 0); // Use this as an example position
+//		vec3 n =  fs_in.Normal;
+//		vec3 n2 = -fs_in.FragPos; // Use this as an example position
 
-		if(dot(n, n2) < 0)
-			FragColor = vec4(0, 0, 0, 1);
+//		if(true == (dot(n, n2) > 0))
+//			FragColor = vec4(0, 0, 0, 1);
 	
 		return;
 	}

@@ -106,7 +106,7 @@ bool screenshot_mode = false;
 
 void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white);
 void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex_handle);
-
+void draw_scene(GLuint fbo_handle);
 
 //
 //void write_cube_map_to_disk(size_t i, string filename)
@@ -391,7 +391,7 @@ void draw_triangle_lines(GLuint program)
 
 
 
-/*
+
 void take_screenshot2(size_t num_cams_wide, const char* filename)
 {
 	screenshot_mode = true;
@@ -421,10 +421,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
-
-	draw_stuff(offscreen_fbo);
-	use_buffers(offscreen_fbo);
+	draw_scene(offscreen_fbo);
 
 
 	glGenVertexArrays(1, &quad_vao);
@@ -510,7 +507,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	init_offscreen_fbo();
 
 }
-*/
 
 
 
