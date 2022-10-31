@@ -105,7 +105,7 @@ bool screenshot_mode = false;
 
 
 void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white);
-void use_buffers(GLuint frame_buffer);
+void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex_handle);
 
 
 //

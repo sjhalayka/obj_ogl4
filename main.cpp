@@ -93,7 +93,7 @@ void idle_func(void)
 
 
 
-void use_buffers(GLuint frame_buffer)
+void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex_handle)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
@@ -155,11 +155,11 @@ void use_buffers(GLuint frame_buffer)
 	glUseProgram(tex_passthrough.get_program());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, offscreen_depth_tex);
+	glBindTexture(GL_TEXTURE_2D, depth_tex_handle);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "depth_tex"), 0);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, offscreen_colour_tex);
+	glBindTexture(GL_TEXTURE_2D, colour_tex_handle);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "colour_tex"), 1);
 
 
@@ -335,12 +335,15 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
 	glUseProgram(point_shader.get_program());
 
 	GLuint upside_down_white_mask_tex = 0;
 	GLuint upside_down_tex = 0;
 	GLuint reflectance_tex = 0;
 	GLuint regular_tex = 0;
+	GLuint d_tex = 0;
 
 	glGenTextures(1, &upside_down_white_mask_tex);
 	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
@@ -374,8 +377,15 @@ void display_func(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	glGenTextures(1, &d_tex);
+	glBindTexture(GL_TEXTURE_2D, d_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
 
@@ -397,6 +407,11 @@ void display_func(void)
 	// Regular map
 	draw_stuff(offscreen_fbo, false, false, false);
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+
+	glReadBuffer(GL_DEPTH_ATTACHMENT);
+	glBindTexture(GL_TEXTURE_2D, d_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
 	// use the shader program
@@ -490,13 +505,15 @@ void display_func(void)
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
 
-	use_buffers(0);
+	use_buffers(0, d_tex, offscreen_colour_tex);
 
 
 		glDeleteTextures(1, &upside_down_white_mask_tex);
 		glDeleteTextures(1, &upside_down_tex);
 		glDeleteTextures(1, &reflectance_tex);
 		glDeleteTextures(1, &regular_tex);
+		glDeleteTextures(1, &d_tex);
+
 
 
 
