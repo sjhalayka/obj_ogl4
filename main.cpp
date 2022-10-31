@@ -330,7 +330,7 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	draw_stuff(offscreen_fbo, false);
+	draw_stuff(offscreen_fbo, false, false);
 	use_buffers(0);
 
 	glutSwapBuffers();

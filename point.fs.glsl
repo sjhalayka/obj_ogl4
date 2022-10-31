@@ -37,6 +37,9 @@ uniform int flat_draw = 0;
 uniform vec3 flat_colour;
 
 
+uniform int specular_only = 0;
+
+
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 0.5, 0.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
@@ -128,6 +131,13 @@ void main()
 {
 //	FragColor = texture(diffuseTexture, fs_in.TexCoords);
 //	return;	
+
+	if(specular_only == 1)
+	{
+		FragColor = texture(specularTexture, fs_in.TexCoords);
+		return;		
+	}
+
 	
 	if(flat_draw == 1)
 	{
