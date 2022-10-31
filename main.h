@@ -104,7 +104,7 @@ vec3 collision_location;
 bool screenshot_mode = false;
 
 
-void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only);
+void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white);
 void use_buffers(GLuint frame_buffer);
 
 
@@ -514,7 +514,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 
 
-void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only)
+void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white)
 {
 
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
@@ -722,6 +722,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only)
 
 	if (false == reflectance_only)
 	{
+		if (false == solid_white)
+		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+		}
+		else
+		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+		}
+
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 	}
