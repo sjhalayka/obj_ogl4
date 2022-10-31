@@ -102,7 +102,7 @@ vec3 collision_location;
 bool screenshot_mode = false;
 
 
-void draw_stuff(GLuint fbo_handle);
+void draw_stuff(GLuint fbo_handle, bool upside_down);
 void use_buffers(GLuint frame_buffer);
 
 
@@ -389,6 +389,7 @@ void draw_triangle_lines(GLuint program)
 
 
 
+/*
 void take_screenshot2(size_t num_cams_wide, const char* filename)
 {
 	screenshot_mode = true;
@@ -507,11 +508,11 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	init_offscreen_fbo();
 
 }
+*/
 
 
 
-
-void draw_stuff(GLuint fbo_handle)
+void draw_stuff(GLuint fbo_handle, bool upside_down)
 {
 
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
@@ -576,7 +577,8 @@ void draw_stuff(GLuint fbo_handle)
 		if (lightEnabled[i] == 0)
 			continue;
 
-		lightPositions[i].y = -lightPositions[i].y;
+		if(upside_down)
+			lightPositions[i].y = -lightPositions[i].y;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
@@ -622,6 +624,7 @@ void draw_stuff(GLuint fbo_handle)
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
 
+		if(false == upside_down)
 		board_mesh.draw(point_depth_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -677,9 +680,12 @@ void draw_stuff(GLuint fbo_handle)
 	glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 	mat4 model = mat4(1.0f);
 
-	glCullFace(GL_FRONT);
+	if (upside_down)
+	{
+		glCullFace(GL_FRONT);
 
-	model = scale(model, vec3(1, -1, 1));
+		model = scale(model, vec3(1, -1, 1));
+	}
 
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -727,7 +733,8 @@ void draw_stuff(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
-	board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+	if (false == upside_down)
+		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
 
 

@@ -330,7 +330,7 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	draw_stuff(offscreen_fbo);
+	draw_stuff(offscreen_fbo, false);
 	use_buffers(0);
 
 	glutSwapBuffers();
@@ -412,7 +412,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		//take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 
