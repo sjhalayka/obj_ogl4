@@ -93,7 +93,7 @@ void idle_func(void)
 
 
 
-void use_buffers(GLuint frame_buffer)
+void use_buffers		(GLuint frame_buffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 

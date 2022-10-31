@@ -652,6 +652,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//// -------------------------
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
+
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	point_shader.use_program();
