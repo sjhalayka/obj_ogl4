@@ -326,12 +326,7 @@ void reshape_func(int width, int height)
 
 
 
-
-
-
-
-
-void display_func(void)
+void draw_scene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -508,14 +503,20 @@ void display_func(void)
 	use_buffers(0, d_tex, offscreen_colour_tex);
 
 
-		glDeleteTextures(1, &upside_down_white_mask_tex);
-		glDeleteTextures(1, &upside_down_tex);
-		glDeleteTextures(1, &reflectance_tex);
-		glDeleteTextures(1, &regular_tex);
-		glDeleteTextures(1, &d_tex);
+	glDeleteTextures(1, &upside_down_white_mask_tex);
+	glDeleteTextures(1, &upside_down_tex);
+	glDeleteTextures(1, &reflectance_tex);
+	glDeleteTextures(1, &regular_tex);
+	glDeleteTextures(1, &d_tex);
+
+}
 
 
 
+
+void display_func(void)
+{
+	draw_scene();
 
 	glutSwapBuffers();
 }
