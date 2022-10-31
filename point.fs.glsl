@@ -46,6 +46,7 @@ vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
 float MaterialShininess = 1;
 
 
+
 vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 {
 	vec3 n = fs_in.Normal;
@@ -129,16 +130,19 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-//	FragColor = texture(diffuseTexture, fs_in.TexCoords);
-//	return;	
-
 	if(specular_only == 1)
 	{
 		FragColor = texture(specularTexture, fs_in.TexCoords);
-		return;		
+	
+		vec3 n =  fs_in.Normal;
+		vec3 n2 = fs_in.FragPos - vec3(0, 0, 0); // Use this as an example position
+
+		if(dot(n, n2) > 0)
+			FragColor = vec4(0, 0, 0, 1);
+	
+		return;
 	}
 
-	
 	if(flat_draw == 1)
 	{
 		FragColor = vec4(flat_colour, 1.0);
