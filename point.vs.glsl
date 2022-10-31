@@ -10,6 +10,7 @@ out VS_OUT {
     vec3 Normal;
     vec2 TexCoords;
     vec3 mvPosition;
+    vec3 untransformed_normal;
 } vs_out;
 
 uniform mat4 projection;
@@ -20,7 +21,13 @@ uniform bool reverse_normals = false;
 
 void main()
 {
-mat4 mv = view * model;
+    vs_out.untransformed_normal = aNormal;
+
+
+    mat4 mv = view * model;
+    mat4 mvp = projection * view * model;
+
+
     vs_out.mvPosition = (mv * vec4(aPos,1.0)).xyz;
 
     vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
