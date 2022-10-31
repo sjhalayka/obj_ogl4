@@ -617,6 +617,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down)
 		//	glUniform3f(glGetUniformLocation(point_depth_shader.get_program(), "lightPos2"), lightPos2.x, lightPos2.y, lightPos2.z);
 
 		mat4 model = mat4(1.0f);
+
+		if(upside_down)
 		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
