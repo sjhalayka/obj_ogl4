@@ -36,10 +36,22 @@ void main()
     // Output to screen
     blurred_colour /= quality * directions - 15.0;
 
-	vec4 upside_down_colour = blurred_colour;
+    vec4 upside_down_colour = blurred_colour;
+
+    blurred_colour = texture(upside_down_white_mask_tex, ftexcoord);
+    
+    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
+			blurred_colour += texture( upside_down_white_mask_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);	
+    
+    // Output to screen
+    blurred_colour /= quality * directions - 15.0;
+
+    vec4 upside_down_white_mask = blurred_colour;
 
 
-frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
+
+frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);                 
 return;
 
 

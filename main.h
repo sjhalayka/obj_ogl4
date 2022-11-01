@@ -742,7 +742,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
-	
+
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
@@ -777,7 +777,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
-			if(reflectance_only)
+			if (reflectance_only)
 				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
 			else
 				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
@@ -806,47 +806,43 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		}
 	}
 
-	if(upside_down)
+	if (upside_down)
 		glCullFace(GL_BACK);
 
 
 
-
-
-	/*
-
-	glEnable(GL_BLEND); //Enable blending.
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
-	glUseProgram(line_shader.get_program());
-
-	for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+	if (false == upside_down && false == reflectance_only && false == solid_white)
 	{
-		glDepthRange(0.025, 1.0);
+		glEnable(GL_BLEND); //Enable blending.
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+		glUseProgram(line_shader.get_program());
 
-		model = mat4(1.0f);// player_game_piece_meshes[i].model_mat;
-		
-		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+		{
+			glDepthRange(0.025, 1.0);
 
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+			model = mat4(1.0f);// player_game_piece_meshes[i].model_mat;
 
-		if (screenshot_mode)
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-		else
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 
-		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
-		draw_triangle_lines(line_shader.get_program());
+			if (screenshot_mode)
+				glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+			else
+				glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
-		glDepthRange(0.0, 1.0);
+			glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+
+			draw_triangle_lines(line_shader.get_program());
+
+			glDepthRange(0.0, 1.0);
+		}
+
+		glDisable(GL_BLEND);
 	}
-
-	glDisable(GL_BLEND);
-
-	*/
-
 
 	glFlush();
 }
