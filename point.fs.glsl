@@ -7,6 +7,7 @@ in VS_OUT{
 	vec2 TexCoords;
 	vec3 mvPosition;
 	vec3 untransformed_normal;
+	vec3 untransformed_position;
 } fs_in;
 
 
@@ -141,11 +142,11 @@ void main()
 	{
 		FragColor = texture(specularTexture, fs_in.TexCoords);
 		
-//		vec3 n =  fs_in.Normal;
-//		vec3 n2 = -fs_in.FragPos; // Use this as an example position
+		vec3 n =  normalize(fs_in.untransformed_position);
+		vec3 n2 = normalize(viewPos - vec3(0, 0, 0)); // Use this as an example position
 
-//		if(true == (dot(n, n2) > 0))
-//			FragColor = vec4(0, 0, 0, 1);
+		if(dot(n, n2) < 0.9)
+			FragColor = vec4(0, 0, 0, 1);
 	
 		return;
 	}

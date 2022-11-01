@@ -11,6 +11,7 @@ out VS_OUT {
     vec2 TexCoords;
     vec3 mvPosition;
     vec3 untransformed_normal;
+    vec3 untransformed_position;
 } vs_out;
 
 uniform mat4 projection;
@@ -22,6 +23,7 @@ uniform bool reverse_normals = false;
 void main()
 {
     vs_out.untransformed_normal = aNormal;
+    vs_out.untransformed_position = aPos;
 
 
     mat4 mv = view * model;
