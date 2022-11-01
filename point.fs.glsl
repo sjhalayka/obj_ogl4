@@ -142,10 +142,10 @@ void main()
 	{
 		FragColor = texture(specularTexture, fs_in.TexCoords);
 		
-		vec3 n =  normalize(fs_in.untransformed_position);
-		vec3 n2 = normalize(viewPos - vec3(0, 0, 0)); // Use this as an example position
+		vec3 n =  fs_in.untransformed_normal;
+		vec3 n2 = vec3(0, 1, 0); // Use this as an example position
 
-		if(dot(n, n2) < 0.9)
+		if(dot(n, n2) < 0.95)
 			FragColor = vec4(0, 0, 0, 1);
 	
 		return;

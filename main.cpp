@@ -329,7 +329,10 @@ void reshape_func(int width, int height)
 
 void draw_scene(GLuint fbo_handle)
 {
+	glClearColor(1, 0.5, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0, 0, 0, 1);
+
 
 	glUseProgram(point_shader.get_program());
 
@@ -422,25 +425,25 @@ void draw_scene(GLuint fbo_handle)
 
 
 
-	glActiveTexture(GL_TEXTURE25);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_white_mask_tex"), 25);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_white_mask_tex"), 0);
 
-	glActiveTexture(GL_TEXTURE26);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, upside_down_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_tex"), 26);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_tex"), 1);
 
-	glActiveTexture(GL_TEXTURE27);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, reflectance_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "reflectance_tex"), 27);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "reflectance_tex"), 2);
 
-	glActiveTexture(GL_TEXTURE28);
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 28);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 3);
 
-	glActiveTexture(GL_TEXTURE29);
+	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 29);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 4);
 
 
 

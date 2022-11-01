@@ -418,8 +418,6 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	//glUseProgram(shadow_map.get_program());
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 	draw_scene(offscreen_fbo);
 
@@ -562,9 +560,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-
-	// ------
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
