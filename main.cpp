@@ -97,6 +97,7 @@ void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// vao and vbo handle
 	GLuint vao, vbo, ibo;
@@ -426,6 +427,9 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 28);
 
+	glActiveTexture(GL_TEXTURE29);
+	glBindTexture(GL_TEXTURE_2D, d_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 29);
 
 
 

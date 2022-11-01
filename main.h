@@ -426,7 +426,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	glGenVertexArrays(1, &quad_vao);
 
-	glDisable(GL_DEPTH_TEST);
+	//	glDisable(GL_DEPTH_TEST);
 	glBindVertexArray(quad_vao);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -759,12 +759,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	if (false == reflectance_only)
+	if (1)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{
 			if (lightEnabled[j] == 0)
 				continue;
+
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+
+			if(reflectance_only)
+				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+			else
+				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
 
 			glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
@@ -776,8 +783,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
 
 
 			glActiveTexture(GL_TEXTURE2);
@@ -785,7 +790,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
 
 			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
+			glBindTexture(GL_TEXTURE_2D, light_mesh.get_specular_tex_handle());
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
 			light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
@@ -794,6 +799,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if(upside_down)
 		glCullFace(GL_BACK);
+
+
+
+
 
 	/*
 
