@@ -25,27 +25,54 @@ void main()
     float size = 16.0; // BLUR size (radius)
         vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
-
+    int count = 0;
 
    vec4 blurred_colour = texture(upside_down_tex, ftexcoord);
-    
-    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
-		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-			blurred_colour += texture( upside_down_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);	
-    
-    // Output to screen
-    blurred_colour /= quality * directions - 15.0;
+   count++; 
 
+
+    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+    {
+		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
+        {
+            vec4 temp_colour = texture( upside_down_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
+
+            if(temp_colour.xyz != vec3(0, 0, 0))
+            {
+        	    blurred_colour += temp_colour;
+                count++;
+            }
+        }
+    }
+
+    // Output to screen
+    blurred_colour /= count;
+
+
+
+
+
+
+
+    count = 0;
     vec4 upside_down_colour = blurred_colour;
 
     blurred_colour = texture(upside_down_white_mask_tex, ftexcoord);
-    
+    count++;
+
+
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+    {
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-			blurred_colour += texture( upside_down_white_mask_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);	
-    
+	    {
+            blurred_colour += texture( upside_down_white_mask_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
+            count++;
+        }
+    }
+
+
     // Output to screen
-    blurred_colour /= quality * directions - 15.0;
+    blurred_colour /= count;
 
     vec4 upside_down_white_mask = blurred_colour;
 
