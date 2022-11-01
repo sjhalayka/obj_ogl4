@@ -8,77 +8,41 @@ uniform sampler2D depth_tex;
 
 in vec2 ftexcoord;
 
+uniform int img_width;
+uniform int img_height;
+uniform int cam_factor; 
+
+vec2 img_size = vec2(img_width, img_height);
+
 layout(location = 0) out vec4 frag_colour;
-
-float near = 0.1; 
-float far  = 25.0; 
-  
-float LinearizeDepth(float depth) 
-{
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * near * far) / (far + near - z * (far - near));	
-}
-
-float to_distance(float depth_colour)
-{
-    float dist = (2.0*near*far) / (far + near - depth_colour*(far - near));	
-    return dist;
-}
-
-float to_depth(float dist)
-{
-   // float depth = (far*(dist - 2.0*near) + near*dist)/(dist*(far - near));
-    
-//	float depth = (dist - near) / (far - near);
-	
-	float depth = (1/dist - 1/near) / (1/far - 1/near);
-
-	return depth;
-}
-
 
 void main()
 {
+   const float pi_times_2 = 6.28318530718; // Pi*2
+    
+    float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
+    float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
+    float size = 16.0; // BLUR size (radius)
+        vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
 
-frag_colour =  mix(texture(regular_tex, ftexcoord), texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
+
+   vec4 blurred_colour = texture(upside_down_tex, ftexcoord);
+    
+    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
+			blurred_colour += texture( upside_down_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);	
+    
+    // Output to screen
+    blurred_colour /= quality * directions - 15.0;
+
+	vec4 upside_down_colour = blurred_colour;
+
+
+frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
 return;
 
 
-	float d = texture(depth_tex, ftexcoord).r;
-	float depth = gl_FragCoord.z;//to_depth(gl_FragCoord.z);
-
-
-
-		
-	frag_colour = vec4(vec3(depth), 1.0);
-
-
-	return;
-
-	if(depth < d)
-	{
-	 frag_colour = vec4(depth, 0, 0, 1);//mix(texture(regular_tex, ftexcoord), texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
-	}
-
-else
-	 frag_colour = vec4(0, 0, 1, 1);
-
-
-	 return;
-
-  // frag_colour = texture(depth_tex, ftexcoord);//mix(texture(regular_tex, ftexcoord), texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
-
- //
-
-  // gl_FragDepth = gl_FragCoord.z;
-		
-//	frag_colour = mix(texture(regular_tex, ftexcoord), texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));
-
-//frag_colour = vec4(vec3(gl_FragCoord.z), 1.0);
-//frag_colour
-
-   frag_colour.a = 1.0;
 }
 
 

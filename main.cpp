@@ -411,6 +411,17 @@ void draw_scene(GLuint fbo_handle)
 	// use the shader program
 	glUseProgram(tex_reflectance.get_program());
 
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "img_width"), win_x);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "img_height"), win_y);
+
+	if (screenshot_mode)
+		glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "cam_factor"), cam_factor);
+	else
+		glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "cam_factor"), 1);
+
+
+
+
 	glActiveTexture(GL_TEXTURE25);
 	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "upside_down_white_mask_tex"), 25);
