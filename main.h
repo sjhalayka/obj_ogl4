@@ -738,7 +738,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 	}
+	else
+	{
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+	
+		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
+			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
 
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+	}
 
 	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);

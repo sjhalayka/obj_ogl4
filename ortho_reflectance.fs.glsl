@@ -39,6 +39,8 @@ float to_depth(float dist)
 
 void main()
 {
+
+
 frag_colour =  mix(texture(regular_tex, ftexcoord), texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord)*texture(upside_down_white_mask_tex, ftexcoord));                 
 return;
 
