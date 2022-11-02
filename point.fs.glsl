@@ -195,7 +195,14 @@ void main()
 			if (lightEnabled[i] == 0)
 				continue;
 
-			diffAndSpec += get_shadow(lightPositions[i], depthMaps[i]) * phongModelDiffAndSpec(false, lightPositions[i], i);
+			float s = 0;
+
+			if(lightShadowCaster[i] == 0)
+				s = 1;
+			else
+				s = get_shadow(lightPositions[i], depthMaps[i]);
+
+			diffAndSpec += s * phongModelDiffAndSpec(false, lightPositions[i], i);
 		}
 	}
 	
