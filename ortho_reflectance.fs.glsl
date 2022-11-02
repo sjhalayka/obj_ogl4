@@ -30,7 +30,7 @@ void main()
    vec4 blurred_colour = texture(upside_down_tex, ftexcoord);
    count++; 
 
-
+   /*
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
     {
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
@@ -44,7 +44,7 @@ void main()
             }
         }
     }
-
+    */
     // Output to screen
     blurred_colour /= count;
 
@@ -60,7 +60,7 @@ void main()
     blurred_colour = texture(upside_down_white_mask_tex, ftexcoord);
     count++;
 
-
+    /*
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
     {
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
@@ -69,7 +69,7 @@ void main()
             count++;
         }
     }
-
+    */
 
     // Output to screen
     blurred_colour /= count;
