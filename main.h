@@ -526,7 +526,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPos2.z = -lightPos2.z;
 	lightPositions[1] = lightPos2 * 10.0f;
 
-	lightPositions[2] = vec3(0.0, 5, 2) * 10.0f;
+	lightPositions[2] = vec3(0.0, 10, 2);
 	lightPositions[3] = vec3(0.0, 0.5, 4);
 
 	lightColours[0].x = 0.75;
