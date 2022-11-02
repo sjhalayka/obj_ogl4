@@ -497,40 +497,6 @@ public:
 		}
 	}
 
-	/*
-	bool read_quads_from_wavefront_obj_file(string file_name, size_t index)
-	{
-		tri_vec[index].clear();
-
-		vector<triangle> triangles;
-
-		// Write to file.
-		ifstream infile(file_name);
-
-		if (infile.fail())
-			return false;
-
-		vector<vertex_3> verts;
-		vector<uv_coord> tex_coords;
-		vector<vertex_3> norms;
-
-		string line;
-
-		map<vertex_3, size_t> face_normal_counts;
-
-		while (getline(infile, line))
-		{
-			if (line == "")
-				continue;
-
-			process_line(line, triangles, verts, tex_coords, norms, face_normal_counts);
-		}
-
-		tri_vec[index] = triangles;
-
-		return true;
-	}
-	*/
 
 
 
