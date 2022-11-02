@@ -75,6 +75,9 @@ vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
 vector<vec3> lightColours(max_num_lights, vec3(0, 0, 0));
 vector<GLuint> lightEnabled(max_num_lights, 0);
+vector<GLuint> lightShadowCaster(max_num_lights, 0);
+
+
 
 GLuint offscreen_fbo = 0;
 GLuint offscreen_colour_tex = 0;
@@ -555,7 +558,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightEnabled[2] = 1;
 	lightEnabled[3] = 1;
 
-
+	lightShadowCaster[0] = 1;
+	lightShadowCaster[1] = 1;
+	lightShadowCaster[2] = 1;
+	lightShadowCaster[3] = 1;
 
 
 
@@ -571,7 +577,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	{
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
-			if (lightEnabled[i] == 0)
+			if (lightEnabled[i] == 0 || lightShadowCaster[i] == 0)
 				continue;
 
 			if (upside_down)
@@ -719,6 +725,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		string s = "lightEnabled[" + to_string(i) + "]";
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightEnabled[i]);
 	}
+
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		string s = "lightShadowCaster[" + to_string(i) + "]";
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), lightShadowCaster[i]);
+	}
+
+
 
 	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "shadows"), 1);

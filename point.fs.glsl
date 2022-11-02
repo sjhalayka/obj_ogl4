@@ -23,7 +23,7 @@ uniform samplerCube depthMaps[max_num_lights];
 uniform vec3 lightPositions[max_num_lights];
 uniform vec3 lightColours[max_num_lights];
 uniform int lightEnabled[max_num_lights];
-
+uniform int lightShadowCaster[max_num_lights];
 
 
 
@@ -165,6 +165,9 @@ void main()
 
 		float s = get_shadow(lightPositions[i], depthMaps[i]);
 		
+		if(lightShadowCaster[i] == 0)
+			s = 1.0;
+
 		if(s == 0)
 			num_shadows++;
 	}
