@@ -524,12 +524,6 @@ public:
 
 		vector<triangle> triangles;
 
-		// Write to file.
-		ifstream infile(file_name);
-
-		if (infile.fail())
-			return false;
-
 		vector<vertex_3> verts;
 		vector<uv_coord> tex_coords;
 		vector<vertex_3> norms;
@@ -538,17 +532,61 @@ public:
 
 		map<vertex_3, size_t> face_normal_counts;
 
+		ifstream infile(file_name, ifstream::ate | ifstream::binary);
 
-
-
-
-
-		while (getline(infile, line))
+		if (infile.fail())
 		{
-			if (line == "")
-				continue;
+			cout << "Could not open file" << endl;
+			return false;
+		}
 
-			process_line(line, triangles, verts, tex_coords, norms, face_normal_counts);
+		size_t file_size = infile.tellg();
+
+		infile.close();
+
+		if (file_size == 0)
+			return false;
+
+		infile.open(file_name, ifstream::binary);
+
+		if (infile.fail())
+		{
+			cout << "Could not re-open file" << endl;
+			return false;
+		}
+
+		string s(file_size, ' ');
+
+		infile.read(&s[0], file_size);
+		infile.close();
+
+		// Make sure that the last line ends in a newline
+		if (s[s.size() - 1] != '\n')
+		{
+			s += '\n';
+			file_size++;
+		}
+
+		string temp_token;
+
+		// For each character in the file
+		for (size_t i = 0; i < file_size; i++)
+		{
+			if (s[i] == '\r')
+			{
+				// Skip over Windows carriage return
+				continue;
+			}
+			else if (s[i] == '\n')
+			{
+				process_line(temp_token, triangles, verts, tex_coords, norms, face_normal_counts);
+
+				temp_token.clear();
+			}
+			else
+			{
+				temp_token += s[i];
+			}
 		}
 
 		tri_vec[index] = triangles;
