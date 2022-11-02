@@ -22,14 +22,16 @@ void main()
     
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
-    float size = 16.0; // BLUR size (radius)
-        vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
+    float size = 10.0; // BLUR size (radius)
+    vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
-    int count = 0;
+
+
+
+   int count = 0;
 
    vec4 blurred_colour = texture(upside_down_tex, ftexcoord);
-   count++; 
-
+   count++;
    
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
     {
@@ -47,20 +49,20 @@ void main()
     
     // Output to screen
     blurred_colour /= count;
+    
 
+    vec4 upside_down_colour = blurred_colour;
 
-
+    // Make glossiness out of the reflectance texture (the more reflective, the sharper the image)
+    upside_down_colour = mix(upside_down_colour, texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord));
 
 
 
 
     count = 0;
-    vec4 upside_down_colour = blurred_colour;
-
     blurred_colour = texture(upside_down_white_mask_tex, ftexcoord);
     count++;
 
-    
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
     {
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
@@ -69,17 +71,18 @@ void main()
             count++;
         }
     }
-    
 
-    // Output to screen
     blurred_colour /= count;
 
     vec4 upside_down_white_mask = blurred_colour;
 
 
+    // Make glossiness out of the reflectance texture (the more reflective, the sharper the image)
+    upside_down_white_mask = mix(upside_down_white_mask, texture(upside_down_white_mask_tex, ftexcoord), texture(reflectance_tex, ftexcoord));
 
-frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);                 
-return;
+
+    frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);                 
+    return;
 
 
 }
