@@ -515,19 +515,20 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
 	// todo: set light at negative eye
-	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	//lightPos = normalize(lightPos) * 10.0f;
-	lightPositions[0] = normalize(lightPos) * 10.0f;
+	//vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
+	//vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	////lightPos = normalize(lightPos) * 10.0f;
+	//lightPositions[0] = normalize(lightPos) * 10.0f;
 
-	vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	//lightPos2 = normalize(lightPos2) * 10.0f;
-	lightPos2.x = -lightPos2.x;
-	lightPos2.z = -lightPos2.z;
-	lightPositions[1] = lightPos2 * 10.0f;
+	//vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	////lightPos2 = normalize(lightPos2) * 10.0f;
+	//lightPos2.x = -lightPos2.x;
+	//lightPos2.z = -lightPos2.z;
+	//lightPositions[1] = lightPos2 * 10.0f;
 
-	lightPositions[2] = vec3(0.0, 10, 2);
-	lightPositions[3] = vec3(0.0, 0.5, 4);
+
+	lightPositions[0] = vec3(-10, 10, 10);
+	lightPositions[2] = vec3(0.0, 5, 2);
 
 	lightColours[0].x = 0.75;
 	lightColours[0].y = 0.75;
