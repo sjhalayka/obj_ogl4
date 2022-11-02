@@ -563,7 +563,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	if (false == reflectance_only)
+	if (false == reflectance_only && false == solid_white)
 	{
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
