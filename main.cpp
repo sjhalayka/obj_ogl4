@@ -15,6 +15,9 @@ int main(int argc, char** argv)
 
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
+	player_game_piece_meshes.push_back(game_piece_mesh);
+
+
 	if (false == light_mesh.read_quads_from_obj_array(false, "3x3x3"))
 	{
 		cout << "Error: Could not properly read file 3x3x3.obj" << endl;
@@ -38,6 +41,10 @@ int main(int argc, char** argv)
 
 		player_game_piece_meshes[i].init_model_matrix(dir, left, tangent);
 	}
+
+
+	player_game_piece_meshes[1].model_mat[3][1] += 0.3f;//
+
 
 
 	vec3 c;
