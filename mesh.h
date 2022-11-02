@@ -208,7 +208,7 @@ public:
 		return ret;
 	}
 
-	bool read_quads_from_obj_array(string filename_base)
+	bool read_quads_from_obj_array(bool cull_back_faces, string filename_base)
 	{
 		tri_vec.clear();
 
@@ -221,7 +221,7 @@ public:
 
 		for (size_t i = 0; i < filenames.size(); i++)
 		{
-			if (false == read_quads_from_wavefront_obj_file(filenames[i], i))
+			if (false == read_quads_from_wavefront_obj_file(cull_back_faces, filenames[i], i))
 				return false;
 		}
 
@@ -233,12 +233,11 @@ public:
 		return true;
 	}
 
-	void process_line(string line, 
+	void process_line(bool cull_back_faces, string line, 
 		vector<triangle> &triangles, 
-		
 		vector<vertex_3> &verts,
-	vector<uv_coord> &tex_coords,
-	vector<vertex_3> &norms,
+		vector<uv_coord> &tex_coords,
+		vector<vertex_3> &norms,
 		map<vertex_3, size_t> &face_normal_counts)
 	{
 		vector<string> tokens;
@@ -466,18 +465,35 @@ public:
 			vtemp = vertex_3(norms[vn_index].x, norms[vn_index].y, norms[vn_index].z);
 			face_normal_counts[vtemp]++;
 
+			if (cull_back_faces)
+			{
+				if (q.vertex[3].nx < 0 || q.vertex[3].nz > 0 || q.vertex[3].ny == 1)
+				{
+					triangle t;
+					t.vertex[0] = q.vertex[0];
+					t.vertex[1] = q.vertex[1];
+					t.vertex[2] = q.vertex[2];
+					triangles.push_back(t);
 
-			triangle t;
-			t.vertex[0] = q.vertex[0];
-			t.vertex[1] = q.vertex[1];
-			t.vertex[2] = q.vertex[2];
-			triangles.push_back(t);
+					t.vertex[0] = q.vertex[0];
+					t.vertex[1] = q.vertex[2];
+					t.vertex[2] = q.vertex[3];
+					triangles.push_back(t);
+				}
+			}
+			else
+			{
+				triangle t;
+				t.vertex[0] = q.vertex[0];
+				t.vertex[1] = q.vertex[1];
+				t.vertex[2] = q.vertex[2];
+				triangles.push_back(t);
 
-			t.vertex[0] = q.vertex[0];
-			t.vertex[1] = q.vertex[2];
-			t.vertex[2] = q.vertex[3];
-			triangles.push_back(t);
-
+				t.vertex[0] = q.vertex[0];
+				t.vertex[1] = q.vertex[2];
+				t.vertex[2] = q.vertex[3];
+				triangles.push_back(t);
+			}
 		}
 	}
 
@@ -518,7 +534,7 @@ public:
 
 
 
-	bool read_quads_from_wavefront_obj_file(string file_name, size_t index)
+	bool read_quads_from_wavefront_obj_file(bool cull_back_faces, string file_name, size_t index)
 	{
 		tri_vec[index].clear();
 
@@ -579,7 +595,7 @@ public:
 			}
 			else if (s[i] == '\n')
 			{
-				process_line(temp_token, triangles, verts, tex_coords, norms, face_normal_counts);
+				process_line(cull_back_faces, temp_token, triangles, verts, tex_coords, norms, face_normal_counts);
 
 				temp_token.clear();
 			}
