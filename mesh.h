@@ -106,6 +106,56 @@ public:
 
 
 
+	void centre_mesh_on_xz(void)
+	{
+		float x_min = numeric_limits<float>::max();
+		float y_min = numeric_limits<float>::max();
+		float z_min = numeric_limits<float>::max();
+		float x_max = numeric_limits<float>::min();
+		float y_max = numeric_limits<float>::min();
+		float z_max = numeric_limits<float>::min();
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].x < x_min)
+						x_min = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].x > x_max)
+						x_max = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].z < z_min)
+						z_min = tri_vec[t][i].vertex[j].z;
+
+					if (tri_vec[t][i].vertex[j].z > z_max)
+						z_max = tri_vec[t][i].vertex[j].z;
+				}
+			}
+		}
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					tri_vec[t][i].vertex[j].x += -(x_max + x_min) / 2.0f;
+					tri_vec[t][i].vertex[j].y += 0;// -(y_max + y_min) / 2.0f;
+					tri_vec[t][i].vertex[j].z += -(z_max + z_min) / 2.0f;
+				}
+			}
+		}
+	}
+
 	void std_strtok(const string& s, const string& regex_s, vector<string>& tokens)
 	{
 		tokens.clear();
@@ -174,6 +224,9 @@ public:
 			if (false == read_quads_from_wavefront_obj_file(filenames[i], i))
 				return false;
 		}
+
+		centre_mesh_on_xz();
+
 
 		init_opengl_data();
 

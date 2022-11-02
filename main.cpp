@@ -620,11 +620,11 @@ void keyboard_func(unsigned char key, int x, int y)
 		break;
 
 	case 'a':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[0].model_mat[3][1] = player_game_piece_meshes[0].model_mat[3][1] + 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 's':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[0].model_mat[3][1] = player_game_piece_meshes[0].model_mat[3][1] - 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	default:
