@@ -540,28 +540,28 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightColours[0].y = 0.75;
 	lightColours[0].z = 0.75;
 
-	lightColours[1].x = 1.0;
-	lightColours[1].y = 1.0;
-	lightColours[1].z = 1.0;
+	lightColours[1].x = 0.5;
+	lightColours[1].y = 0.5;
+	lightColours[1].z = 0.5;
 
-	lightColours[2].x = 1.0;
+	lightColours[2].x = 0.5;
 	lightColours[2].y = 0.0;
 	lightColours[2].z = 0.0;
 
-	lightColours[3].x = 1.0;
+	lightColours[3].x = 0;
 	lightColours[3].y = 0.0;
-	lightColours[3].z = 0.0;
+	lightColours[3].z = 0.5;
 
 
 	lightEnabled[0] = 1;
-	lightEnabled[1] = 0;
-	lightEnabled[2] = 0;
-	lightEnabled[3] = 0;
+	lightEnabled[1] = 1;
+	lightEnabled[2] = 1;
+	lightEnabled[3] = 1;
 
 	lightShadowCaster[0] = 1;
-	lightShadowCaster[1] = 0;
+	lightShadowCaster[1] = 1;
 	lightShadowCaster[2] = 1;
-	lightShadowCaster[3] = 0;
+	lightShadowCaster[3] = 1;
 
 
 
@@ -633,7 +633,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (false == upside_down)
 			{
-				mat4 model = mat4(1.0f);
+				mat4 model = board_mesh.model_mat;
 
 				if (upside_down)
 					model = scale(model, vec3(1, -1, 1));
@@ -807,7 +807,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == upside_down)
 	{
-		mat4 model = mat4(1.0f);// board_mesh.model_mat;
+		mat4 model = board_mesh.model_mat;
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 

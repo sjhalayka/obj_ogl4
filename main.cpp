@@ -42,9 +42,7 @@ int main(int argc, char** argv)
 		player_game_piece_meshes[i].init_model_matrix(dir, left, tangent);
 	}
 
-
-	//player_game_piece_meshes[1].model_mat[3][1] += 0.3f;//
-
+	board_mesh.model_mat = mat4(1.0f);
 
 
 	vec3 c;
