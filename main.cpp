@@ -7,9 +7,10 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox"))
+	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
 	{
-		cout << "Error: Could not properly read file chr_knight.obj" << endl;
+		cout << "Error: Could not properly read file chr_knight.vox" << endl;
 		return 2;
 	}
 

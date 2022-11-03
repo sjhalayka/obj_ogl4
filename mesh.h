@@ -7,6 +7,9 @@
 #include "primitives.h"
 #include "uv_camera.h"
 
+#define OGT_VOX_IMPLEMENTATION
+#include "ogt_vox.h"
+
 
 #include <filesystem>
 using std::filesystem::current_path;
@@ -498,8 +501,6 @@ public:
 	}
 
 
-
-
 	bool read_quads_from_wavefront_obj_file(bool cull_back_faces, string file_name, size_t index)
 	{
 		tri_vec[index].clear();
@@ -610,6 +611,99 @@ public:
 		model_mat[2] = normalize(vec4(n_up, 0.0f));
 		model_mat[3] = vec4(n_up * displacement, 1.0f);
 	}
+
+	bool read_quads_from_vox_file(string file_name)
+	{
+		tri_vec.clear();
+		opengl_vertex_data.clear();
+
+		tri_vec.resize(1);
+		opengl_vertex_data.resize(1);
+
+		ifstream infile(file_name, ifstream::ate | ifstream::binary);
+
+		if (infile.fail())
+		{
+			//cout << "Could not open file " << file_name << endl;
+			return false;
+		}
+
+		size_t file_size = infile.tellg();
+
+		infile.close();
+
+		if (file_size == 0)
+			return false;
+
+		infile.open(file_name, ifstream::binary);
+
+		if (infile.fail())
+		{
+			//cout << "Could not re-open file " << file_name << endl;
+			return false;
+		}
+
+		vector<unsigned char> v(file_size, 0);
+
+		infile.read(reinterpret_cast<char*>(&v[0]), file_size);
+		infile.close();
+
+		const ogt_vox_scene* scene = ogt_vox_read_scene(&v[0], file_size);
+
+		cout << scene->num_models << endl;
+
+		triangle t;
+		t.vertex[0].x = 0.0;
+		t.vertex[0].y = 0.0;
+		t.vertex[0].z = 0.0;
+
+		t.vertex[1].x = 1.0;
+		t.vertex[1].y = 0.0;
+		t.vertex[1].z = 0.0;
+
+		t.vertex[1].x = 0.0;
+		t.vertex[1].y = 0.0;
+		t.vertex[1].z = 1.0;
+
+
+		tri_vec[0].push_back(t);
+
+
+		//for (size_t x = 0; x < scene->models[0]->size_x; x++)
+		//{
+		//	for (size_t y = 0; y < scene->models[0]->size_y; y++)
+		//	{
+		//		for (size_t z = 0; z < scene->models[0]->size_x; z++)
+		//		{
+		//			//const size_t voxel_index = x + (y * scene->models[0]->size_x) + (z * scene->models[0]->size_x * scene->models[0]->size_y);
+		//			//const uint8_t colour_index = scene->models[0]->voxel_data[voxel_index];
+
+		//			//if (colour_index == 0)
+		//			//	continue;
+
+		//			//ogt_vox_rgba color = scene->palette.color[colour_index];
+
+		//			
+		//		}
+		//	}
+		//}
+
+		ogt_vox_destroy_scene(scene);
+
+
+		centre_mesh_on_xz();
+
+
+		init_opengl_data();
+
+		return true;
+	}
+
+
+
+
+
+
 
 
 protected:
