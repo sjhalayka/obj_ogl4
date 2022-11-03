@@ -119,7 +119,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 	// now get current linear depth as the length between the fragment and light position
 	float currentDepth = length(fragToLight);
 	// test for shadows
-	float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
+	float bias = 0.15; // we use a much larger bias since depth is now in [near_plane, far_plane] range
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
 	shadow = 1 - shadow;
