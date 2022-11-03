@@ -653,167 +653,226 @@ public:
 		cout << scene->num_models << endl;
 
 
-	
+
 		for (size_t x = 0; x < scene->models[0]->size_x; x++)
 		{
 			for (size_t y = 0; y < scene->models[0]->size_y; y++)
 			{
-				for (size_t z = 0; z < scene->models[0]->size_x; z++)
+				for (size_t z = 0; z < scene->models[0]->size_z; z++)
 				{
-					static const float scale = 0.1;
+					float scale = 0.1;
+
 					const size_t voxel_index = x + (y * scene->models[0]->size_x) + (z * scene->models[0]->size_x * scene->models[0]->size_y);
 					const uint8_t colour_index = scene->models[0]->voxel_data[voxel_index];
 
 					if (colour_index == 0)
 						continue;
 
-					vertex_3 translate(x * scale, y * scale, z*scale);
+					const float uv_index = float(colour_index) / 255.0f;
 
-					//ogt_vox_rgba color = scene->palette.color[colour_index];
+					vertex_3 translate(x * scale, y * scale, z * scale);
+
 					quad q0, q1, q2, q3, q4, q5;
 
 					// Top face (y = 1.0f)
-					q0.vertex[0] = vertex_3(scale * 1.0f, scale * 1.0f, -scale * 1.0f) + translate;
-					q0.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
-					q0.vertex[2] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q0.vertex[3] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q0.vertex[1].ny = 1;
+					q0.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q0.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q0.vertex[2] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q0.vertex[3] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q0.vertex[0].ny = 1;
 					q0.vertex[1].ny = 1;
 					q0.vertex[2].ny = 1;
 					q0.vertex[3].ny = 1;
+					q0.vertex[0].u = uv_index;
+					q0.vertex[1].u = uv_index;
+					q0.vertex[2].u = uv_index;
+					q0.vertex[3].u = uv_index;
 
-					// Bottom face (y = -scale*1.0f)
-					q1.vertex[0] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q1.vertex[1] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q1.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q1.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q1.vertex[1].ny = -1;
+
+
+					// Bottom face (y = -scale*0.5f)
+					q1.vertex[0] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q1.vertex[1] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q1.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q1.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q1.vertex[0].ny = -1;
 					q1.vertex[1].ny = -1;
 					q1.vertex[2].ny = -1;
 					q1.vertex[3].ny = -1;
+					q1.vertex[0].u = uv_index;
+					q1.vertex[1].u = uv_index;
+					q1.vertex[2].u = uv_index;
+					q1.vertex[3].u = uv_index;
 
 
 
-
-					// Front face  (z = scale*1.0f)
-					q2.vertex[0] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q2.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q2.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q2.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q2.vertex[1].nz = 1;
+					// Front face  (z = scale*0.5f)
+					q2.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[0].nz = 1;
 					q2.vertex[1].nz = 1;
 					q2.vertex[2].nz = 1;
 					q2.vertex[3].nz = 1;
+					q2.vertex[0].u = uv_index;
+					q2.vertex[1].u = uv_index;
+					q2.vertex[2].u = uv_index;
+					q2.vertex[3].u = uv_index;
 
-					// Back face (z = -scale*1.0f)
-					q3.vertex[0] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q3.vertex[1] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q3.vertex[2] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
-					q3.vertex[3] = vertex_3(scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
-					q3.vertex[1].nz = -1;
+					// Back face (z = -scale*0.5f)
+					q3.vertex[0] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[1] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[2] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[3] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[0].nz = -1;
 					q3.vertex[1].nz = -1;
 					q3.vertex[2].nz = -1;
 					q3.vertex[3].nz = -1;
+					q3.vertex[0].u = uv_index;
+					q3.vertex[1].u = uv_index;
+					q3.vertex[2].u = uv_index;
+					q3.vertex[3].u = uv_index;
+
+					// Right face (x = scale*0.5f)
+					q4.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q4.vertex[1] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q4.vertex[2] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q4.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q4.vertex[0].nx = 1;
+					q4.vertex[1].nx = 1;
+					q4.vertex[2].nx = 1;
+					q4.vertex[3].nx = 1;
+					q4.vertex[0].u = uv_index;
+					q4.vertex[1].u = uv_index;
+					q4.vertex[2].u = uv_index;
+					q4.vertex[3].u = uv_index;
 
 
-					// Left face (x = -scale*1.0f)
-					q4.vertex[0] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q4.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
-					q4.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q4.vertex[3] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q4.vertex[1].nx = -1;
-					q4.vertex[1].nx = -1;
-					q4.vertex[2].nx = -1;
-					q4.vertex[3].nx = -1;
+					// Left face (x = -scale*0.5f)
+					q5.vertex[0] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q5.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q5.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q5.vertex[3] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q5.vertex[0].nx = -1;
+					q5.vertex[1].nx = -1;
+					q5.vertex[2].nx = -1;
+					q5.vertex[3].nx = -1;
+					q5.vertex[0].u = uv_index;
+					q5.vertex[1].u = uv_index;
+					q5.vertex[2].u = uv_index;
+					q5.vertex[3].u = uv_index;
 
-					// Right face (x = scale*1.0f)
-					q5.vertex[0] = vertex_3(scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
-					q5.vertex[1] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
-					q5.vertex[2] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
-					q5.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
-					q5.vertex[1].nx = 1;
-					q5.vertex[1].nx = 1;
-					q5.vertex[2].nx = 1;
-					q5.vertex[3].nx = 1;
+
+
 
 					triangle t;
+					size_t neighbour_index = 0;
 
-					t.vertex[0] = q0.vertex[0];
-					t.vertex[1] = q0.vertex[1];
-					t.vertex[2] = q0.vertex[2];
-					tri_vec[0].push_back(t);
+					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[1];
+						t.vertex[2] = q0.vertex[2];
+						tri_vec[0].push_back(t);
 
-					t.vertex[0] = q0.vertex[0];
-					t.vertex[1] = q0.vertex[2];
-					t.vertex[2] = q0.vertex[3];
-					tri_vec[0].push_back(t);
-					
-					t.vertex[0] = q1.vertex[0];
-					t.vertex[1] = q1.vertex[1];
-					t.vertex[2] = q1.vertex[2];
-					tri_vec[0].push_back(t);
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[2];
+						t.vertex[2] = q0.vertex[3];
+						tri_vec[0].push_back(t);
+					}
 
-					t.vertex[0] = q1.vertex[0];
-					t.vertex[1] = q1.vertex[2];
-					t.vertex[2] = q1.vertex[3];
-					tri_vec[0].push_back(t);
+					neighbour_index = x + (y - 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (y == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q1.vertex[0];
+						t.vertex[1] = q1.vertex[1];
+						t.vertex[2] = q1.vertex[2];
+						tri_vec[0].push_back(t);
 
-					t.vertex[0] = q2.vertex[0];
-					t.vertex[1] = q2.vertex[1];
-					t.vertex[2] = q2.vertex[2];
-					tri_vec[0].push_back(t);
+						t.vertex[0] = q1.vertex[0];
+						t.vertex[1] = q1.vertex[2];
+						t.vertex[2] = q1.vertex[3];
+						tri_vec[0].push_back(t);
+					}
 
-					t.vertex[0] = q2.vertex[0];
-					t.vertex[1] = q2.vertex[2];
-					t.vertex[2] = q2.vertex[3];
-					tri_vec[0].push_back(t);
+					neighbour_index = x + (y)*scene->models[0]->size_x + (z + 1) * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (z == scene->models[0]->size_z - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[1];
+						t.vertex[2] = q2.vertex[2];
+						tri_vec[0].push_back(t);
 
-					t.vertex[0] = q3.vertex[0];
-					t.vertex[1] = q3.vertex[1];
-					t.vertex[2] = q3.vertex[2];
-					tri_vec[0].push_back(t);
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[2];
+						t.vertex[2] = q2.vertex[3];
+						tri_vec[0].push_back(t);
+					}
 
-					t.vertex[0] = q3.vertex[0];
-					t.vertex[1] = q3.vertex[2];
-					t.vertex[2] = q3.vertex[3];
-					tri_vec[0].push_back(t);
 
-					t.vertex[0] = q4.vertex[0];
-					t.vertex[1] = q4.vertex[1];
-					t.vertex[2] = q4.vertex[2];
-					tri_vec[0].push_back(t);
+					neighbour_index = x + (y)*scene->models[0]->size_x + (z - 1) * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (z == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q3.vertex[0];
+						t.vertex[1] = q3.vertex[1];
+						t.vertex[2] = q3.vertex[2];
+						tri_vec[0].push_back(t);
 
-					t.vertex[0] = q4.vertex[0];
-					t.vertex[1] = q4.vertex[2];
-					t.vertex[2] = q4.vertex[3];
-					tri_vec[0].push_back(t);
+						t.vertex[0] = q3.vertex[0];
+						t.vertex[1] = q3.vertex[2];
+						t.vertex[2] = q3.vertex[3];
+						tri_vec[0].push_back(t);
+					}
 
-					t.vertex[0] = q5.vertex[0];
-					t.vertex[1] = q5.vertex[1];
-					t.vertex[2] = q5.vertex[2];
-					tri_vec[0].push_back(t);
+					neighbour_index = (x + 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
+					if (x == scene->models[0]->size_x - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[1];
+						t.vertex[2] = q4.vertex[2];
+						tri_vec[0].push_back(t);
 
-					t.vertex[0] = q5.vertex[0];
-					t.vertex[1] = q5.vertex[2];
-					t.vertex[2] = q5.vertex[3];
-					tri_vec[0].push_back(t);
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[2];
+						t.vertex[2] = q4.vertex[3];
+						tri_vec[0].push_back(t);
+					}
+
+					neighbour_index = (x - 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
+					if (x == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q5.vertex[0];
+						t.vertex[1] = q5.vertex[1];
+						t.vertex[2] = q5.vertex[2];
+						tri_vec[0].push_back(t);
+
+						t.vertex[0] = q5.vertex[0];
+						t.vertex[1] = q5.vertex[2];
+						t.vertex[2] = q5.vertex[3];
+						tri_vec[0].push_back(t);
+					}
+
+
 
 
 
 				}
+
 			}
 		}
 
 		ogt_vox_destroy_scene(scene);
 
-
 		centre_mesh_on_xz();
-
 
 		init_opengl_data();
 
 		return true;
 	}
+
+
 
 
 

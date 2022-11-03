@@ -46,6 +46,11 @@ int main(int argc, char** argv)
 	board_mesh.model_mat = mat4(1.0f);
 
 
+
+
+
+
+
 	vec3 c;
 
 	c.x = 1.0f;
