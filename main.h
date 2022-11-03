@@ -518,10 +518,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
 	// todo: set light at negative eye
-	//vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	//vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	////lightPos = normalize(lightPos) * 10.0f;
-	//lightPositions[0] = normalize(lightPos) * 10.0f;
+	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
+	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	//lightPos = normalize(lightPos) * 10.0f;
+	lightPositions[0] = normalize(lightPos) * 10.0f;
 
 	//vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	////lightPos2 = normalize(lightPos2) * 10.0f;
@@ -530,7 +530,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//lightPositions[1] = lightPos2 * 10.0f;
 
 
-	lightPositions[0] = vec3(-2, 1, 2);
+	//lightPositions[0] = vec3(-2, 1, 2);
 	lightPositions[1] = vec3(2, 1, 2);
 	lightPositions[2] = vec3(2, 1, 2);
 	lightPositions[3] = vec3(-2, 1, -2);
@@ -544,13 +544,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightColours[1].y = 0.5;
 	lightColours[1].z = 0.5;
 
-	lightColours[2].x = 0.5;
-	lightColours[2].y = 0.0;
-	lightColours[2].z = 0.0;
+	lightColours[2].x = 1;
+	lightColours[2].y = 1;
+	lightColours[2].z = 1;
 
-	lightColours[3].x = 0;
-	lightColours[3].y = 0.0;
-	lightColours[3].z = 0.5;
+	lightColours[3].x = 1;
+	lightColours[3].y = 1;
+	lightColours[3].z = 1;
 
 
 	lightEnabled[0] = 1;
@@ -624,7 +624,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				mat4 model = player_game_piece_meshes[j].model_mat;
 
 				if (upside_down)
+				{
 					model = scale(model, vec3(1, -1, 1));
+					model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
+				}
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -760,6 +763,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glCullFace(GL_FRONT);
 
 				model = scale(model, vec3(1, -1, 1));
+				model = translate(model, vec3(0,player_game_piece_meshes[j].get_y_extent(), 0));
 			}
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -781,6 +785,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glCullFace(GL_FRONT);
 
 				model = scale(model, vec3(1, -1, 1));
+				model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
 			}
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);

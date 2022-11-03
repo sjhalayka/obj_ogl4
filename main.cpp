@@ -34,13 +34,7 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
-		vec3 dir(-1, 0, 0);
-		vec3 dir2(0, -1, 0);
-
-		vec3 left = normalize(cross(dir, dir2));
-		vec3 tangent = cross(dir, left);
-
-		player_game_piece_meshes[i].init_model_matrix(dir, left, tangent);
+		player_game_piece_meshes[i].model_mat = mat4(1.0f);
 	}
 
 	board_mesh.model_mat = mat4(1.0f);

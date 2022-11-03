@@ -108,8 +108,31 @@ public:
 	vec3 min_location, max_location;
 
 
+	float get_y_extent(void)
+	{
+		float y_min = numeric_limits<float>::max();
+		float y_max = numeric_limits<float>::min();
 
-	void centre_mesh_on_xz(void)
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+				}
+			}
+		}
+
+		return fabsf(y_min - y_max);
+	}
+
+
+	void centre_mesh_on_xyz(void)
 	{
 		float x_min = numeric_limits<float>::max();
 		float y_min = numeric_limits<float>::max();
@@ -152,7 +175,7 @@ public:
 				for (size_t j = 0; j < 3; j++)
 				{
 					tri_vec[t][i].vertex[j].x += -(x_max + x_min) / 2.0f;
-					tri_vec[t][i].vertex[j].y += 0;// -(y_max + y_min) / 2.0f;
+					tri_vec[t][i].vertex[j].y += -(y_max + y_min) / 2.0f;
 					tri_vec[t][i].vertex[j].z += -(z_max + z_min) / 2.0f;
 				}
 			}
@@ -228,7 +251,7 @@ public:
 				return false;
 		}
 
-		centre_mesh_on_xz();
+		centre_mesh_on_xyz();
 
 
 		init_opengl_data();
@@ -853,19 +876,48 @@ public:
 						t.vertex[2] = q5.vertex[3];
 						tri_vec[0].push_back(t);
 					}
-
-
-
-
-
 				}
-
 			}
 		}
 
 		ogt_vox_destroy_scene(scene);
 
-		centre_mesh_on_xz();
+		centre_mesh_on_xyz();
+
+		for (size_t i = 0; i < tri_vec.size(); i++)
+		{
+			for (size_t j = 0; j < tri_vec[i].size(); j++)
+			{
+				vertex_3 normal0 = vertex_3(tri_vec[i][j].vertex[0].nx, tri_vec[i][j].vertex[0].ny, tri_vec[i][j].vertex[0].nz);
+				vertex_3 normal1 = vertex_3(tri_vec[i][j].vertex[1].nx, tri_vec[i][j].vertex[1].ny, tri_vec[i][j].vertex[1].nz);
+				vertex_3 normal2 = vertex_3(tri_vec[i][j].vertex[2].nx, tri_vec[i][j].vertex[2].ny, tri_vec[i][j].vertex[2].nz);
+
+				tri_vec[i][j].vertex[0].rotate_x( pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_x( pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_x( pi<float>() - pi<float>() / 2.0f);
+				normal0.rotate_x(pi<float>() - pi<float>() / 2.0f);
+				normal1.rotate_x(pi<float>() - pi<float>() / 2.0f);
+				normal2.rotate_x(pi<float>() - pi<float>() / 2.0f);
+
+				tri_vec[i][j].vertex[0].rotate_y(pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_y(pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_y(pi<float>() / 2.0f);
+				normal0.rotate_y(pi<float>() / 2.0f);
+				normal1.rotate_y(pi<float>() / 2.0f);
+				normal2.rotate_y(pi<float>() / 2.0f);
+
+				tri_vec[i][j].vertex[0].nx = normal0.x;
+				tri_vec[i][j].vertex[0].ny = normal0.y;
+				tri_vec[i][j].vertex[0].nz = normal0.z;
+				tri_vec[i][j].vertex[1].nx = normal1.x;
+				tri_vec[i][j].vertex[1].ny = normal1.y;
+				tri_vec[i][j].vertex[1].nz = normal1.z;
+				tri_vec[i][j].vertex[2].nx = normal2.x;
+				tri_vec[i][j].vertex[2].ny = normal2.y;
+				tri_vec[i][j].vertex[2].nz = normal2.z;
+
+			}
+		}
 
 		init_opengl_data();
 
