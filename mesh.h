@@ -652,41 +652,157 @@ public:
 
 		cout << scene->num_models << endl;
 
-		triangle t;
-		t.vertex[0].x = 0.0;
-		t.vertex[0].y = 0.0;
-		t.vertex[0].z = 0.0;
 
-		t.vertex[1].x = 1.0;
-		t.vertex[1].y = 0.0;
-		t.vertex[1].z = 0.0;
+	
+		for (size_t x = 0; x < scene->models[0]->size_x; x++)
+		{
+			for (size_t y = 0; y < scene->models[0]->size_y; y++)
+			{
+				for (size_t z = 0; z < scene->models[0]->size_x; z++)
+				{
+					static const float scale = 0.1;
+					const size_t voxel_index = x + (y * scene->models[0]->size_x) + (z * scene->models[0]->size_x * scene->models[0]->size_y);
+					const uint8_t colour_index = scene->models[0]->voxel_data[voxel_index];
 
-		t.vertex[1].x = 0.0;
-		t.vertex[1].y = 0.0;
-		t.vertex[1].z = 1.0;
+					if (colour_index == 0)
+						continue;
+
+					vertex_3 translate(x * scale, y * scale, z*scale);
+
+					//ogt_vox_rgba color = scene->palette.color[colour_index];
+					quad q0, q1, q2, q3, q4, q5;
+
+					// Top face (y = 1.0f)
+					q0.vertex[0] = vertex_3(scale * 1.0f, scale * 1.0f, -scale * 1.0f) + translate;
+					q0.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
+					q0.vertex[2] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q0.vertex[3] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q0.vertex[1].ny = 1;
+					q0.vertex[1].ny = 1;
+					q0.vertex[2].ny = 1;
+					q0.vertex[3].ny = 1;
+
+					// Bottom face (y = -scale*1.0f)
+					q1.vertex[0] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q1.vertex[1] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q1.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q1.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q1.vertex[1].ny = -1;
+					q1.vertex[1].ny = -1;
+					q1.vertex[2].ny = -1;
+					q1.vertex[3].ny = -1;
 
 
-		tri_vec[0].push_back(t);
 
 
-		//for (size_t x = 0; x < scene->models[0]->size_x; x++)
-		//{
-		//	for (size_t y = 0; y < scene->models[0]->size_y; y++)
-		//	{
-		//		for (size_t z = 0; z < scene->models[0]->size_x; z++)
-		//		{
-		//			//const size_t voxel_index = x + (y * scene->models[0]->size_x) + (z * scene->models[0]->size_x * scene->models[0]->size_y);
-		//			//const uint8_t colour_index = scene->models[0]->voxel_data[voxel_index];
+					// Front face  (z = scale*1.0f)
+					q2.vertex[0] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q2.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q2.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q2.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q2.vertex[1].nz = 1;
+					q2.vertex[1].nz = 1;
+					q2.vertex[2].nz = 1;
+					q2.vertex[3].nz = 1;
 
-		//			//if (colour_index == 0)
-		//			//	continue;
+					// Back face (z = -scale*1.0f)
+					q3.vertex[0] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q3.vertex[1] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q3.vertex[2] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
+					q3.vertex[3] = vertex_3(scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
+					q3.vertex[1].nz = -1;
+					q3.vertex[1].nz = -1;
+					q3.vertex[2].nz = -1;
+					q3.vertex[3].nz = -1;
 
-		//			//ogt_vox_rgba color = scene->palette.color[colour_index];
 
-		//			
-		//		}
-		//	}
-		//}
+					// Left face (x = -scale*1.0f)
+					q4.vertex[0] = vertex_3(-scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q4.vertex[1] = vertex_3(-scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
+					q4.vertex[2] = vertex_3(-scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q4.vertex[3] = vertex_3(-scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q4.vertex[1].nx = -1;
+					q4.vertex[1].nx = -1;
+					q4.vertex[2].nx = -1;
+					q4.vertex[3].nx = -1;
+
+					// Right face (x = scale*1.0f)
+					q5.vertex[0] = vertex_3(scale*1.0f, scale*1.0f, -scale*1.0f) + translate;
+					q5.vertex[1] = vertex_3(scale*1.0f, scale*1.0f, scale*1.0f) + translate;
+					q5.vertex[2] = vertex_3(scale*1.0f, -scale*1.0f, scale*1.0f) + translate;
+					q5.vertex[3] = vertex_3(scale*1.0f, -scale*1.0f, -scale*1.0f) + translate;
+					q5.vertex[1].nx = 1;
+					q5.vertex[1].nx = 1;
+					q5.vertex[2].nx = 1;
+					q5.vertex[3].nx = 1;
+
+					triangle t;
+
+					t.vertex[0] = q0.vertex[0];
+					t.vertex[1] = q0.vertex[1];
+					t.vertex[2] = q0.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q0.vertex[0];
+					t.vertex[1] = q0.vertex[2];
+					t.vertex[2] = q0.vertex[3];
+					tri_vec[0].push_back(t);
+					
+					t.vertex[0] = q1.vertex[0];
+					t.vertex[1] = q1.vertex[1];
+					t.vertex[2] = q1.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q1.vertex[0];
+					t.vertex[1] = q1.vertex[2];
+					t.vertex[2] = q1.vertex[3];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q2.vertex[0];
+					t.vertex[1] = q2.vertex[1];
+					t.vertex[2] = q2.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q2.vertex[0];
+					t.vertex[1] = q2.vertex[2];
+					t.vertex[2] = q2.vertex[3];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q3.vertex[0];
+					t.vertex[1] = q3.vertex[1];
+					t.vertex[2] = q3.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q3.vertex[0];
+					t.vertex[1] = q3.vertex[2];
+					t.vertex[2] = q3.vertex[3];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q4.vertex[0];
+					t.vertex[1] = q4.vertex[1];
+					t.vertex[2] = q4.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q4.vertex[0];
+					t.vertex[1] = q4.vertex[2];
+					t.vertex[2] = q4.vertex[3];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q5.vertex[0];
+					t.vertex[1] = q5.vertex[1];
+					t.vertex[2] = q5.vertex[2];
+					tri_vec[0].push_back(t);
+
+					t.vertex[0] = q5.vertex[0];
+					t.vertex[1] = q5.vertex[2];
+					t.vertex[2] = q5.vertex[3];
+					tri_vec[0].push_back(t);
+
+
+
+				}
+			}
+		}
 
 		ogt_vox_destroy_scene(scene);
 

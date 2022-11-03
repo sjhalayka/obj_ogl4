@@ -154,9 +154,9 @@ public:
 	}
 
 
-	float x, y, z;
-	float u, v;
-	float nx, ny, nz;
+	float x = 0, y = 0, z = 0;
+	float u = 0, v = 0;
+	float nx = 0, ny = 0, nz = 0;
 	size_t index;
 };
 
