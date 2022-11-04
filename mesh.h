@@ -175,7 +175,7 @@ public:
 				for (size_t j = 0; j < 3; j++)
 				{
 					tri_vec[t][i].vertex[j].x += -(x_max + x_min) / 2.0f;
-					tri_vec[t][i].vertex[j].y += -(y_max + y_min) / 2.0f;
+					//tri_vec[t][i].vertex[j].y += -(y_max + y_min) / 2.0f;
 					tri_vec[t][i].vertex[j].z += -(z_max + z_min) / 2.0f;
 				}
 			}
