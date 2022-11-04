@@ -530,7 +530,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//lightPositions[1] = lightPos2 * 10.0f;
 
 
-	//lightPositions[0] = vec3(-2, 1, 2);
+	lightPositions[0] = vec3(-2, 1, 2);
 	lightPositions[1] = vec3(2, 1, 2);
 	lightPositions[2] = vec3(2, 1, 2);
 	lightPositions[3] = vec3(-2, 1, -2);
@@ -545,11 +545,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightColours[1].z = 0.5;
 
 	lightColours[2].x = 1;
-	lightColours[2].y = 1;
-	lightColours[2].z = 1;
+	lightColours[2].y = 0.2;
+	lightColours[2].z = 0.2;
 
-	lightColours[3].x = 1;
-	lightColours[3].y = 1;
+	lightColours[3].x = 0.2;
+	lightColours[3].y = 0.2;
 	lightColours[3].z = 1;
 
 
@@ -820,6 +820,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
 	if (1)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
@@ -837,7 +848,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 			mat4 model = mat4(1.0f);
-			model[3] = vec4(lightPositions[j], 1.0f);
+
+			if(upside_down)
+				model[3] = vec4(-lightPositions[j], 1.0f);
+			else
+				model[3] = vec4(lightPositions[j], 1.0f);
 
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -862,7 +877,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glCullFace(GL_BACK);
 
 
-
+	/*
 	if (false == upside_down && false == reflectance_only && false == solid_white)
 	{
 		glEnable(GL_BLEND); //Enable blending.
@@ -895,6 +910,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glDisable(GL_BLEND);
 	}
+	*/
 
 	glFlush();
 }

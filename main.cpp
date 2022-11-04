@@ -16,6 +16,17 @@ int main(int argc, char** argv)
 
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
+
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox"))
+		//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
+	{
+		cout << "Error: Could not properly read file chr_rain.vox" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
+
 	//player_game_piece_meshes.push_back(game_piece_mesh);
 
 
