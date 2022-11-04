@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 
 	//if (false == board_mesh.read_quads_from_obj_array(false, "board"))
-	if (false == board_mesh.read_quads_from_vox_file("board.vox", false))
+	if (false == board_mesh.read_quads_from_vox_file("board.vox", true))
 	{
 		cout << "Error: Could not properly read file board.vox" << endl;
 		return 2;

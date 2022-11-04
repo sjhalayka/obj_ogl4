@@ -530,10 +530,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//lightPositions[1] = lightPos2 * 10.0f;
 
 
-	lightPositions[0] = vec3(-3, 4, 3);
-	lightPositions[1] = vec3(3, 4, -3);
-	lightPositions[2] = vec3(3, 4, 3);
-	lightPositions[3] = vec3(-3, 4, -3);
+	lightPositions[0] = vec3(-6, 4, 6);
+	lightPositions[1] = vec3(6, 4, -6);
+	lightPositions[2] = vec3(6, 4, 6);
+	lightPositions[3] = vec3(-6, 4, -6);
 
 
 	lightColours[0].x = 0.75 * 2;
