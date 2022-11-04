@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox"))
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", false))
 	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
 	{
 		cout << "Error: Could not properly read file chr_knight.vox" << endl;
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	//player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox"))
+	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", false))
 	{
 		cout << "Error: Could not properly read file 3x3x3.vox" << endl;
 		return 2;
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 
 	//if (false == board_mesh.read_quads_from_obj_array(false, "board"))
-	if (false == board_mesh.read_quads_from_vox_file("board.vox"))
+	if (false == board_mesh.read_quads_from_vox_file("board.vox", false))
 	{
 		cout << "Error: Could not properly read file board.vox" << endl;
 		return 2;

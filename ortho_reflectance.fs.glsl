@@ -18,7 +18,7 @@ layout(location = 0) out vec4 frag_colour;
 
 void main()
 {
-  //frag_colour = texture( regular_tex, ftexcoord);
+  //frag_colour = texture( reflectance_tex, ftexcoord);
 
   //return;
 

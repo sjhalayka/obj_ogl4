@@ -530,27 +530,27 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//lightPositions[1] = lightPos2 * 10.0f;
 
 
-	lightPositions[0] = vec3(-2, 1, 2);
-	lightPositions[1] = vec3(2, 1, 2);
-	lightPositions[2] = vec3(2, 1, 2);
-	lightPositions[3] = vec3(-2, 1, -2);
+	lightPositions[0] = vec3(-3, 4, 3);
+	lightPositions[1] = vec3(3, 4, -3);
+	lightPositions[2] = vec3(3, 4, 3);
+	lightPositions[3] = vec3(-3, 4, -3);
 
 
-	lightColours[0].x = 0.75;
-	lightColours[0].y = 0.75;
-	lightColours[0].z = 0.75;
+	lightColours[0].x = 0.75 * 2;
+	lightColours[0].y = 0.75 * 2;
+	lightColours[0].z = 0.75 * 2;
 
-	lightColours[1].x = 0.5;
-	lightColours[1].y = 0.5;
-	lightColours[1].z = 0.5;
+	lightColours[1].x = 0.5 * 2;
+	lightColours[1].y = 0.5 * 2;
+	lightColours[1].z = 0.5 * 2;
 
-	lightColours[2].x = 1;
-	lightColours[2].y = 0.2;
-	lightColours[2].z = 0.2;
+	lightColours[2].x = 1 * 2;
+	lightColours[2].y = 0.2 * 2;
+	lightColours[2].z = 0.2 * 2;
 
-	lightColours[3].x = 0.2;
-	lightColours[3].y = 0.2;
-	lightColours[3].z = 1;
+	lightColours[3].x = 0.2 * 2;
+	lightColours[3].y = 0.2 * 2;
+	lightColours[3].z = 1 * 2;
 
 
 	lightEnabled[0] = 1;
@@ -870,21 +870,21 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 	else
 	{
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
+		//glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+		//glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
 
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
 
-		mat4 model = board_mesh.model_mat;
+		//mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
-		model = scale(model, vec3(1, -1, 1));
+		//model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
+		//model = scale(model, vec3(1, -1, 1));
 
-		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+		//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+		//board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+		//glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
 
 
@@ -918,13 +918,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (upside_down)
 			{
+				glCullFace(GL_FRONT);
 				model[3] = vec4(lightPositions[j], 1.0f);
 				model[3][1] = -model[3][1];
 				model = translate(model, vec3(0, -board_mesh.get_y_extent() / 2, 0));
 			}
 			else
+			{
+				glCullFace(GL_BACK);
 				model[3] = vec4(lightPositions[j], 1.0f);
-
+			}
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
