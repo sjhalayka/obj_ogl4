@@ -18,9 +18,9 @@ layout(location = 0) out vec4 frag_colour;
 
 void main()
 {
-  //frag_colour = texture( upside_down_tex, ftexcoord);
+  //frag_colour = texture( regular_tex, ftexcoord);
 
-    //return;
+  //return;
 
 
    const float pi_times_2 = 6.28318530718; // Pi*2

@@ -564,36 +564,36 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightShadowCaster[3] = 1;
 
 
-	vec3 old_eye = main_camera.eye;
-	vec3 old_up = main_camera.up;
-	vec3 old_look_at = main_camera.look_at;
-	mat4 old_view_mat = main_camera.view_mat;
-	mat4 old_proj_mat = main_camera.projection_mat;
+	//vec3 old_eye = main_camera.eye;
+	//vec3 old_up = main_camera.up;
+	//vec3 old_look_at = main_camera.look_at;
+	//mat4 old_view_mat = main_camera.view_mat;
+	//mat4 old_proj_mat = main_camera.projection_mat;
 
-	if (upside_down)
-	{
-		main_camera.projection_mat = perspective(
-			main_camera.fov,
-			float(win_x) / float(win_y),
-			main_camera.near_plane,
-			main_camera.far_plane
-		);
+	//if (upside_down)
+	//{
+	//	main_camera.projection_mat = perspective(
+	//		main_camera.fov,
+	//		float(win_x) / float(win_y),
+	//		main_camera.near_plane,
+	//		main_camera.far_plane
+	//	);
 
-		vec3 eye = main_camera.eye;
+	//	vec3 eye = main_camera.eye;
 
-		vec3 up = main_camera.up;
-		up = -up;
+	//	vec3 up = main_camera.up;
+	//	up = -up;
 
-		vec3 look_at = main_camera.look_at;
-		look_at = -eye;
-		look_at = normalize(look_at);
+	//	vec3 look_at = main_camera.look_at;
+	//	look_at = -eye;
+	//	look_at = normalize(look_at);
 
-		main_camera.view_mat = lookAt(
-			eye,
-			look_at,
-			up
-		);
-	}
+	//	main_camera.view_mat = lookAt(
+	//		eye,
+	//		look_at,
+	//		up
+	//	);
+	//}
 
 
 
@@ -798,8 +798,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glCullFace(GL_FRONT);
 
 				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
-
-
 				model = scale(model, vec3(1, -1, 1));
 			}
 
@@ -835,8 +833,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 
 	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
 
@@ -863,7 +861,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -board_mesh.get_y_extent()/2 + player_game_piece_meshes[0].get_y_extent()/2.0f, 0));
+		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
 		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -879,7 +877,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -board_mesh.get_y_extent()/2 + player_game_piece_meshes[0].get_y_extent() / 2.0f, 0));
+		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
 		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -951,16 +949,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	if (upside_down)
-	{
-		main_camera.eye = old_eye;
-		main_camera.up = old_up;
-		main_camera.look_at = old_look_at;
-		main_camera.view_mat = old_view_mat;
-		main_camera.projection_mat = old_proj_mat;
+	//if (upside_down)
+	//{
+	//	main_camera.eye = old_eye;
+	//	main_camera.up = old_up;
+	//	main_camera.look_at = old_look_at;
+	//	main_camera.view_mat = old_view_mat;
+	//	main_camera.projection_mat = old_proj_mat;
 
+	if(upside_down)
 		glCullFace(GL_BACK);
-	}
+
 
 
 	/*
