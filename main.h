@@ -863,7 +863,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
+		model = translate(model, vec3(0, -board_mesh.get_y_extent()/2 + player_game_piece_meshes[0].get_y_extent()/2.0f, 0));
 		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -879,7 +879,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
+		model = translate(model, vec3(0, -board_mesh.get_y_extent()/2 + player_game_piece_meshes[0].get_y_extent() / 2.0f, 0));
 		model = scale(model, vec3(1, -1, 1));
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
