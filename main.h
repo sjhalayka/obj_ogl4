@@ -564,7 +564,36 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightShadowCaster[3] = 1;
 
 
+	vec3 old_eye = main_camera.eye;
+	vec3 old_up = main_camera.up;
+	vec3 old_look_at = main_camera.look_at;
+	mat4 old_view_mat = main_camera.view_mat;
+	mat4 old_proj_mat = main_camera.projection_mat;
 
+	if (upside_down)
+	{
+		main_camera.projection_mat = perspective(
+			main_camera.fov,
+			float(win_x) / float(win_y),
+			main_camera.near_plane,
+			main_camera.far_plane
+		);
+
+		vec3 eye = main_camera.eye;
+
+		vec3 up = main_camera.up;
+		up = -up;
+
+		vec3 look_at = main_camera.look_at;
+		look_at = -eye;
+		look_at = normalize(look_at);
+
+		main_camera.view_mat = lookAt(
+			eye,
+			look_at,
+			up
+		);
+	}
 
 
 
@@ -580,15 +609,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			if (lightEnabled[i] == 0 || lightShadowCaster[i] == 0)
 				continue;
 
-			if (upside_down)
-				lightPositions[i].y = -lightPositions[i].y;
+			//if (upside_down)
+			//	lightPositions[i].y = -lightPositions[i].y;
 
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
 
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
-
+			//main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+			//main_camera.up = -main_camera.up;
+			//main_camera.eye.y = -main_camera.eye.y;
 
 			glClear(GL_DEPTH_BUFFER_BIT);
 			point_depth_shader.use_program();
@@ -623,11 +653,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = player_game_piece_meshes[j].model_mat;
 
-				if (upside_down)
-				{
-					model = scale(model, vec3(1, -1, 1));
-					model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
-				}
+				//if (upside_down)
+				//{
+				//	model = scale(model, vec3(1, -1, 1));
+				//	model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
+				//}
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -638,16 +668,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = board_mesh.model_mat;
 
-				if (upside_down)
-					model = scale(model, vec3(1, -1, 1));
+				//if (upside_down)
+				//	model = scale(model, vec3(1, -1, 1));
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 				board_mesh.draw(point_depth_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 			}
 
-			if (upside_down)
-				lightPositions[i].y = -lightPositions[i].y;
+			//if (upside_down)
+			//	lightPositions[i].y = -lightPositions[i].y;
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -767,8 +797,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				glCullFace(GL_FRONT);
 
+				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
+
+
 				model = scale(model, vec3(1, -1, 1));
-				model = translate(model, vec3(0,player_game_piece_meshes[j].get_y_extent(), 0));
 			}
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -789,8 +821,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				glCullFace(GL_FRONT);
 
+			
+				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
 				model = scale(model, vec3(1, -1, 1));
-				model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
 			}
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -817,72 +850,45 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == upside_down)
 	{
+		glCullFace(GL_BACK);
 		mat4 model = board_mesh.model_mat;
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 	}
-
-	/*
-
-
-	for (size_t i = 0; i < max_num_lights; i++)
+	else if(solid_white == false)
 	{
-		if (lightEnabled[i] == 0)
-			continue;
+		glCullFace(GL_FRONT);
 
-		if (false == reflectance_only)
-		{
-			if (false == solid_white)
-			{
-				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
-			}
-			else
-			{
-				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
-			}
+		mat4 model = board_mesh.model_mat;
 
-				mat4 model = light_mesh.model_mat;
+		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
+		model = scale(model, vec3(1, -1, 1));
 
-				if (upside_down)
-				{
-					glCullFace(GL_FRONT);
+		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-					model = scale(model, vec3(1, -1, 1));
-					//model = translate(model, vec3(0, light_mesh.get_y_extent(), 0));
-				}
+		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+	}
+	else
+	{
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
 
-				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+		glCullFace(GL_FRONT);
 
-				light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3_specular.png");
+		mat4 model = board_mesh.model_mat;
 
-		}
-		else
-		{
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
+		model = scale(model, vec3(1, -1, 1));
 
-				mat4 model = light_mesh.model_mat;
+		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				if (upside_down)
-				{
-					glCullFace(GL_FRONT);
+		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 
-					model = scale(model, vec3(1, -1, 1));
-					//model = translate(model, vec3(0, light_mesh.get_y_extent(), 0));
-				}
-
-				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-				light_mesh.draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
-
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
-		}
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
 
-	*/
 
 
 
@@ -916,6 +922,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				model[3] = vec4(lightPositions[j], 1.0f);
 				model[3][1] = -model[3][1];
+				model = translate(model, vec3(0, -board_mesh.get_y_extent() / 2, 0));
 			}
 			else
 				model[3] = vec4(lightPositions[j], 1.0f);
@@ -945,7 +952,15 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	if (upside_down)
+	{
+		main_camera.eye = old_eye;
+		main_camera.up = old_up;
+		main_camera.look_at = old_look_at;
+		main_camera.view_mat = old_view_mat;
+		main_camera.projection_mat = old_proj_mat;
+
 		glCullFace(GL_BACK);
+	}
 
 
 	/*
