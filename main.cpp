@@ -30,9 +30,9 @@ int main(int argc, char** argv)
 	//player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	if (false == light_mesh.read_quads_from_obj_array(false, "3x3x3"))
+	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox"))
 	{
-		cout << "Error: Could not properly read file 3x3x3.obj" << endl;
+		cout << "Error: Could not properly read file 3x3x3.vox" << endl;
 		return 2;
 	}
 

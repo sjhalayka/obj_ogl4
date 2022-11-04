@@ -643,9 +643,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-
 				board_mesh.draw(point_depth_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 			}
+
+			if (upside_down)
+				lightPositions[i].y = -lightPositions[i].y;
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -742,6 +744,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), main_camera.far_plane);
 
 
+
+
+
 	if (false == reflectance_only)
 	{
 		if (false == solid_white)
@@ -819,18 +824,72 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 	}
 
+	/*
+
+
+	for (size_t i = 0; i < max_num_lights; i++)
+	{
+		if (lightEnabled[i] == 0)
+			continue;
+
+		if (false == reflectance_only)
+		{
+			if (false == solid_white)
+			{
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+			}
+			else
+			{
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+			}
+
+				mat4 model = light_mesh.model_mat;
+
+				if (upside_down)
+				{
+					glCullFace(GL_FRONT);
+
+					model = scale(model, vec3(1, -1, 1));
+					//model = translate(model, vec3(0, light_mesh.get_y_extent(), 0));
+				}
+
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
+				light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3_specular.png");
+
+		}
+		else
+		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+
+				mat4 model = light_mesh.model_mat;
+
+				if (upside_down)
+				{
+					glCullFace(GL_FRONT);
+
+					model = scale(model, vec3(1, -1, 1));
+					//model = translate(model, vec3(0, light_mesh.get_y_extent(), 0));
+				}
+
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
+				light_mesh.draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
+
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+		}
+	}
+
+	*/
 
 
 
 
 
 
-
-
-
-
-
-
+	
 	if (1)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
@@ -840,17 +899,24 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
+			if(solid_white)
+				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+			
 			if (reflectance_only)
 				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
-			else
+
+			if(solid_white == false && reflectance_only == false)
 				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
 
 			glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 			mat4 model = mat4(1.0f);
 
-			if(upside_down)
-				model[3] = vec4(-lightPositions[j], 1.0f);
+			if (upside_down)
+			{
+				model[3] = vec4(lightPositions[j], 1.0f);
+				model[3][1] = -model[3][1];
+			}
 			else
 				model[3] = vec4(lightPositions[j], 1.0f);
 
@@ -872,6 +938,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
 		}
 	}
+	
+
+
+
+
 
 	if (upside_down)
 		glCullFace(GL_BACK);

@@ -18,6 +18,9 @@ layout(location = 0) out vec4 frag_colour;
 
 void main()
 {
+
+
+
    const float pi_times_2 = 6.28318530718; // Pi*2
     
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
