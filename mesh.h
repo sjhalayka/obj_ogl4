@@ -107,28 +107,35 @@ public:
 
 	vec3 min_location, max_location;
 
+	float y_extent = 0;
+
 
 	float get_y_extent(void)
 	{
-		float y_min = numeric_limits<float>::max();
-		float y_max = numeric_limits<float>::min();
-
-		for (size_t t = 0; t < tri_vec.size(); t++)
+		if (y_extent == 0)
 		{
-			for (size_t i = 0; i < tri_vec[t].size(); i++)
-			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[t][i].vertex[j].y < y_min)
-						y_min = tri_vec[t][i].vertex[j].y;
+			float y_min = numeric_limits<float>::max();
+			float y_max = numeric_limits<float>::min();
 
-					if (tri_vec[t][i].vertex[j].y > y_max)
-						y_max = tri_vec[t][i].vertex[j].y;
+			for (size_t t = 0; t < tri_vec.size(); t++)
+			{
+				for (size_t i = 0; i < tri_vec[t].size(); i++)
+				{
+					for (size_t j = 0; j < 3; j++)
+					{
+						if (tri_vec[t][i].vertex[j].y < y_min)
+							y_min = tri_vec[t][i].vertex[j].y;
+
+						if (tri_vec[t][i].vertex[j].y > y_max)
+							y_max = tri_vec[t][i].vertex[j].y;
+					}
 				}
 			}
+
+			y_extent = fabsf(y_min - y_max);
 		}
 
-		return fabsf(y_min - y_max);
+		return y_extent;
 	}
 
 
@@ -175,7 +182,7 @@ public:
 				for (size_t j = 0; j < 3; j++)
 				{
 					tri_vec[t][i].vertex[j].x += -(x_max + x_min) / 2.0f;
-					//tri_vec[t][i].vertex[j].y += -(y_max + y_min) / 2.0f;
+					tri_vec[t][i].vertex[j].y += -(y_max + y_min) / 2.0f;
 					tri_vec[t][i].vertex[j].z += -(z_max + z_min) / 2.0f;
 				}
 			}

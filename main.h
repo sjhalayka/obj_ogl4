@@ -62,7 +62,7 @@ vertex_geometry_fragment_shader line_shader;
 vertex_fragment_shader tex_reflectance;
 
 
-
+float board_mesh_offset = 0;
 
 int cam_factor = 4;
 
@@ -616,7 +616,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-			//main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
 			//main_camera.up = -main_camera.up;
 			//main_camera.eye.y = -main_camera.eye.y;
 
@@ -857,18 +857,18 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 	else if(solid_white == false)
 	{
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
 
-		mat4 model = board_mesh.model_mat;
+		//mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -player_game_piece_meshes[0].get_y_extent()/2, 0));
-		
-		
-		model = scale(model, vec3(1, -1, 1));
+		////model = translate(model, vec3(0, -player_game_piece_meshes[0].get_y_extent(), 0));
 
-		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+		//model = translate(model, vec3(0, board_mesh_offset, 0));
+		//
+		//model = scale(model, vec3(1, -1, 1));
+		//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+		//	
+		//board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
 	}
 	else
 	{
@@ -879,8 +879,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		mat4 model = board_mesh.model_mat;
 
-		model = translate(model, vec3(0, -player_game_piece_meshes[0].get_y_extent()/2, 0));
+		model = translate(model, vec3(0, board_mesh_offset, 0));
+
+
 		model = scale(model, vec3(1, -1, 1));
+
+
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
