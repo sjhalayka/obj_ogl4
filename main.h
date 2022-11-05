@@ -673,7 +673,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				board_mesh.draw(point_depth_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+				for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+				{
+					for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
+					{
+						board_mesh.draw(point_depth_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+					}
+				}
+					
 			}
 
 			//if (upside_down)
@@ -853,7 +860,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+		{
+			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
+			{
+				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+			}
+		}
 	}
 	else if(solid_white == false)
 	{
@@ -866,7 +879,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-		board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+
+		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+		{
+			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
+			{
+				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+			}
+		}
 	}
 	else
 	{

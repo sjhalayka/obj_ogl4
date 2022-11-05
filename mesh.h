@@ -957,6 +957,17 @@ class binned_mesh : public mesh
 {
 public:
 
+
+	const size_t level_size = 128;
+	const size_t grid_cell_size = 16;
+	const size_t num_cells_wide = level_size / grid_cell_size;
+
+
+
+
+
+
+
 	bool read_quads_from_vox_file(string file_name, bool cull_faces)
 	{
 		tri_vec.clear();
@@ -995,11 +1006,11 @@ public:
 
 		cout << scene->num_models << endl;
 
-		size_t level_size = scene->models[0]->size_x;
-		size_t grid_cell_size = 16;
-		size_t num_cells = level_size / grid_cell_size;
+		//size_t level_size = scene->models[0]->size_x;
+		//size_t grid_cell_size = 16;
+		//size_t num_cells = level_size / grid_cell_size;
 
-		tri_vec.resize(num_cells * num_cells);
+		tri_vec.resize(num_cells_wide * num_cells_wide);
 
 		for (size_t x = 0; x < scene->models[0]->size_x; x++)
 		{
@@ -1009,7 +1020,7 @@ public:
 				{
 					size_t x_cell = x / grid_cell_size;
 					size_t y_cell = y / grid_cell_size;
-					size_t cell_index = y_cell * num_cells + x_cell;
+					size_t cell_index = y_cell * num_cells_wide + x_cell;
 
 					float scale = 0.1;
 
@@ -1263,6 +1274,100 @@ public:
 		init_opengl_data();
 
 		return true;
+	}
+
+
+
+
+	void draw(GLint render_shader_program,
+		size_t cell_x, size_t cell_y,
+		int win_x,
+		int win_y,
+		string texture_filename, string specular_texture_filename)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		glUseProgram(render_shader_program);
+
+		const GLuint components_per_vertex = 8;
+		const GLuint components_per_position = 3;
+		const GLuint components_per_normal = 3;
+		const GLuint components_per_texcoord = 2;
+
+		if (colour_tex == 0)
+		{
+			std::vector<unsigned char> buffer;
+			loadFile(buffer, texture_filename.c_str());
+			unsigned long w, h;
+			decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+			colour_data_x = w;
+			colour_data_y = h;
+
+			glGenTextures(1, &colour_tex);
+			glBindTexture(GL_TEXTURE_2D, colour_tex);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
+
+		if (specular_tex == 0)
+		{
+			std::vector<unsigned char> buffer;
+			loadFile(buffer, specular_texture_filename.c_str());
+			unsigned long w, h;
+			decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+			specular_data_x = w;
+			specular_data_y = h;
+
+			glGenTextures(1, &specular_tex);
+			glBindTexture(GL_TEXTURE_2D, specular_tex);
+
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(colour_data_x), static_cast<GLsizei>(colour_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);
+
+		glBindTexture(GL_TEXTURE_2D, specular_tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(specular_data_x), static_cast<GLsizei>(specular_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &specular_data[0]);
+
+
+		//for (size_t v = 0; v < opengl_vertex_data.size(); v++)
+		{
+			GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data[cell_index].size()) / components_per_vertex;
+
+			unsigned int VBO, VAO;
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			glBindVertexArray(VAO);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, opengl_vertex_data[cell_index].size() * sizeof(GLfloat), &opengl_vertex_data[cell_index][0], GL_DYNAMIC_DRAW);
+
+			// position attribute
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
+			glEnableVertexAttribArray(0);
+			// normal attribute
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(1);
+			// texture coord attribute
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(2);
+
+			glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+
+			glDeleteBuffers(1, &VBO);
+			glDeleteVertexArrays(1, &VAO);
+		}
+
 	}
 
 };
