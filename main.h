@@ -48,7 +48,7 @@ vector<mesh> player_game_piece_meshes;
 
 mesh light_mesh;
 
-mesh board_mesh;
+binned_mesh board_mesh;
 
 vector<vec3> colours;
 

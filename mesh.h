@@ -952,4 +952,317 @@ protected:
 
 
 
+// Inherit from class A
+class binned_mesh : public mesh
+{
+public:
 
+	bool read_quads_from_vox_file(string file_name, bool cull_faces)
+	{
+		tri_vec.clear();
+		opengl_vertex_data.clear();
+//		opengl_vertex_data.resize(num_cells * num_cells); // to do: is this needed?
+
+		ifstream infile(file_name, ifstream::ate | ifstream::binary);
+
+		if (infile.fail())
+		{
+			//cout << "Could not open file " << file_name << endl;
+			return false;
+		}
+
+		size_t file_size = infile.tellg();
+
+		infile.close();
+
+		if (file_size == 0)
+			return false;
+
+		infile.open(file_name, ifstream::binary);
+
+		if (infile.fail())
+		{
+			//cout << "Could not re-open file " << file_name << endl;
+			return false;
+		}
+
+		vector<unsigned char> v(file_size, 0);
+
+		infile.read(reinterpret_cast<char*>(&v[0]), file_size);
+		infile.close();
+
+		const ogt_vox_scene* scene = ogt_vox_read_scene(&v[0], file_size);
+
+		cout << scene->num_models << endl;
+
+		size_t level_size = scene->models[0]->size_x;
+		size_t grid_cell_size = 16;
+		size_t num_cells = level_size / grid_cell_size;
+
+		tri_vec.resize(num_cells * num_cells);
+
+		for (size_t x = 0; x < scene->models[0]->size_x; x++)
+		{
+			for (size_t y = 0; y < scene->models[0]->size_y; y++)
+			{
+				for (size_t z = 0; z < scene->models[0]->size_z; z++)
+				{
+					size_t x_cell = x / grid_cell_size;
+					size_t y_cell = y / grid_cell_size;
+					size_t cell_index = y_cell * num_cells + x_cell;
+
+					float scale = 0.1;
+
+					const size_t voxel_index = x + (y * scene->models[0]->size_x) + (z * scene->models[0]->size_x * scene->models[0]->size_y);
+					const uint8_t colour_index = scene->models[0]->voxel_data[voxel_index];
+
+					if (colour_index == 0)
+						continue;
+
+					const float uv_index = float(colour_index - 1) / 254.0f;
+
+					vertex_3 translate(x * scale, y * scale, z * scale);
+
+					quad q0, q1, q2, q3, q4, q5;
+
+					// Top face (y = 1.0f)
+					q0.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q0.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q0.vertex[2] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q0.vertex[3] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q0.vertex[0].ny = 1;
+					q0.vertex[1].ny = 1;
+					q0.vertex[2].ny = 1;
+					q0.vertex[3].ny = 1;
+					q0.vertex[0].u = uv_index;
+					q0.vertex[1].u = uv_index;
+					q0.vertex[2].u = uv_index;
+					q0.vertex[3].u = uv_index;
+
+
+
+					// Bottom face (y = -scale*0.5f)
+					q1.vertex[0] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q1.vertex[1] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q1.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q1.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q1.vertex[0].ny = -1;
+					q1.vertex[1].ny = -1;
+					q1.vertex[2].ny = -1;
+					q1.vertex[3].ny = -1;
+					q1.vertex[0].u = uv_index;
+					q1.vertex[1].u = uv_index;
+					q1.vertex[2].u = uv_index;
+					q1.vertex[3].u = uv_index;
+
+
+
+					// Front face  (z = scale*0.5f)
+					q2.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q2.vertex[0].nz = 1;
+					q2.vertex[1].nz = 1;
+					q2.vertex[2].nz = 1;
+					q2.vertex[3].nz = 1;
+					q2.vertex[0].u = uv_index;
+					q2.vertex[1].u = uv_index;
+					q2.vertex[2].u = uv_index;
+					q2.vertex[3].u = uv_index;
+
+					// Back face (z = -scale*0.5f)
+					q3.vertex[0] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[1] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[2] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[3] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q3.vertex[0].nz = -1;
+					q3.vertex[1].nz = -1;
+					q3.vertex[2].nz = -1;
+					q3.vertex[3].nz = -1;
+					q3.vertex[0].u = uv_index;
+					q3.vertex[1].u = uv_index;
+					q3.vertex[2].u = uv_index;
+					q3.vertex[3].u = uv_index;
+
+					// Right face (x = scale*0.5f)
+					q4.vertex[0] = vertex_3(scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q4.vertex[1] = vertex_3(scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q4.vertex[2] = vertex_3(scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q4.vertex[3] = vertex_3(scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q4.vertex[0].nx = 1;
+					q4.vertex[1].nx = 1;
+					q4.vertex[2].nx = 1;
+					q4.vertex[3].nx = 1;
+					q4.vertex[0].u = uv_index;
+					q4.vertex[1].u = uv_index;
+					q4.vertex[2].u = uv_index;
+					q4.vertex[3].u = uv_index;
+
+
+					// Left face (x = -scale*0.5f)
+					q5.vertex[0] = vertex_3(-scale * 0.5f, scale * 0.5f, scale * 0.5f) + translate;
+					q5.vertex[1] = vertex_3(-scale * 0.5f, scale * 0.5f, -scale * 0.5f) + translate;
+					q5.vertex[2] = vertex_3(-scale * 0.5f, -scale * 0.5f, -scale * 0.5f) + translate;
+					q5.vertex[3] = vertex_3(-scale * 0.5f, -scale * 0.5f, scale * 0.5f) + translate;
+					q5.vertex[0].nx = -1;
+					q5.vertex[1].nx = -1;
+					q5.vertex[2].nx = -1;
+					q5.vertex[3].nx = -1;
+					q5.vertex[0].u = uv_index;
+					q5.vertex[1].u = uv_index;
+					q5.vertex[2].u = uv_index;
+					q5.vertex[3].u = uv_index;
+
+
+
+
+					triangle t;
+					size_t neighbour_index = 0;
+
+					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[1];
+						t.vertex[2] = q0.vertex[2];
+						tri_vec[cell_index].push_back(t);
+
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[2];
+						t.vertex[2] = q0.vertex[3];
+						tri_vec[cell_index].push_back(t);
+					}
+
+					neighbour_index = x + (y - 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (y == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						if (1)//cull_faces == false) // || q1.vertex[3].nx < 0 || q1.vertex[3].nz > 0 || q1.vertex[3].ny == 1)
+						{
+
+							t.vertex[0] = q1.vertex[0];
+							t.vertex[1] = q1.vertex[1];
+							t.vertex[2] = q1.vertex[2];
+							tri_vec[cell_index].push_back(t);
+
+							t.vertex[0] = q1.vertex[0];
+							t.vertex[1] = q1.vertex[2];
+							t.vertex[2] = q1.vertex[3];
+							tri_vec[cell_index].push_back(t);
+						}
+					}
+
+					neighbour_index = x + (y)*scene->models[0]->size_x + (z + 1) * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (z == scene->models[0]->size_z - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[1];
+						t.vertex[2] = q2.vertex[2];
+						tri_vec[cell_index].push_back(t);
+
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[2];
+						t.vertex[2] = q2.vertex[3];
+						tri_vec[cell_index].push_back(t);
+					}
+
+
+					neighbour_index = x + (y)*scene->models[0]->size_x + (z - 1) * scene->models[0]->size_x * scene->models[0]->size_y;
+					if (z == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						if (1)//cull_faces == false) //|| q3.vertex[3].nx < 0 || q3.vertex[3].nz > 0 || q3.vertex[3].ny == 1)
+						{
+							t.vertex[0] = q3.vertex[0];
+							t.vertex[1] = q3.vertex[1];
+							t.vertex[2] = q3.vertex[2];
+							tri_vec[cell_index].push_back(t);
+
+							t.vertex[0] = q3.vertex[0];
+							t.vertex[1] = q3.vertex[2];
+							t.vertex[2] = q3.vertex[3];
+							tri_vec[cell_index].push_back(t);
+						}
+					}
+
+					neighbour_index = (x + 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
+					if (x == scene->models[0]->size_x - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[1];
+						t.vertex[2] = q4.vertex[2];
+						tri_vec[cell_index].push_back(t);
+
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[2];
+						t.vertex[2] = q4.vertex[3];
+						tri_vec[cell_index].push_back(t);
+
+					}
+
+					neighbour_index = (x - 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
+					if (x == 0 || 0 == scene->models[0]->voxel_data[neighbour_index])
+					{
+						if (1)//cull_faces == false)// || q5.vertex[3].nx < 0 || q5.vertex[3].nz > 0 || q5.vertex[3].ny == 1)
+						{
+							t.vertex[0] = q5.vertex[0];
+							t.vertex[1] = q5.vertex[1];
+							t.vertex[2] = q5.vertex[2];
+							tri_vec[cell_index].push_back(t);
+
+							t.vertex[0] = q5.vertex[0];
+							t.vertex[1] = q5.vertex[2];
+							t.vertex[2] = q5.vertex[3];
+							tri_vec[cell_index].push_back(t);
+						}
+					}
+				}
+			}
+		}
+
+		ogt_vox_destroy_scene(scene);
+
+		centre_mesh_on_xyz();
+
+		for (size_t i = 0; i < tri_vec.size(); i++)
+		{
+			for (size_t j = 0; j < tri_vec[i].size(); j++)
+			{
+				vertex_3 normal0 = vertex_3(tri_vec[i][j].vertex[0].nx, tri_vec[i][j].vertex[0].ny, tri_vec[i][j].vertex[0].nz);
+				vertex_3 normal1 = vertex_3(tri_vec[i][j].vertex[1].nx, tri_vec[i][j].vertex[1].ny, tri_vec[i][j].vertex[1].nz);
+				vertex_3 normal2 = vertex_3(tri_vec[i][j].vertex[2].nx, tri_vec[i][j].vertex[2].ny, tri_vec[i][j].vertex[2].nz);
+
+				tri_vec[i][j].vertex[0].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				normal0.rotate_x(pi<float>() - pi<float>() / 2.0f);
+				normal1.rotate_x(pi<float>() - pi<float>() / 2.0f);
+				normal2.rotate_x(pi<float>() - pi<float>() / 2.0f);
+
+				tri_vec[i][j].vertex[0].rotate_y(pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_y(pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_y(pi<float>() / 2.0f);
+				normal0.rotate_y(pi<float>() / 2.0f);
+				normal1.rotate_y(pi<float>() / 2.0f);
+				normal2.rotate_y(pi<float>() / 2.0f);
+
+				tri_vec[i][j].vertex[0].nx = normal0.x;
+				tri_vec[i][j].vertex[0].ny = normal0.y;
+				tri_vec[i][j].vertex[0].nz = normal0.z;
+				tri_vec[i][j].vertex[1].nx = normal1.x;
+				tri_vec[i][j].vertex[1].ny = normal1.y;
+				tri_vec[i][j].vertex[1].nz = normal1.z;
+				tri_vec[i][j].vertex[2].nx = normal2.x;
+				tri_vec[i][j].vertex[2].ny = normal2.y;
+				tri_vec[i][j].vertex[2].nz = normal2.z;
+
+			}
+		}
+
+		init_opengl_data();
+
+		return true;
+	}
+
+};
