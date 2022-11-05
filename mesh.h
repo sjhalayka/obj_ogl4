@@ -1438,6 +1438,51 @@ public:
 			}
 		}
 
-		return y_max	;
+		return y_max;
 	}
+
+
+
+	vec3 get_centre(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float x_min = numeric_limits<float>::max();
+		float y_min = numeric_limits<float>::max();
+		float z_min = numeric_limits<float>::max();
+		float x_max = numeric_limits<float>::min();
+		float y_max = numeric_limits<float>::min();
+		float z_max = numeric_limits<float>::min();
+
+
+			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[cell_index][i].vertex[j].x < x_min)
+						x_min = tri_vec[cell_index][i].vertex[j].x;
+
+					if (tri_vec[cell_index][i].vertex[j].x > x_max)
+						x_max = tri_vec[cell_index][i].vertex[j].x;
+
+					if (tri_vec[cell_index][i].vertex[j].y < y_min)
+						y_min = tri_vec[cell_index][i].vertex[j].y;
+
+					if (tri_vec[cell_index][i].vertex[j].y > y_max)
+						y_max = tri_vec[cell_index][i].vertex[j].y;
+
+					if (tri_vec[cell_index][i].vertex[j].z < z_min)
+						z_min = tri_vec[cell_index][i].vertex[j].z;
+
+					if (tri_vec[cell_index][i].vertex[j].z > z_max)
+						z_max = tri_vec[cell_index][i].vertex[j].z;
+				}
+			}
+
+
+		vec3 ret(-(x_max + x_min) / 2.0f, -(y_max + y_min) / 2.0f, -(z_max + z_min) / 2.0f);
+
+		return ret;
+	}
+
 };
