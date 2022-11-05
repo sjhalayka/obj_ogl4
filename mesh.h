@@ -1375,4 +1375,69 @@ public:
 
 	}
 
+
+	float get_y_extent(void)
+	{
+		float y_min = numeric_limits<float>::max();
+		float y_max = numeric_limits<float>::min();
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+				}
+			}
+		}
+
+		return fabsf(y_min - y_max);
+	}
+
+	float get_y_extent(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float y_min = numeric_limits<float>::max();
+		float y_max = numeric_limits<float>::min();
+
+			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[cell_index][i].vertex[j].y < y_min)
+						y_min = tri_vec[cell_index][i].vertex[j].y;
+
+					if (tri_vec[cell_index][i].vertex[j].y > y_max)
+						y_max = tri_vec[cell_index][i].vertex[j].y;
+				}
+			}
+
+		return fabsf(y_min - y_max);
+	}
+
+
+	float get_y_max(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float y_max = numeric_limits<float>::min();
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
+			}
+		}
+
+		return y_max;
+	}
 };

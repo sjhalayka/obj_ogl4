@@ -856,14 +856,15 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	if (false == upside_down)
 	{
 		glCullFace(GL_BACK);
-		mat4 model = board_mesh.model_mat;
-
-		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
+				mat4 model = board_mesh.model_mat;
+
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
 				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 			}
 		}
@@ -872,38 +873,45 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	{
 		glCullFace(GL_FRONT);
 
-		mat4 model = board_mesh.model_mat;
-
-		model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
-		model = scale(model, vec3(1, -1, 1));
-
-		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
+				mat4 model = board_mesh.model_mat;
+
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y)*2, 0));
+				model = scale(model, vec3(1, -1, 1));
+
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
 				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 			}
 		}
 	}
 	else
 	{
-		//glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-		//glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
 
-		//glCullFace(GL_FRONT);
+		glCullFace(GL_FRONT);
 
-		//mat4 model = board_mesh.model_mat;
+		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+		{
+			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
+			{
 
-		//model = translate(model, vec3(0, -board_mesh.get_y_extent(), 0));
-		//model = scale(model, vec3(1, -1, 1));
+				mat4 model = board_mesh.model_mat;
 
-		//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y)*2, 0));
+				model = scale(model, vec3(1, -1, 1));
 
-		//board_mesh.draw(point_shader.get_program(), win_x, win_y, "board.png", "board_specular.png");
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-		//glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+			}
+		}
+
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
 
 
