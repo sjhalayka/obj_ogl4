@@ -1438,6 +1438,6 @@ public:
 			}
 		}
 
-		return y_max;
+		return y_max	;
 	}
 };
