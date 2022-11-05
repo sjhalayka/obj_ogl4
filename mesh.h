@@ -1432,7 +1432,6 @@ public:
 		{
 			for (size_t j = 0; j < 3; j++)
 			{
-
 				if (tri_vec[cell_index][i].vertex[j].y > y_max)
 					y_max = tri_vec[cell_index][i].vertex[j].y;
 			}
@@ -1441,7 +1440,23 @@ public:
 		return y_max;
 	}
 
+	float get_y_min(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
+		float y_min = numeric_limits<float>::min();
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
+			}
+		}
+
+		return y_min;
+	}
 
 	vec3 get_centre(size_t cell_x, size_t cell_y)
 	{
@@ -1480,7 +1495,7 @@ public:
 			}
 
 
-		vec3 ret(-(x_max + x_min) / 2.0f, -(y_max + y_min) / 2.0f, -(z_max + z_min) / 2.0f);
+		vec3 ret((x_max + x_min) / 2.0f, (y_max + y_min) / 2.0f, (z_max + z_min) / 2.0f);
 
 		return ret;
 	}
