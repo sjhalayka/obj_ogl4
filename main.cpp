@@ -659,6 +659,15 @@ void keyboard_func(unsigned char key, int x, int y)
 	case 'd':
 		player_game_piece_meshes[0].model_mat[3][2] = player_game_piece_meshes[0].model_mat[3][2] - 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
+
+	case 'o':
+		y_offset -= 0.1f;
+		break;
+
+	case 'p':
+		y_offset += 0.1f;
+		break;
+
 	default:
 		break;
 	}

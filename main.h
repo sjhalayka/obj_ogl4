@@ -61,8 +61,7 @@ vertex_geometry_fragment_shader line_shader;
 
 vertex_fragment_shader tex_reflectance;
 
-
-
+float y_offset = 0;
 
 int cam_factor = 4;
 
@@ -558,10 +557,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightEnabled[2] = 1;
 	lightEnabled[3] = 1;
 
-	lightShadowCaster[0] = 1;
-	lightShadowCaster[1] = 1;
-	lightShadowCaster[2] = 1;
-	lightShadowCaster[3] = 1;
+	lightShadowCaster[0] = 0;
+	lightShadowCaster[1] = 0;
+	lightShadowCaster[2] = 0;
+	lightShadowCaster[3] = 0;
 
 
 	//vec3 old_eye = main_camera.eye;
@@ -879,7 +878,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = board_mesh.model_mat;
 
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y)*2, 0));
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 				model = scale(model, vec3(1, -1, 1));
 
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
@@ -900,8 +899,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
 				mat4 model = board_mesh.model_mat;
-
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y)*2, 0));
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 				model = scale(model, vec3(1, -1, 1));
 
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
