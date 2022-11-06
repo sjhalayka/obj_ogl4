@@ -883,16 +883,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_min(x, y));
 				float normalized_height = height / board_mesh.get_y_extent();
 
-				vec3 centre = board_mesh.get_centre(x, y);
-
-				model = translate(model, -centre);
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 				model = scale(model, vec3(1, -1, 1));
-
-				centre.y = -centre.y;
-
-				model = translate(model, centre);
-
-				model = translate(model, vec3(0, board_mesh.get_y_extent(x, y) * 2, 0));
 
 
 
@@ -918,16 +910,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_min(x, y));
 				float normalized_height = height / board_mesh.get_y_extent();
 
-				vec3 centre = board_mesh.get_centre(x, y);
-
-				model = translate(model, -centre);
+				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 				model = scale(model, vec3(1, -1, 1));
 
-				centre.y = -centre.y;
 
-				model = translate(model, centre);
-
-				model = translate(model, vec3(0, board_mesh.get_y_extent(x, y) * 2, 0));
 
 
 
