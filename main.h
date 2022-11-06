@@ -878,8 +878,18 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = board_mesh.model_mat;
 
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
+
+
+
+				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_min(x, y));
+				float normalized_height = height / board_mesh.get_y_extent();
+
+
 				model = scale(model, vec3(1, -1, 1));
+				model = translate(model, vec3(0, board_mesh.get_y_extent(x, y) * 2, 0));
+
+
+
 
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -899,8 +909,15 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
 				mat4 model = board_mesh.model_mat;
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
+
+				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_min(x, y));
+				float normalized_height = height / board_mesh.get_y_extent();
+
+
 				model = scale(model, vec3(1, -1, 1));
+				model = translate(model, vec3(0, board_mesh.get_y_extent(x, y) * 2, 0));
+
+
 
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
