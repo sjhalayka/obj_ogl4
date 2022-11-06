@@ -132,6 +132,27 @@ public:
 	}
 
 
+	float get_y_min(void)
+	{
+		float y_min = numeric_limits<float>::max();
+
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+				}
+			}
+		}
+
+		return y_min;
+	}
+
+
 	void centre_mesh_on_xyz(void)
 	{
 		float x_min = numeric_limits<float>::max();
@@ -1373,6 +1394,46 @@ public:
 			glDeleteVertexArrays(1, &VAO);
 		}
 
+	}
+
+	float get_y_min(void)
+	{
+		float y_min = numeric_limits<float>::max();
+
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+				}
+			}
+		}
+
+		return y_min;
+	}
+
+	float get_y_max(void)
+	{
+		float y_max = numeric_limits<float>::min();
+
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+				}
+			}
+		}
+
+		return y_max;
 	}
 
 
