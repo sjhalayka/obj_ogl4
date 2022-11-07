@@ -1037,7 +1037,44 @@ public:
 	}
 
 
+	void get_lower_neighbour_heights(size_t x, size_t y, vector<float> &ret)
+	{
+		ret.clear();
 
+		long long signed int x_plus_start = x + 1;
+		long long signed int x_minus_start = x - 1;
+
+		if (x_minus_start < 0)
+			x_minus_start = 0;
+
+		if (x_plus_start > num_cells_wide - 1)
+			x_plus_start = num_cells_wide - 1;
+
+		long long signed int y_plus_start = y + 1;
+		long long signed int y_minus_start = y - 1;
+
+		if (y_minus_start < 0)
+			y_minus_start = 0;
+
+		if (y_plus_start > num_cells_wide - 1)
+			y_plus_start = num_cells_wide - 1;
+
+		float current_height = distance(get_y_min(), get_y_max(x, y));
+
+		for (long long unsigned int i = x_minus_start; i <= x_plus_start; i++)
+		{
+			for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
+			{
+				if (i == x && j == y)
+					continue;
+
+				float neighbour_height = distance(get_y_min(), get_y_max(i, j));
+
+				if(neighbour_height <= current_height)
+					ret.push_back(neighbour_height);
+			}
+		}
+	}
 
 
 
@@ -1496,44 +1533,50 @@ public:
 
 	}
 
+
+	float cached_y_min = numeric_limits<float>::max();
+	float cached_y_max = numeric_limits<float>::min();
+
+
+
 	float get_y_min(void)
 	{
-		float y_min = numeric_limits<float>::max();
-
-
-		for (size_t t = 0; t < tri_vec.size(); t++)
+		if (cached_y_min == numeric_limits<float>::max())
 		{
-			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			for (size_t t = 0; t < tri_vec.size(); t++)
 			{
-				for (size_t j = 0; j < 3; j++)
+				for (size_t i = 0; i < tri_vec[t].size(); i++)
 				{
-					if (tri_vec[t][i].vertex[j].y < y_min)
-						y_min = tri_vec[t][i].vertex[j].y;
+					for (size_t j = 0; j < 3; j++)
+					{
+						if (tri_vec[t][i].vertex[j].y < cached_y_min)
+							cached_y_min = tri_vec[t][i].vertex[j].y;
+					}
 				}
 			}
 		}
 
-		return y_min;
+		return cached_y_min;
 	}
 
 	float get_y_max(void)
 	{
-		float y_max = numeric_limits<float>::min();
-
-
-		for (size_t t = 0; t < tri_vec.size(); t++)
+		if (cached_y_max == numeric_limits<float>::min())
 		{
-			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			for (size_t t = 0; t < tri_vec.size(); t++)
 			{
-				for (size_t j = 0; j < 3; j++)
+				for (size_t i = 0; i < tri_vec[t].size(); i++)
 				{
-					if (tri_vec[t][i].vertex[j].y > y_max)
-						y_max = tri_vec[t][i].vertex[j].y;
+					for (size_t j = 0; j < 3; j++)
+					{
+						if (tri_vec[t][i].vertex[j].y > cached_y_max)
+							cached_y_max = tri_vec[t][i].vertex[j].y;
+					}
 				}
 			}
 		}
 
-		return y_max;
+		return cached_y_max;
 	}
 
 
