@@ -973,6 +973,16 @@ protected:
 
 
 
+class neighbour_data
+{
+public:
+	size_t x = 0;
+	size_t y = 0;
+	float height = 0;
+};
+
+
+
 // Inherit from class A
 class binned_mesh : public mesh
 {
@@ -1034,10 +1044,10 @@ public:
 		average_height /= count;
 
 		return average_height;
-	}
+	}	
 
 
-	void get_lower_neighbour_heights(size_t x, size_t y, vector<float> &ret)
+	void get_all_neighbour_heights(size_t x, size_t y, vector<neighbour_data> &ret)
 	{
 		ret.clear();
 
@@ -1065,13 +1075,17 @@ public:
 		{
 			for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
 			{
-				if (i == x && j == y)
-					continue;
+				//if (i == x && j == y)
+				//	continue;
 
 				float neighbour_height = distance(get_y_min(), get_y_max(i, j));
 
-				if(neighbour_height <= current_height)
-					ret.push_back(neighbour_height);
+				neighbour_data nd;
+				nd.x = i;
+				nd.y = j;
+				nd.height = neighbour_height;
+
+				ret.push_back(nd);
 			}
 		}
 	}

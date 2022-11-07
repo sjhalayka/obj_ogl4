@@ -880,37 +880,22 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
-				mat4 model = board_mesh.model_mat;
+				vector<neighbour_data> neighbour_heights;
+				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
 
+				for (size_t i = 0; i < neighbour_heights.size(); i++)
+				{
 
+					mat4 model = board_mesh.model_mat;
 
+					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
 
+					model = scale(model, vec3(1, -1, 1));
 
-				vector<float> neighbour_heights;
-				board_mesh.get_lower_neighbour_heights(x, y, neighbour_heights);
+					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
-
-				//				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
-
-								//// How do I mirror around an arbitrary height?
-
-
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
-
-
-				model = scale(model, vec3(1, -1, 1));
-
-
-
-
-
-
-				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
-
-				//board_mesh.mirror_y(x, y);
+					board_mesh.draw(point_shader.get_program(), neighbour_heights[i].x, neighbour_heights[i].y, win_x, win_y, "board.png", "board_specular.png");
+				}
 			}
 		}
 	}
@@ -925,34 +910,22 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
-				mat4 model = board_mesh.model_mat;
+				vector<neighbour_data> neighbour_heights;
+				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
 
+				for (size_t i = 0; i < neighbour_heights.size(); i++)
+				{
 
+					mat4 model = board_mesh.model_mat;
+	
+					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
 
+					model = scale(model, vec3(1, -1, 1));
 
-				vector<float> neighbour_heights;
-				board_mesh.get_lower_neighbour_heights(x, y, neighbour_heights);
+					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
-
-				//				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
-
-								//// How do I mirror around an arbitrary height?
-
-
-				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
-
-
-				model = scale(model, vec3(1, -1, 1));
-
-
-
-
-
-
-				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+					board_mesh.draw(point_shader.get_program(), neighbour_heights[i].x, neighbour_heights[i].y, win_x, win_y, "board.png", "board_specular.png");
+				}
 			}
 		}
 
