@@ -882,35 +882,38 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 
 				vector<neighbour_data> neighbour_heights;
-				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
+				board_mesh.get_all_neighbour_indices(x, y, neighbour_heights);
 
 
 				neighbour_data nd;
 				nd.x = x;
 				nd.y = y;
-				nd.height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
 
 				neighbour_heights.push_back(nd);
 
 
 				for (size_t i = 0; i < neighbour_heights.size(); i++)
 				{
-					//if (i < neighbour_heights.size() - 1)
-					//	glDisable(GL_DEPTH_TEST);
-					//else
-					//{
-					//	glEnable(GL_DEPTH_TEST);
+					if (i < neighbour_heights.size() - 1)
+						glDisable(GL_DEPTH_TEST);
+					else
+					{
+						glEnable(GL_DEPTH_TEST);
 
-					//	continue;
-					//}
+						continue;
+					}
 
-					float current_height = neighbour_heights[i].height;
-					float current_normalized_height = current_height / board_mesh.get_y_extent();
 
 					mat4 model = board_mesh.model_mat;
 
+					float current_height = fabsf(board_mesh.get_y_min() - board_mesh.get_y_max(neighbour_heights[i].x, neighbour_heights[i].y));
+					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f) * 2.0f;
 
-					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
+					//cout << normalized_height << endl;
+
+					model = translate(model, vec3(0, y_offset * (normalized_height)-board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
+
+
 
 					model = scale(model, vec3(1, -1, 1));
 
@@ -939,39 +942,41 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 
 				vector<neighbour_data> neighbour_heights;
-				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
+				board_mesh.get_all_neighbour_indices(x, y, neighbour_heights);
 
 
 				neighbour_data nd;
 				nd.x = x;
 				nd.y = y;
-				nd.height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
 
 				neighbour_heights.push_back(nd);
 
 
 				for (size_t i = 0; i < neighbour_heights.size(); i++)
 				{
-					//if (i < neighbour_heights.size() - 1)
-					//	glDisable(GL_DEPTH_TEST);
-					//else
-					//{
-					//	glEnable(GL_DEPTH_TEST);
+					if (i < neighbour_heights.size() - 1)
+						glDisable(GL_DEPTH_TEST);
+					else
+					{
+						glEnable(GL_DEPTH_TEST);
 
-					//	continue;
-					//}
+						continue;
+					}
 
-					float current_height = neighbour_heights[i].height;
-					float current_normalized_height = current_height / board_mesh.get_y_extent();
 
 					mat4 model = board_mesh.model_mat;
 
+					float current_height = fabsf(board_mesh.get_y_min() - board_mesh.get_y_max(neighbour_heights[i].x, neighbour_heights[i].y));
+					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f) * 2.0f;
 
-					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
+					//cout << normalized_height << endl;
+
+					model = translate(model, vec3(0, y_offset * (normalized_height) - board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
 
 
 
 					model = scale(model, vec3(1, -1, 1));
+
 
 
 

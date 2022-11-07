@@ -978,7 +978,6 @@ class neighbour_data
 public:
 	size_t x = 0;
 	size_t y = 0;
-	float height = 0;
 };
 
 
@@ -1047,7 +1046,7 @@ public:
 	}	
 
 
-	void get_all_neighbour_heights(size_t x, size_t y, vector<neighbour_data> &ret)
+	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data> &ret)
 	{
 		ret.clear();
 
@@ -1083,7 +1082,6 @@ public:
 				neighbour_data nd;
 				nd.x = i;
 				nd.y = j;
-				nd.height = neighbour_height;
 
 				ret.push_back(nd);
 			}
