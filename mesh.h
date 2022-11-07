@@ -985,8 +985,102 @@ public:
 
 
 
+	float get_neighbour_average_height(size_t x, size_t y)
+	{
+
+		long long signed int x_plus_start = x + 1;
+		long long signed int x_minus_start = x - 1;
+
+		if (x_minus_start < 0)
+			x_minus_start = 0;
+
+		if (x_plus_start > num_cells_wide - 1)
+			x_plus_start = num_cells_wide - 1;
+
+		long long signed int y_plus_start = y + 1;
+		long long signed int y_minus_start = y - 1;
+
+		if (y_minus_start < 0)
+			y_minus_start = 0;
+
+		if (y_plus_start > num_cells_wide - 1)
+			y_plus_start = num_cells_wide - 1;
 
 
+
+		float average_height = 0;
+		float current_height = distance(get_y_min(), get_y_max(x, y));
+
+		//				average_height += current_height;
+		size_t count = 0;
+
+		for (long long unsigned int i = x_minus_start; i <= x_plus_start; i++)
+		{
+			for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
+			{
+				size_t cell_index = i * num_cells_wide + j;
+
+				float neighbour_height = distance(get_y_min(), get_y_max(i, j));
+
+				if (neighbour_height <= current_height)
+				{
+					average_height += neighbour_height;
+
+					count++;
+				}
+			}
+		}
+
+		average_height /= count;
+
+		return average_height;
+	}
+
+
+
+
+
+
+
+
+
+
+	void mirror_y(size_t cell_x, size_t cell_y)
+	{
+		vec3 centre = get_centre(cell_x, cell_y);
+
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				tri_vec[cell_index][i].vertex[j].x -= centre.x;
+				tri_vec[cell_index][i].vertex[j].y -= centre.y;
+				tri_vec[cell_index][i].vertex[j].z -= centre.z;
+			}
+		}
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				tri_vec[cell_index][i].vertex[j].y = -tri_vec[cell_index][i].vertex[j].y;
+			}
+		}
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				tri_vec[cell_index][i].vertex[j].x += centre.x;
+				tri_vec[cell_index][i].vertex[j].y += centre.y;
+				tri_vec[cell_index][i].vertex[j].z += centre.z;
+			}
+		}
+
+		init_opengl_data();
+	}
 
 
 	bool read_quads_from_vox_file(string file_name, bool cull_faces)

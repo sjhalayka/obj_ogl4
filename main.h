@@ -31,6 +31,10 @@ using std::string;
 using std::ostringstream;
 using std::istringstream;
 
+#include <algorithm>
+using std::min;
+using std::max;
+
 
 void idle_func(void);
 bool init_opengl(const int &width, const int &height);
@@ -61,7 +65,7 @@ vertex_geometry_fragment_shader line_shader;
 
 vertex_fragment_shader tex_reflectance;
 
-float y_offset = 1;
+float y_offset = 0;
 
 int cam_factor = 4;
 
@@ -878,27 +882,21 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = board_mesh.model_mat;
 
+				float average_height = board_mesh.get_neighbour_average_height(x, y);
 
-
-
-
-
-				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
-				float normalized_height = height / board_mesh.get_y_extent();
+				float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
 
 				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 
+				//// How do I mirror around an arbitrary height?
 				model = scale(model, vec3(1, -1, 1));
-
-				//model = translate(model, vec3(0,  board_mesh.get_y_extent(x, y), 0));
-
-				//model = translate(model, vec3(0, -y_offset * normalized_height, 0));
-
 
 
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+
+				//board_mesh.mirror_y(x, y);
 			}
 		}
 	}
@@ -915,17 +913,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = board_mesh.model_mat;
 
+				float average_height = board_mesh.get_neighbour_average_height(x, y);
 
-				float height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
-				float normalized_height = height / board_mesh.get_y_extent();
+				float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
 
 				model = translate(model, vec3(0, -board_mesh.get_y_extent(x, y) * 2, 0));
 
+				//// How do I mirror around an arbitrary height?
 				model = scale(model, vec3(1, -1, 1));
 
-				//model = translate(model, vec3(0,  board_mesh.get_y_extent(x, y) , 0));
 
-				//model = translate(model, vec3(0, -y_offset * normalized_height, 0));
 
 
 
