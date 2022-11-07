@@ -1075,8 +1075,8 @@ public:
 		{
 			for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
 			{
-				//if (i == x && j == y)
-				//	continue;
+				if (i == x && j == y)
+					continue;
 
 				float neighbour_height = distance(get_y_min(), get_y_max(i, j));
 

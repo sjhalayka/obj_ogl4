@@ -880,17 +880,43 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
+
 				vector<neighbour_data> neighbour_heights;
 				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
 
+
+				neighbour_data nd;
+				nd.x = x;
+				nd.y = y;
+				nd.height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
+
+				neighbour_heights.push_back(nd);
+
+
 				for (size_t i = 0; i < neighbour_heights.size(); i++)
 				{
+					//if (i < neighbour_heights.size() - 1)
+					//	glDisable(GL_DEPTH_TEST);
+					//else
+					//{
+					//	glEnable(GL_DEPTH_TEST);
+
+					//	continue;
+					//}
+
+					float current_height = neighbour_heights[i].height;
+					float current_normalized_height = current_height / board_mesh.get_y_extent();
 
 					mat4 model = board_mesh.model_mat;
+
 
 					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
 
 					model = scale(model, vec3(1, -1, 1));
+
+
+
+
 
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -898,6 +924,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				}
 			}
 		}
+
 	}
 	else
 	{
@@ -910,17 +937,45 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
+
 				vector<neighbour_data> neighbour_heights;
 				board_mesh.get_all_neighbour_heights(x, y, neighbour_heights);
 
+
+				neighbour_data nd;
+				nd.x = x;
+				nd.y = y;
+				nd.height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(x, y));
+
+				neighbour_heights.push_back(nd);
+
+
 				for (size_t i = 0; i < neighbour_heights.size(); i++)
 				{
+					//if (i < neighbour_heights.size() - 1)
+					//	glDisable(GL_DEPTH_TEST);
+					//else
+					//{
+					//	glEnable(GL_DEPTH_TEST);
+
+					//	continue;
+					//}
+
+					float current_height = neighbour_heights[i].height;
+					float current_normalized_height = current_height / board_mesh.get_y_extent();
 
 					mat4 model = board_mesh.model_mat;
-	
+
+
 					model = translate(model, vec3(0, -board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
 
+
+
 					model = scale(model, vec3(1, -1, 1));
+
+
+
+
 
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
