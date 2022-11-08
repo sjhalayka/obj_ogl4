@@ -128,28 +128,7 @@ public:
 			}
 		}
 
-		return fabsf(y_min - y_max);
-	}
-
-
-	float get_y_min(void)
-	{
-		float y_min = numeric_limits<float>::max();
-
-
-		for (size_t t = 0; t < tri_vec.size(); t++)
-		{
-			for (size_t i = 0; i < tri_vec[t].size(); i++)
-			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[t][i].vertex[j].y < y_min)
-						y_min = tri_vec[t][i].vertex[j].y;
-				}
-			}
-		}
-
-		return y_min;
+		return distance(y_min, y_max);
 	}
 
 
@@ -994,56 +973,56 @@ public:
 
 
 
-	float get_neighbour_average_height(size_t x, size_t y)
-	{
+	//float get_neighbour_average_height(size_t x, size_t y)
+	//{
 
-		long long signed int x_plus_start = x + 1;
-		long long signed int x_minus_start = x - 1;
+	//	long long signed int x_plus_start = x + 1;
+	//	long long signed int x_minus_start = x - 1;
 
-		if (x_minus_start < 0)
-			x_minus_start = 0;
+	//	if (x_minus_start < 0)
+	//		x_minus_start = 0;
 
-		if (x_plus_start > num_cells_wide - 1)
-			x_plus_start = num_cells_wide - 1;
+	//	if (x_plus_start > num_cells_wide - 1)
+	//		x_plus_start = num_cells_wide - 1;
 
-		long long signed int y_plus_start = y + 1;
-		long long signed int y_minus_start = y - 1;
+	//	long long signed int y_plus_start = y + 1;
+	//	long long signed int y_minus_start = y - 1;
 
-		if (y_minus_start < 0)
-			y_minus_start = 0;
+	//	if (y_minus_start < 0)
+	//		y_minus_start = 0;
 
-		if (y_plus_start > num_cells_wide - 1)
-			y_plus_start = num_cells_wide - 1;
+	//	if (y_plus_start > num_cells_wide - 1)
+	//		y_plus_start = num_cells_wide - 1;
 
 
 
-		float average_height = 0;
-		float current_height = distance(get_y_min(), get_y_max(x, y));
+	//	float average_height = 0;
+	//	float current_height = distance(get_y_min(), get_y_max(x, y));
 
-		//				average_height += current_height;
-		size_t count = 0;
+	//	//				average_height += current_height;
+	//	size_t count = 0;
 
-		for (long long unsigned int i = x_minus_start; i <= x_plus_start; i++)
-		{
-			for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
-			{
-				size_t cell_index = i * num_cells_wide + j;
+	//	for (long long unsigned int i = x_minus_start; i <= x_plus_start; i++)
+	//	{
+	//		for (long long unsigned int j = y_minus_start; j <= y_plus_start; j++)
+	//		{
+	//			size_t cell_index = i * num_cells_wide + j;
 
-				float neighbour_height = distance(get_y_min(), get_y_max(i, j));
+	//			float neighbour_height = distance(get_y_min(), get_y_max(i, j));
 
-				if (neighbour_height <= current_height)
-				{
-					average_height += neighbour_height;
+	//			if (neighbour_height <= current_height)
+	//			{
+	//				average_height += neighbour_height;
 
-					count++;
-				}
-			}
-		}
+	//				count++;
+	//			}
+	//		}
+	//	}
 
-		average_height /= count;
+	//	average_height /= count;
 
-		return average_height;
-	}	
+	//	return average_height;
+	//}	
 
 
 	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data> &ret)
@@ -1068,7 +1047,6 @@ public:
 		if (y_plus_start > num_cells_wide - 1)
 			y_plus_start = num_cells_wide - 1;
 
-		float current_height = distance(get_y_min(), get_y_max(x, y));
 
 		for (long long unsigned int i = x_minus_start; i <= x_plus_start; i++)
 		{
@@ -1612,7 +1590,7 @@ public:
 			}
 		}
 
-		return fabsf(y_min - y_max);
+		return distance(y_min, y_max);
 	}
 
 	float get_y_extent(size_t cell_x, size_t cell_y)
@@ -1634,7 +1612,7 @@ public:
 				}
 			}
 
-		return fabsf(y_min - y_max);
+		return distance(y_min, y_max);
 	}
 
 
@@ -1660,7 +1638,7 @@ public:
 	{
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
-		float y_min = numeric_limits<float>::min();
+		float y_min = numeric_limits<float>::max();
 
 		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 		{

@@ -65,7 +65,7 @@ vertex_geometry_fragment_shader line_shader;
 
 vertex_fragment_shader tex_reflectance;
 
-float y_offset = 0;
+float y_offset = 1;
 
 int cam_factor = 4;
 
@@ -599,6 +599,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//}
 
 
+	if (upside_down)
+		glFrontFace(GL_CW);
+	else
+		glFrontFace(GL_CCW);
+
 
 
 
@@ -805,7 +810,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (upside_down)
 			{
-				glCullFace(GL_FRONT);
+				//glCullFace(GL_FRONT);
 
 				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
 				model = scale(model, vec3(1, -1, 1));
@@ -827,7 +832,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (upside_down)
 			{
-				glCullFace(GL_FRONT);
+				//glCullFace(GL_FRONT);
 
 			
 				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
@@ -858,8 +863,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == upside_down)
 	{
-		glCullFace(GL_BACK);
-
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
@@ -872,125 +875,56 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			}
 		}
 	}
-	else if(solid_white == false)
-	{
-		glCullFace(GL_FRONT);
-
-		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
-		{
-			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
-			{
-
-				vector<neighbour_data> neighbour_heights;
-				board_mesh.get_all_neighbour_indices(x, y, neighbour_heights);
-
-
-				neighbour_data nd;
-				nd.x = x;
-				nd.y = y;
-
-				neighbour_heights.push_back(nd);
-
-
-				for (size_t i = 0; i < neighbour_heights.size(); i++)
-				{
-					if (i < neighbour_heights.size() - 1)
-						glDisable(GL_DEPTH_TEST);
-					else
-					{
-						glEnable(GL_DEPTH_TEST);
-
-						continue;
-					}
-
-
-					mat4 model = board_mesh.model_mat;
-
-					float current_height = fabsf(board_mesh.get_y_min() - board_mesh.get_y_max(neighbour_heights[i].x, neighbour_heights[i].y));
-					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f) * 2.0f;
-
-					//cout << normalized_height << endl;
-
-					model = translate(model, vec3(0, y_offset * (normalized_height)-board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
-
-
-
-					model = scale(model, vec3(1, -1, 1));
-
-
-
-
-
-					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-					board_mesh.draw(point_shader.get_program(), neighbour_heights[i].x, neighbour_heights[i].y, win_x, win_y, "board.png", "board_specular.png");
-				}
-			}
-		}
-
-	}
 	else
 	{
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);	
+		if (solid_white == true)
+		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+		}
+		else
+		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+		}
+		
 
-		glCullFace(GL_FRONT);
 
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
-
-				vector<neighbour_data> neighbour_heights;
-				board_mesh.get_all_neighbour_indices(x, y, neighbour_heights);
-
+				vector<neighbour_data> n;
+				board_mesh.get_all_neighbour_indices(x, y, n);
 
 				neighbour_data nd;
 				nd.x = x;
 				nd.y = y;
 
-				neighbour_heights.push_back(nd);
+				n.push_back(nd);
 
-
-				for (size_t i = 0; i < neighbour_heights.size(); i++)
+				for (size_t i = 0; i < n.size(); i++)
 				{
-					if (i < neighbour_heights.size() - 1)
-						glDisable(GL_DEPTH_TEST);
-					else
-					{
-						glEnable(GL_DEPTH_TEST);
-
-						continue;
-					}
-
-
 					mat4 model = board_mesh.model_mat;
 
-					float current_height = fabsf(board_mesh.get_y_min() - board_mesh.get_y_max(neighbour_heights[i].x, neighbour_heights[i].y));
-					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f) * 2.0f;
+					float current_height = distance(board_mesh.get_y_max(), board_mesh.get_y_min(n[i].x, n[i].y));
+					float normalized_height = current_height / board_mesh.get_y_extent();
 
-					//cout << normalized_height << endl;
-
-					model = translate(model, vec3(0, y_offset * (normalized_height) - board_mesh.get_y_extent(neighbour_heights[i].x, neighbour_heights[i].y) * 2, 0));
-
-
+					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));
+					
 
 					model = scale(model, vec3(1, -1, 1));
 
-
-
-
-
-
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-					board_mesh.draw(point_shader.get_program(), neighbour_heights[i].x, neighbour_heights[i].y, win_x, win_y, "board.png", "board_specular.png");
+					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
 				}
 			}
 		}
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
+
+
 
 
 
@@ -1023,14 +957,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (upside_down)
 			{
-				glCullFace(GL_FRONT);
+				//glCullFace(GL_FRONT);
 				model[3] = vec4(lightPositions[j], 1.0f);
 				model[3][1] = -model[3][1];
 				model = translate(model, vec3(0, -board_mesh.get_y_extent() / 2, 0));
 			}
 			else
 			{
-				glCullFace(GL_BACK);
+				//glCullFace(GL_BACK);
 				model[3] = vec4(lightPositions[j], 1.0f);
 			}
 
@@ -1065,8 +999,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//	main_camera.view_mat = old_view_mat;
 	//	main_camera.projection_mat = old_proj_mat;
 
-	if(upside_down)
-		glCullFace(GL_BACK);
+
 
 
 
