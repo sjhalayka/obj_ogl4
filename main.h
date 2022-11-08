@@ -65,7 +65,7 @@ vertex_geometry_fragment_shader line_shader;
 
 vertex_fragment_shader tex_reflectance;
 
-float y_offset = 1;
+float y_offset = 0;
 
 int cam_factor = 4;
 
@@ -894,11 +894,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 					mat4 model = board_mesh.model_mat;
 
 					float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(n[i].x, n[i].y));
-					float normalized_height = current_height / board_mesh.get_y_extent();
+					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f)*2.0f;
 
 					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));
 				
 					model = scale(model, vec3(1, -1, 1));
+
+				//	cout << normalized_height << endl;
+
+				model = translate(model, vec3(0, -normalized_height*board_mesh.get_y_extent(), 0));
+
 
 
 
