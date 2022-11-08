@@ -561,10 +561,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightEnabled[2] = 1;
 	lightEnabled[3] = 1;
 
-	lightShadowCaster[0] = 0;
-	lightShadowCaster[1] = 0;
-	lightShadowCaster[2] = 0;
-	lightShadowCaster[3] = 0;
+	lightShadowCaster[0] = 1;
+	lightShadowCaster[1] = 1;
+	lightShadowCaster[2] = 1;
+	lightShadowCaster[3] = 1;
 
 
 	vec3 old_eye = main_camera.eye;
