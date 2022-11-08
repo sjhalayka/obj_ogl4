@@ -575,25 +575,18 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (upside_down)
 	{
-		vec3 eye = old_eye;
-		eye.y = -eye.y;
-
-		vec3 look_at;
-		look_at = -eye;
-
-		vec3 up = cross(eye, look_at);
-
-		main_camera.view_mat = lookAt(
-			eye,
-			look_at,
-			up);
+		glFrontFace(GL_CW);
+		main_camera.view_mat = scale(old_view_mat, vec3(1, -1, 1));
+	}
+	else
+	{
+		glFrontFace(GL_CCW);
 	}
 
-
-	if (upside_down)
-		glFrontFace(GL_CW);
-	else
-		glFrontFace(GL_CCW);
+	//if (upside_down)
+	//	glCullFace(GL_FRONT);
+	//else
+	//	glCullFace(GL_BACK);
 
 
 
@@ -617,6 +610,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+
+
+
 
 			glClear(GL_DEPTH_BUFFER_BIT);
 			point_depth_shader.use_program();
