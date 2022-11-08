@@ -971,6 +971,12 @@ public:
 	const size_t grid_cell_size = 16;
 	const size_t num_cells_wide = level_size / grid_cell_size;
 
+	float cached_y_min = numeric_limits<float>::max();
+	float cached_y_max = numeric_limits<float>::min();
+
+	map<size_t, float> cached_y_max_cells;
+	float cached_y_min_extent = numeric_limits<float>::max();
+	float cached_y_max_extent = numeric_limits<float>::min();
 
 
 	//float get_neighbour_average_height(size_t x, size_t y)
@@ -1072,49 +1078,55 @@ public:
 
 
 
-	void mirror_y(size_t cell_x, size_t cell_y)
-	{
-		vec3 centre = get_centre(cell_x, cell_y);
+	//void mirror_y(size_t cell_x, size_t cell_y)
+	//{
+	//	vec3 centre = get_centre(cell_x, cell_y);
 
-		size_t cell_index = cell_y * num_cells_wide + cell_x;
+	//	size_t cell_index = cell_y * num_cells_wide + cell_x;
 
-		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
-		{
-			for (size_t j = 0; j < 3; j++)
-			{
-				tri_vec[cell_index][i].vertex[j].x -= centre.x;
-				tri_vec[cell_index][i].vertex[j].y -= centre.y;
-				tri_vec[cell_index][i].vertex[j].z -= centre.z;
-			}
-		}
+	//	for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+	//	{
+	//		for (size_t j = 0; j < 3; j++)
+	//		{
+	//			tri_vec[cell_index][i].vertex[j].x -= centre.x;
+	//			tri_vec[cell_index][i].vertex[j].y -= centre.y;
+	//			tri_vec[cell_index][i].vertex[j].z -= centre.z;
+	//		}
+	//	}
 
-		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
-		{
-			for (size_t j = 0; j < 3; j++)
-			{
-				tri_vec[cell_index][i].vertex[j].y = -tri_vec[cell_index][i].vertex[j].y;
-			}
-		}
+	//	for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+	//	{
+	//		for (size_t j = 0; j < 3; j++)
+	//		{
+	//			tri_vec[cell_index][i].vertex[j].y = -tri_vec[cell_index][i].vertex[j].y;
+	//		}
+	//	}
 
-		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
-		{
-			for (size_t j = 0; j < 3; j++)
-			{
-				tri_vec[cell_index][i].vertex[j].x += centre.x;
-				tri_vec[cell_index][i].vertex[j].y += centre.y;
-				tri_vec[cell_index][i].vertex[j].z += centre.z;
-			}
-		}
+	//	for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+	//	{
+	//		for (size_t j = 0; j < 3; j++)
+	//		{
+	//			tri_vec[cell_index][i].vertex[j].x += centre.x;
+	//			tri_vec[cell_index][i].vertex[j].y += centre.y;
+	//			tri_vec[cell_index][i].vertex[j].z += centre.z;
+	//		}
+	//	}
 
-		init_opengl_data();
-	}
+	//	init_opengl_data();
+	//}
 
 
 	bool read_quads_from_vox_file(string file_name, bool cull_faces)
 	{
 		tri_vec.clear();
 		opengl_vertex_data.clear();
-//		opengl_vertex_data.resize(num_cells * num_cells); // to do: is this needed?
+
+		cached_y_min = numeric_limits<float>::max();
+		cached_y_max = numeric_limits<float>::min();
+
+		cached_y_max_cells.clear();
+		cached_y_min_extent = numeric_limits<float>::max();
+		cached_y_max_extent = numeric_limits<float>::min();
 
 		ifstream infile(file_name, ifstream::ate | ifstream::binary);
 
@@ -1524,9 +1536,6 @@ public:
 	}
 
 
-	float cached_y_min = numeric_limits<float>::max();
-	float cached_y_max = numeric_limits<float>::min();
-
 
 
 	float get_y_min(void)
@@ -1570,8 +1579,6 @@ public:
 	}
 
 
-	float cached_y_min_extent = numeric_limits<float>::max();
-	float cached_y_max_extent = numeric_limits<float>::min();
 
 
 	float get_y_extent(void)
@@ -1605,8 +1612,6 @@ public:
 	}
 
 
-
-	map<size_t, float> cached_y_max_cells;
 
 	float get_y_max(size_t cell_x, size_t cell_y)
 	{
