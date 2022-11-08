@@ -881,7 +881,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
 				vector<neighbour_data> n;
-				board_mesh.get_all_neighbour_indices(x, y, n);
+				//board_mesh.get_all_neighbour_indices(x, y, n);
 
 				neighbour_data nd;
 				nd.x = x;
@@ -893,13 +893,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				{
 					mat4 model = board_mesh.model_mat;
 
-					float current_height = distance(board_mesh.get_y_max(), board_mesh.get_y_min(n[i].x, n[i].y));
+					float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(n[i].x, n[i].y));
 					float normalized_height = current_height / board_mesh.get_y_extent();
 
 					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));
-					
-
+				
 					model = scale(model, vec3(1, -1, 1));
+
+
 
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
