@@ -539,21 +539,23 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 4, -6);
 
 
-	lightColours[0].x = 0.75 * 2;
-	lightColours[0].y = 0.75 * 2;
-	lightColours[0].z = 0.75 * 2;
+	lightColours[2].x = 0.75 * 2;
+	lightColours[2].y = 0.75 * 2;
+	lightColours[2].z = 0.75 * 2;
 
-	lightColours[1].x = 0.5 * 2;
-	lightColours[1].y = 0.5 * 2;
-	lightColours[1].z = 0.5 * 2;
+	lightColours[3].x = 0.5 * 2;
+	lightColours[3].y = 0.5 * 2;
+	lightColours[3].z = 0.5 * 2;
 
-	lightColours[2].x = 1 * 2;
-	lightColours[2].y = 0.2 * 2;
-	lightColours[2].z = 0.2 * 2;
+	lightColours[0].x = 0.2 * 2;
+	lightColours[0].y = 0.2 * 2;
+	lightColours[0].z = 1 * 2;
 
-	lightColours[3].x = 0.2 * 2;
-	lightColours[3].y = 0.2 * 2;
-	lightColours[3].z = 1 * 2;
+
+	lightColours[1].x = 1 * 2;
+	lightColours[1].y = 0.2 * 2;
+	lightColours[1].z = 0.2 * 2;
+
 
 
 	lightEnabled[0] = 1;
@@ -900,9 +902,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				
 					model = scale(model, vec3(1, -1, 1));
 
-				//	cout << normalized_height << endl;
-
-				model = translate(model, vec3(0, -normalized_height*board_mesh.get_y_extent(), 0));
+					model = translate(model, vec3(0, -normalized_height*board_mesh.get_y_extent(), 0));
 
 
 
