@@ -575,14 +575,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (upside_down)
 	{
-		main_camera.projection_mat = perspective(
-			main_camera.fov,
-			float(win_x) / float(win_y),
-			main_camera.near_plane,
-			main_camera.far_plane
-		);
-
-		vec3 eye = main_camera.eye;
+		vec3 eye = old_eye;
 		eye.y = -eye.y;
 
 		vec3 look_at;
