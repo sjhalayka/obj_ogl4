@@ -16,10 +16,10 @@ uv_camera::uv_camera(void)
 	far_plane = 100.0f;
 	win_x = win_y = 0;
 
-	transform();
+	transform(true);
 }
 
-void uv_camera::calculate_camera_matrices(const int width_px, const int height_px)
+void uv_camera::calculate_camera_matrices(const int width_px, const int height_px, bool do_view_mat)
 {
 	static const float lock = uv_epsilon * 1000.0f;
 
@@ -42,10 +42,10 @@ void uv_camera::calculate_camera_matrices(const int width_px, const int height_p
 	win_x = width_px;
 	win_y = height_px;
 
-	transform();
+	transform(true);
 }
 
-void uv_camera::transform(void)
+void uv_camera::transform(bool do_view_mat)
 {
 	reset();
 	rotate();
@@ -61,11 +61,13 @@ void uv_camera::transform(void)
 		);
 	}
 
-	view_mat = glm::lookAt(
-		eye,
-		look_at,
-		up
-	);
+	if (true == do_view_mat)
+	{
+		view_mat = glm::lookAt(
+			eye,
+			look_at,
+			up);
+	}
 }
 
 void uv_camera::reset(void)

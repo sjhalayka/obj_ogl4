@@ -325,7 +325,7 @@ void reshape_func(int width, int height)
 	glutReshapeWindow(win_x, win_y);
 	glViewport(0, 0, win_x, win_y);
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y, true);
 
 	init_offscreen_fbo();
 }
@@ -602,7 +602,7 @@ void motion_func(int x, int y)
 		main_camera.u -= static_cast<float>(mouse_delta_y) * u_spacer;
 		main_camera.v += static_cast<float>(mouse_delta_x) * v_spacer;
 
-		main_camera.calculate_camera_matrices(win_x, win_y);
+		main_camera.calculate_camera_matrices(win_x, win_y, true);
 	}
 	else if (true == rmb_down && (0 != mouse_delta_y))
 	{
@@ -611,7 +611,7 @@ void motion_func(int x, int y)
 		if (main_camera.w < 2.0f)
 			main_camera.w = 2.0f;
 
-		main_camera.calculate_camera_matrices(win_x, win_y);
+		main_camera.calculate_camera_matrices(win_x, win_y, true);
 	}
 }
 

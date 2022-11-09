@@ -417,7 +417,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	init_offscreen_fbo();
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y, true);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
 
@@ -504,7 +504,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	win_x = old_width;
 	win_y = old_height;
-	main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y, true);
 
 	screenshot_mode = false;
 
@@ -603,7 +603,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight);
+			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight, false);
 
 
 
@@ -646,21 +646,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
 			}
 
-			if (false == upside_down)
+
+			mat4 model = board_mesh.model_mat;
+
+			glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+
+			for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 			{
-				mat4 model = board_mesh.model_mat;
-
-				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
-				for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+				for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 				{
-					for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
-					{
-						board_mesh.draw(point_depth_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
-					}
+					board_mesh.draw(point_depth_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 				}
-					
 			}
+
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -696,7 +694,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	glViewport(0, 0, win_x, win_y);
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y, false);
 
 
 	for (size_t i = 0; i < max_num_lights; i++)
@@ -855,12 +853,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 		}
+
+		// https://prideout.net/clip-planes
 		
-		// todo: http://what-when-how.com/opengl-programming-guide/additional-clipping-planes-viewing-opengl-programming/
-		// todo: https://prideout.net/clip-planes
-		
-		//glEnable(GL_CLIP_DISTANCE0);
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
+//		glEnable(GL_CLIP_DISTANCE0);
+//		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 1);
 
 		map<float, size_t> y_extents;
 
@@ -891,24 +888,30 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 					float y_plane_min = board_mesh.get_y_plane_min(n[i].x, n[i].y);
 
-					vec4 clip_plane(0, 1, 0, -y_plane_min);
-					glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
+
+
+
+
+
+					glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
+
 					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+
+
+
+					//vec4 clip_plane(0, 1, 0, y_plane_min);
+					//glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
+					//board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
 				
-					clip_plane = vec4(0, -1, 0, y_plane_min);
-					glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
-					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+					//clip_plane = vec4(0, -1, 0, -y_plane_min);
+					//glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
+					//board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
 				}
 			}
 		}
 
 		glDisable(GL_CLIP_DISTANCE0);
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
-			
-		//for (auto ci = y_extents.begin(); ci != y_extents.end(); ci++)
-		//	cout << ci->first << " " << ci->second << endl;
-
-		//exit(0);
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
