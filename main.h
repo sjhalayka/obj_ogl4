@@ -78,7 +78,7 @@ vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
 vector<vec3> lightColours(max_num_lights, vec3(0, 0, 0));
 vector<GLuint> lightEnabled(max_num_lights, 0);
-vector<GLuint> lightShadowCaster(max_num_lights, 0);
+vector<GLuint> lightShadowCaster(max_num_lights, 1);
 
 
 
@@ -520,11 +520,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 	// https://community.khronos.org/t/best-solution-for-dealing-with-multiple-light-types/76401
 
-	// todo: set light at negative eye
-	vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-	vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-	//lightPos = normalize(lightPos) * 10.0f;
-	lightPositions[0] = normalize(lightPos) * 10.0f;
+	//vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
+	//vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
+	////lightPos = normalize(lightPos) * 10.0f;
+	//lightPositions[0] = normalize(lightPos) * 10.0f;
 
 	//vec3 lightPos2 = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
 	////lightPos2 = normalize(lightPos2) * 10.0f;
@@ -533,47 +532,43 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//lightPositions[1] = lightPos2 * 10.0f;
 
 
-	lightPositions[0] = vec3(-6, 4, 6);
-	lightPositions[1] = vec3(6, 4, -6);
-	lightPositions[2] = vec3(6, 4, 6);
-	lightPositions[3] = vec3(-6, 4, -6);
+	lightPositions[0] = vec3(-6, 6, 6);
+	lightPositions[1] = vec3(6, 6, -6);
+	lightPositions[2] = vec3(6, 6, 6);
+	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[2].x = 0.75 * 2;
-	lightColours[2].y = 0.75 * 2;
-	lightColours[2].z = 0.75 * 2;
+	lightColours[0].r = 0.75 * 2;
+	lightColours[0].g = 0.75 * 2;
+	lightColours[0].b = 0.75 * 2;
 
-	lightColours[3].x = 0.5 * 2;
-	lightColours[3].y = 0.5 * 2;
-	lightColours[3].z = 0.5 * 2;
+	lightColours[1].r = 0.5 * 2;
+	lightColours[1].g = 0.5 * 2;
+	lightColours[1].b = 0.5 * 2;
 
-	lightColours[0].x = 0.2 * 2;
-	lightColours[0].y = 0.2 * 2;
-	lightColours[0].z = 1 * 2;
+	lightColours[2].r = 0.2 * 2;
+	lightColours[2].g = 0.2 * 2;
+	lightColours[2].b = 1 * 2;
 
-
-	lightColours[1].x = 1 * 2;
-	lightColours[1].y = 0.2 * 2;
-	lightColours[1].z = 0.2 * 2;
-
+	lightColours[3].r = 1 * 2;
+	lightColours[3].g = 0.2 * 2;
+	lightColours[3].b = 0.2 * 2;
 
 
-	lightEnabled[0] = 1;
-	lightEnabled[1] = 1;
-	lightEnabled[2] = 1;
+
+	lightEnabled[0] = 0;
+	lightEnabled[1] = 0;
+	lightEnabled[2] = 0;
 	lightEnabled[3] = 1;
 
-	lightShadowCaster[0] = 1;
-	lightShadowCaster[1] = 1;
-	lightShadowCaster[2] = 1;
-	lightShadowCaster[3] = 1;
+	lightShadowCaster[0] = 0;
+	lightShadowCaster[1] = 0;
+	lightShadowCaster[2] = 0;
+	lightShadowCaster[3] = 0;
 
 
-	vec3 old_eye = main_camera.eye;
-	vec3 old_up = main_camera.up;
-	vec3 old_look_at = main_camera.look_at;
 	mat4 old_view_mat = main_camera.view_mat;
-	mat4 old_proj_mat = main_camera.projection_mat;
+
 
 	if (upside_down)
 	{
@@ -602,9 +597,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			if (lightEnabled[i] == 0 || lightShadowCaster[i] == 0)
 				continue;
-
-			//if (upside_down)
-			//	lightPositions[i].y = -lightPositions[i].y;
 
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
@@ -649,12 +641,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				mat4 model = player_game_piece_meshes[j].model_mat;
 
-				//if (upside_down)
-				//{
-				//	model = scale(model, vec3(1, -1, 1));
-				//	model = translate(model, vec3(0, player_game_piece_meshes[j].get_y_extent(), 0));
-				//}
-
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
 				player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
@@ -663,9 +649,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			if (false == upside_down)
 			{
 				mat4 model = board_mesh.model_mat;
-
-				//if (upside_down)
-				//	model = scale(model, vec3(1, -1, 1));
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
@@ -678,9 +661,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				}
 					
 			}
-
-			//if (upside_down)
-			//	lightPositions[i].y = -lightPositions[i].y;
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -879,8 +859,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		// todo: http://what-when-how.com/opengl-programming-guide/additional-clipping-planes-viewing-opengl-programming/
 		// todo: https://prideout.net/clip-planes
 		
-		glEnable(GL_CLIP_DISTANCE0);
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 1);
+		//glEnable(GL_CLIP_DISTANCE0);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
 
 		map<float, size_t> y_extents;
 
@@ -964,7 +944,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
 			mat4 model = mat4(1.0f);
 
-			if (upside_down)
+			if (0)//upside_down)
 			{
 				//glCullFace(GL_FRONT);
 				model[3] = vec4(lightPositions[j], 1.0f);
@@ -1000,13 +980,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	//if (upside_down)
-	//{
-	//	main_camera.eye = old_eye;
-	//	main_camera.up = old_up;
-	//	main_camera.look_at = old_look_at;
-	//	main_camera.view_mat = old_view_mat;
-	//	main_camera.projection_mat = old_proj_mat;
+	if (upside_down)
+		main_camera.view_mat = old_view_mat;
 
 
 
