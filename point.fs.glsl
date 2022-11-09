@@ -202,7 +202,7 @@ void main()
 			else
 				s = get_shadow(lightPositions[i], depthMaps[i]);
 
-			vec3 phong_contrib = phongModelDiffAndSpec(false, lightPositions[i], i);
+			vec3 phong_contrib = phongModelDiffAndSpec(true, lightPositions[i], i);
 			vec3 shadow_contrib = s * phongModelDiffAndSpec(false, lightPositions[i], i);
 			diffAndSpec += mix(phong_contrib, shadow_contrib, 0.50);
 		}
