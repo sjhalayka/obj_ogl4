@@ -1538,6 +1538,8 @@ public:
 
 
 
+
+
 	float get_y_min(void)
 	{
 		if (cached_y_min == numeric_limits<float>::max())
@@ -1667,7 +1669,31 @@ public:
 	//}
 
 
+	float get_y_plane_min(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
+		float y_min = numeric_limits<float>::max();
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+				{
+					vec3 a = normalize(vec3(tri_vec[cell_index][i].vertex[j].nx, tri_vec[cell_index][i].vertex[j].ny, tri_vec[cell_index][i].vertex[j].nz));
+					vec3 b(0, 1, 0);
+
+					//cout << dot(a, b) << endl;
+
+					if(dot(a, b) > 0.95)
+						y_min = tri_vec[cell_index][i].vertex[j].y;
+				}
+			}
+		}
+
+		return y_min;
+	}
 
 
 	float get_y_min(size_t cell_x, size_t cell_y)

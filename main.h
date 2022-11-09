@@ -876,7 +876,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 		}
 		
+		// todo: http://what-when-how.com/opengl-programming-guide/additional-clipping-planes-viewing-opengl-programming/
+		// todo: https://prideout.net/clip-planes
+		
+		glEnable(GL_CLIP_DISTANCE0);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 1);
 
+		map<float, size_t> y_extents;
 
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
@@ -898,21 +904,31 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 					float current_height = distance(board_mesh.get_y_min(), board_mesh.get_y_max(n[i].x, n[i].y));
 					float normalized_height = (current_height / board_mesh.get_y_extent() - 0.5f)*2.0f;
 
-					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));
-				
+					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));				
 					model = scale(model, vec3(1, -1, 1));
-
 					model = translate(model, vec3(0, -normalized_height*board_mesh.get_y_extent(), 0));
-
-
-
-
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
+					float y_plane_min = board_mesh.get_y_plane_min(n[i].x, n[i].y);
+
+					vec4 clip_plane(0, 1, 0, -y_plane_min);
+					glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
+					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+				
+					clip_plane = vec4(0, -1, 0, y_plane_min);
+					glUniform4f(glGetUniformLocation(point_shader.get_program(), "clip_plane"), clip_plane.x, clip_plane.y, clip_plane.z, clip_plane.w);
 					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
 				}
 			}
 		}
+
+		glDisable(GL_CLIP_DISTANCE0);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
+			
+		//for (auto ci = y_extents.begin(); ci != y_extents.end(); ci++)
+		//	cout << ci->first << " " << ci->second << endl;
+
+		//exit(0);
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}

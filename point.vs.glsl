@@ -5,6 +5,12 @@ layout (location = 2) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
+
+uniform int clip_plane_enabled;
+uniform vec4 clip_plane;
+out float gl_ClipDistance[1];
+
+
 out VS_OUT {
     vec3 FragPos;
     vec3 Normal;
@@ -39,5 +45,10 @@ void main()
         vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
     vs_out.TexCoords = aTexCoords;
     gl_Position = projection * view * model * vec4(aPos, 1.0);
+
+    if(clip_plane_enabled == 1)
+        gl_ClipDistance[0] = dot(model * vec4(aPos, 1.0), clip_plane);
+    else
+        gl_ClipDistance[0] = 1.0f;
 }
 
