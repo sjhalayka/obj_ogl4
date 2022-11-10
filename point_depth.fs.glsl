@@ -1,5 +1,3 @@
-
-
 #version 430 core
 in vec4 FragPos;
 

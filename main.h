@@ -78,7 +78,7 @@ vector<GLuint> depthMapFBOs(max_num_lights, 0);
 vector<vec3> lightPositions(max_num_lights, vec3(0, 0, 0));
 vector<vec3> lightColours(max_num_lights, vec3(0, 0, 0));
 vector<GLuint> lightEnabled(max_num_lights, 0);
-vector<GLuint> lightShadowCaster(max_num_lights, 1);
+vector<GLuint> lightShadowCaster(max_num_lights, 0);
 
 
 
@@ -422,7 +422,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
 
 
-	//glUseProgram(shadow_map.get_program());
+
 
 
 	draw_scene(offscreen_fbo);
@@ -564,7 +564,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightShadowCaster[0] = 0;
 	lightShadowCaster[1] = 0;
 	lightShadowCaster[2] = 0;
-	lightShadowCaster[3] = 0;
+	lightShadowCaster[3] = 1;
 
 
 	mat4 old_view_mat = main_camera.view_mat;
@@ -799,9 +799,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			if (upside_down)
 			{
-				//glCullFace(GL_FRONT);
-
-			
 				model = translate(model, vec3(0, -player_game_piece_meshes[j].get_y_extent(), 0));
 				model = scale(model, vec3(1, -1, 1));
 			}
