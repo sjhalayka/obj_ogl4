@@ -102,10 +102,44 @@ public:
 	vector<vector<triangle>> tri_vec;
 
 	vector<vector<float>> opengl_vertex_data;
+	vector<float> opengl_line_vertex_data;
 
 	mat4 model_mat;
 
 	vec3 min_location, max_location;
+
+
+	void draw_lines(GLuint line_program)
+	{
+		//glUseProgram(line_program);
+
+		GLuint components_per_vertex = 3;
+		GLuint components_per_position = 3;
+
+		GLuint axis_buffer;
+
+		glGenBuffers(1, &axis_buffer);
+
+		GLuint num_vertices = static_cast<GLuint>(opengl_line_vertex_data.size()) / components_per_vertex;
+
+		glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+		glBufferData(GL_ARRAY_BUFFER, opengl_line_vertex_data.size() * sizeof(GLfloat), &opengl_line_vertex_data[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(glGetAttribLocation(line_program, "position"));
+		glVertexAttribPointer(glGetAttribLocation(line_program, "position"),
+			components_per_position,
+			GL_FLOAT,
+			GL_FALSE,
+			components_per_vertex * sizeof(GLfloat),
+			NULL);
+
+		glDrawArrays(GL_LINES, 0, num_vertices);
+
+		glDeleteBuffers(1, &axis_buffer);
+	}
+
+
+
 
 
 	float get_y_extent(void)
@@ -259,12 +293,12 @@ public:
 		return true;
 	}
 
-	void process_line(bool cull_back_faces, string line, 
-		vector<triangle> &triangles, 
-		vector<vertex_3> &verts,
-		vector<uv_coord> &tex_coords,
-		vector<vertex_3> &norms,
-		map<vertex_3, size_t> &face_normal_counts)
+	void process_line(bool cull_back_faces, string line,
+		vector<triangle>& triangles,
+		vector<vertex_3>& verts,
+		vector<uv_coord>& tex_coords,
+		vector<vertex_3>& norms,
+		map<vertex_3, size_t>& face_normal_counts)
 	{
 		vector<string> tokens;
 
@@ -599,8 +633,6 @@ public:
 
 		return true;
 	}
-
-
 
 
 

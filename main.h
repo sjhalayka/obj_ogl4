@@ -323,6 +323,7 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 
 
 
+/*
 void draw_board_lines(GLuint program)
 {
 	GLuint components_per_vertex = 3;
@@ -401,6 +402,7 @@ void draw_board_lines(GLuint program)
 	glDeleteBuffers(1, &axis_buffer);
 }
 
+*/
 
 
 
@@ -1009,7 +1011,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
 
-	if (false == upside_down && false == reflectance_only && false == solid_white)
+	if (1)//false == upside_down && false == reflectance_only && false == solid_white)
 	{
 		glEnable(GL_BLEND); //Enable blending.
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
@@ -1017,11 +1019,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glDepthRange(0.025, 1.0);
 
-		mat4 model = board_mesh.model_mat;
-
-		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
 		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
@@ -1032,14 +1029,24 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
-		// todo: cache these data
-		draw_board_lines(line_shader.get_program());
+
+		mat4 model = board_mesh.model_mat;
+		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		board_mesh.draw_lines(line_shader.get_program());
+
+
+		model = player_game_piece_meshes[0].model_mat;
+		mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
 
 		glDepthRange(0.0, 1.0);
 
 
 		glDisable(GL_BLEND);
 	}
+	
 
 
 
