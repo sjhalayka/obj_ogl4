@@ -321,6 +321,90 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 }
 
 
+
+
+void draw_board_lines(GLuint program)
+{
+	GLuint components_per_vertex = 3;
+	GLuint components_per_position = 3;
+
+	GLuint axis_buffer;
+
+	glGenBuffers(1, &axis_buffer);
+
+	vector<GLfloat> flat_data;
+
+	for (size_t i = 0; i < board_mesh.tri_vec.size(); i++)
+	{
+		for (size_t t = 0; t < board_mesh.tri_vec[i].size(); t++)
+		{
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].z);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].z);
+
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[1].z);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].z);
+
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[2].z);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].x);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].y);
+			flat_data.push_back(board_mesh.tri_vec[i][t].vertex[0].z);
+		}
+	}
+
+
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+
+	//flat_data.push_back(0);
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//	
+	//flat_data.push_back(1);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+	//flat_data.push_back(0);
+
+	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(program, "position"));
+	glVertexAttribPointer(glGetAttribLocation(program, "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	glDeleteBuffers(1, &axis_buffer);
+}
+
+
+
+
+
 void draw_triangle_lines(GLuint program)
 {
 	GLuint components_per_vertex = 3;
@@ -825,6 +909,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
+
+
+	/*glPolygonOffset(1, 1);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_POLYGON_OFFSET_FILL);*/
+
 	if (false == upside_down)
 	{
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
@@ -915,6 +1005,55 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glDisable(GL_POLYGON_OFFSET_FILL);
+
+
+	if (false == upside_down && false == reflectance_only && false == solid_white)
+	{
+		glEnable(GL_BLEND); //Enable blending.
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+		glUseProgram(line_shader.get_program());
+
+		glDepthRange(0.025, 1.0);
+
+		mat4 model = board_mesh.model_mat;
+
+		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+
+		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+
+		// todo: cache these data
+		draw_board_lines(line_shader.get_program());
+
+		glDepthRange(0.0, 1.0);
+
+
+		glDisable(GL_BLEND);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -987,40 +1126,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	/*
-	if (false == upside_down && false == reflectance_only && false == solid_white)
-	{
-		glEnable(GL_BLEND); //Enable blending.
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
-		glUseProgram(line_shader.get_program());
 
-		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
-		{
-			glDepthRange(0.025, 1.0);
-
-			mat4 model = player_game_piece_meshes[j].model_mat;
-
-			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-
-			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-
-			if (screenshot_mode)
-				glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-			else
-				glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
-
-			glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
-
-			draw_triangle_lines(line_shader.get_program());
-
-			glDepthRange(0.0, 1.0);
-		}
-
-		glDisable(GL_BLEND);
-	}
-	*/
+	
 
 	glFlush();
 }
