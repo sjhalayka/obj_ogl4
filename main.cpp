@@ -1,5 +1,4 @@
 #include "main.h"
-#include "mesh.h"
 
 
 int main(int argc, char** argv)
@@ -50,6 +49,19 @@ int main(int argc, char** argv)
 	}
 
 	board_mesh.model_mat = mat4(1.0f);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -274,6 +286,14 @@ bool init_opengl(const int& width, const int& height)
 		cout << "Could not load ortho reflectance shader" << endl;
 		return false;
 	}
+
+	if (false == ortho_text.init("ortho_text.vs.glsl", "ortho_text.fs.glsl"))
+	{
+		cout << "Could not load ortho reflectance shader" << endl;
+		return false;
+	}
+
+	init_character_set();
 
 
 	for (size_t i = 0; i < max_num_lights; i++)
@@ -542,6 +562,15 @@ void draw_scene(GLuint fbo_handle)
 	glDeleteTextures(1, &regular_tex);
 	glDeleteTextures(1, &d_tex);
 
+	string s = "Paused. Press esc to continue!";
+
+	size_t sentence_width = get_sentence_width(mimgs, s);
+	size_t window_width = win_x;
+	size_t window_height = win_y;
+
+	ortho_text.use_program();
+	print_sentence(mimgs, ortho_text.get_program(), win_x, win_y, window_width / 2 - sentence_width / 2, window_height / 3, s);
+
 }
 
 
@@ -550,6 +579,9 @@ void draw_scene(GLuint fbo_handle)
 void display_func(void)
 {
 	draw_scene(0);
+
+
+
 
 	glutSwapBuffers();
 }

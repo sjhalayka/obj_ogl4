@@ -5,6 +5,9 @@
 #include "uv_camera.h"
 #include "primitives.h"
 #include "mesh.h"
+#include "bmp.h"
+#include "font_draw.h"
+#include "logging_system.h"
 #include "vertex_fragment_shader.h"
 #include "vertex_geometry_fragment_shader.h"
 
@@ -46,6 +49,13 @@ void motion_func(int x, int y);
 void passive_motion_func(int x, int y);
 
 
+
+
+
+
+
+
+
 mt19937 mt_rand(0);// static_cast<unsigned int>(time(0)));
 
 vector<mesh> player_game_piece_meshes; 
@@ -57,13 +67,13 @@ binned_mesh board_mesh;
 vector<vec3> colours;
 
 
-
 vertex_fragment_shader point_shader;
 vertex_geometry_fragment_shader point_depth_shader;
 vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
-
 vertex_fragment_shader tex_reflectance;
+vertex_fragment_shader ortho_text;
+
 
 float y_offset = 0;
 
