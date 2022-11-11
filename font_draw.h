@@ -4,7 +4,8 @@
 #include <complex>
 using namespace std;
 
-#include "bmp.h"
+
+#include "picopng.h"
 
 #include <cstdlib>
 
@@ -32,6 +33,11 @@ complex<float> get_ndc_coords_from_window_coords(size_t viewport_width, size_t v
 }
 
 
+class RGB_uchar
+{
+public:
+	unsigned char r, g, b;
+};
 
 class font_character_image
 {
@@ -257,13 +263,24 @@ bool is_column_all_zeroes(size_t column, size_t width, size_t height, const vect
 
 bool init_character_set(void)
 {
-	BMP font;
+//	BMP font;
+	
+	vector<unsigned char> png_data;
 
-	if (false == font.load("font.bmp"))
-	{
-		cout << "Could not load font.bmp" << endl;
-		return false;
-	}
+	std::vector<unsigned char> buffer;
+	loadFile(buffer, "font.png");
+	unsigned long w, h;
+	decodePNG(png_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+
+
+
+
+	//if (false == font.load("font.bmp"))
+	//{
+	//	cout << "Could not load font.bmp" << endl;
+	//	return false;
+	//}
 
 	size_t char_index = 0;
 
@@ -287,7 +304,7 @@ bool init_character_set(void)
 					size_t img_pos = 4 * (k * image_height + l);
 					size_t sub_pos = x * char_height + y;
 
-					char_data[char_index][sub_pos] = font.Pixels[img_pos]; // Assume grayscale, only use r component
+					char_data[char_index][sub_pos] = png_data[img_pos]; // Assume grayscale, only use r component
 				}
 			}
 

@@ -5,7 +5,6 @@
 #include "uv_camera.h"
 #include "primitives.h"
 #include "mesh.h"
-#include "bmp.h"
 #include "font_draw.h"
 #include "logging_system.h"
 #include "vertex_fragment_shader.h"
