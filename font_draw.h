@@ -175,10 +175,10 @@ vector<font_character_image> mimgs;
 
 
 const size_t num_chars = 256;
-const size_t image_width = 512;
-const size_t image_height = 512;
-const size_t char_width = 32;
-const size_t char_height = 32;
+const size_t image_width = 4096;
+const size_t image_height = 4096;
+const size_t char_width = 256;
+const size_t char_height = 256;
 const size_t num_chars_wide = image_width / char_width;
 const size_t num_chars_high = image_height / char_height;
 
