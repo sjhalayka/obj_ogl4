@@ -738,7 +738,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "chr_knight.png", "chr_knight_specular.png");
+				player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "beholder.png", "beholder_specular.png");
 			}
 
 
@@ -880,7 +880,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
+			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 		}
 	}
 	else
@@ -900,7 +900,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "chr_knight.png", "chr_knight_specular.png");
+			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 		}
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);

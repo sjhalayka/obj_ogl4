@@ -6,10 +6,10 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", false))
 	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
 	{
-		cout << "Error: Could not properly read file chr_knight.vox" << endl;
+		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
 	}
 
@@ -562,14 +562,15 @@ void draw_scene(GLuint fbo_handle)
 	glDeleteTextures(1, &regular_tex);
 	glDeleteTextures(1, &d_tex);
 
-	string s = "Paused. Press esc to continue!";
+	const string s = "Paused. Press esc to continue!";
+	const float font_scale = win_x / 7680.0f;
 
-	size_t sentence_width = get_sentence_width(mimgs, s);
+	size_t sentence_width = get_sentence_width(font_scale, mimgs, s);
 	size_t window_width = win_x;
 	size_t window_height = win_y;
 
 	ortho_text.use_program();
-	print_sentence(mimgs, ortho_text.get_program(), win_x, win_y, window_width / 2 - sentence_width / 2, window_height / 3, s);
+	print_sentence(font_scale, mimgs, ortho_text.get_program(), win_x, win_y, window_width / 2 - sentence_width / 2, window_height / 3, s);
 
 }
 

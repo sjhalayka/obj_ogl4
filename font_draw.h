@@ -104,15 +104,18 @@ public:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, &rgba_data[0]);
 	}
 
-	void draw(GLuint shader_program, size_t x, size_t y, size_t win_width, size_t win_height) const
+	void draw(float scale, GLuint shader_program, size_t x, size_t y, size_t win_width, size_t win_height) const
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		complex<float> v0w(static_cast<float>(x), static_cast<float>(y));
-		complex<float> v1w(static_cast<float>(x), static_cast<float>(y + this->height));
-		complex<float> v2w(static_cast<float>(x + this->width), static_cast<float>(y + this->height));
-		complex<float> v3w(static_cast<float>(x + this->width), static_cast<float>(y));
+		complex<float> v1w(static_cast<float>(x), static_cast<float>(y + this->height*scale));
+		complex<float> v2w(static_cast<float>(x + this->width*scale), static_cast<float>(y + this->height*scale));
+		complex<float> v3w(static_cast<float>(x + this->width*scale), static_cast<float>(y));
+
+
+
 
 		complex<float> v0ndc = get_ndc_coords_from_window_coords(win_width, win_height, v0w);
 		complex<float> v1ndc = get_ndc_coords_from_window_coords(win_width, win_height, v1w);
@@ -192,34 +195,34 @@ const size_t num_chars_high = image_height / char_height;
 
 
 
-void print_char(const vector<font_character_image>& mimgs, GLuint shader_program, const size_t fb_width, const size_t fb_height, const size_t char_x_pos, const size_t char_y_pos, const unsigned char c)
+void print_char(float scale, const vector<font_character_image>& mimgs, GLuint shader_program, const size_t fb_width, const size_t fb_height, const size_t char_x_pos, const size_t char_y_pos, const unsigned char c)
 {
-	mimgs[c].draw(shader_program, char_x_pos, char_y_pos, fb_width, fb_height);
+	mimgs[c].draw(scale, shader_program, char_x_pos, char_y_pos, fb_width, fb_height);
 }
 
-size_t get_sentence_width(const vector<font_character_image>& mimgs, const string s)
+size_t get_sentence_width(float scale, const vector<font_character_image>& mimgs, const string s)
 {
-	size_t sentence_width = 0;
+	float sentence_width = 0;
 
 	for (size_t i = 0; i < s.size(); i++)
-		sentence_width += mimgs[s[i]].width + 2;
+		sentence_width += mimgs[s[i]].width*scale + 2;
 
 	// Remove trailing space
 	sentence_width -= 2;
 
-	return sentence_width;
+	return static_cast<size_t>(sentence_width);
 }
 
 
-void print_sentence(const vector<font_character_image>& mimgs, GLuint shader_program, const size_t fb_width, const size_t fb_height, size_t char_x_pos, size_t char_y_pos, const string s)
+void print_sentence(float scale, const vector<font_character_image>& mimgs, GLuint shader_program, const size_t fb_width, const size_t fb_height, size_t char_x_pos, size_t char_y_pos, const string s)
 {
 	char_y_pos = fb_height - char_y_pos;
 
 	for (size_t i = 0; i < s.size(); i++)
 	{
-		print_char(mimgs, shader_program, fb_width, fb_height, char_x_pos, char_y_pos, s[i]);
+		print_char(scale, mimgs, shader_program, fb_width, fb_height, char_x_pos, char_y_pos, s[i]);
 
-		size_t char_width = mimgs[s[i]].width;
+		size_t char_width = mimgs[s[i]].width*scale;
 
 		char_x_pos += char_width + 2;
 	}
@@ -263,8 +266,6 @@ bool is_column_all_zeroes(size_t column, size_t width, size_t height, const vect
 
 bool init_character_set(void)
 {
-//	BMP font;
-	
 	vector<unsigned char> png_data;
 
 	std::vector<unsigned char> buffer;

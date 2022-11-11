@@ -723,7 +723,8 @@ public:
 					if (colour_index == 0)
 						continue;
 
-					const float uv_index = float(colour_index - 1) / 254.0f;
+					// Is this correct?
+					const float uv_index = float(colour_index - 1) / 255.0f;
 
 					vertex_3 translate(x * scale, y * scale, z * scale);
 
