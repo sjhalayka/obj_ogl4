@@ -72,7 +72,7 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 vertex_fragment_shader tex_reflectance;
 vertex_fragment_shader ortho_text;
-
+//vertex_geometry_fragment_shader silhouette_shader;
 
 float y_offset = 0;
 
@@ -851,6 +851,47 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), main_camera.far_plane);
 
 
+	if (1)//false == upside_down && false == reflectance_only && false == solid_white)
+	{
+		glEnable(GL_BLEND); //Enable blending.
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+		glUseProgram(line_shader.get_program());
+
+
+
+		glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+
+		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+
+		glDepthRange(0.1, 1.0);
+
+		mat4 model = board_mesh.model_mat;
+		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		board_mesh.draw_lines(line_shader.get_program());
+
+		glDepthRange(0.01, 1.0);
+
+		model = player_game_piece_meshes[0].model_mat;
+		mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
+
+		glDisable(GL_BLEND);
+	}
+
+	glDepthRange(0.0, 1.0);
+
+
+
+	point_shader.use_program();
 
 
 
@@ -1008,8 +1049,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			}
 		}
 
-		glDisable(GL_CLIP_DISTANCE0);
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
+	//	glDisable(GL_CLIP_DISTANCE0);
+		//glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
@@ -1020,41 +1061,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
 
-	if (1)//false == upside_down && false == reflectance_only && false == solid_white)
-	{
-		glEnable(GL_BLEND); //Enable blending.
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
-		glUseProgram(line_shader.get_program());
 
-		glDepthRange(0.025, 1.0);
-
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
-
-		if (screenshot_mode)
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-		else
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
-
-		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
-
-
-		mat4 model = board_mesh.model_mat;
-		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		board_mesh.draw_lines(line_shader.get_program());
-
-
-		model = player_game_piece_meshes[0].model_mat;
-		mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
-
-		glDepthRange(0.0, 1.0);
-
-
-		glDisable(GL_BLEND);
-	}
 	
 
 

@@ -281,6 +281,13 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
+	//if (false == silhouette_shader.init("silhouette.vs.glsl", "silhouette.gs.glsl", "silhouette.fs.glsl"))
+	//{
+	//	cout << "Could not load silhouette shader" << endl;
+	//	return false;
+	//}
+
+	
 	if (false == tex_reflectance.init("ortho_reflectance.vs.glsl", "ortho_reflectance.fs.glsl"))
 	{
 		cout << "Could not load ortho reflectance shader" << endl;
@@ -292,6 +299,11 @@ bool init_opengl(const int& width, const int& height)
 		cout << "Could not load ortho reflectance shader" << endl;
 		return false;
 	}
+
+
+
+
+
 
 	init_character_set();
 
@@ -563,7 +575,7 @@ void draw_scene(GLuint fbo_handle)
 	glDeleteTextures(1, &d_tex);
 
 	const string s = "Paused. Press esc to continue!";
-	const float font_scale = win_x / 7680.0f;
+	const float font_scale = win_x / 1024.0f;
 
 	size_t sentence_width = get_sentence_width(font_scale, mimgs, s);
 	size_t window_width = win_x;
@@ -694,11 +706,11 @@ void keyboard_func(unsigned char key, int x, int y)
 		break;
 
 	case 'o':
-		y_offset -= 0.1f;
+		y_offset -= 0.01f;
 		break;
 
 	case 'p':
-		y_offset += 0.1f;
+		y_offset += 0.01f;
 		break;
 
 	default:

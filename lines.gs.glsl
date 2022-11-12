@@ -6,6 +6,7 @@ layout (triangle_strip, max_vertices = 4) out;  // always (for now) producing 2 
 uniform int img_width;
 uniform int img_height;
 uniform int cam_factor;
+uniform vec3 camera_pos; // assumes that the lookat is effectively vec3(0, 0, 0)
 
 uniform float line_thickness;
 
@@ -19,15 +20,29 @@ void main()
 {
     vec4 p1 = gl_in[0].gl_Position;
     vec4 p2 = gl_in[1].gl_Position;
-    vec2 dir    = normalize((p2.xy/p2.w - p1.xy/p1.w) * u_viewportSize);
-    vec2 offset = vec2(-dir.y, dir.x) * u_thickness / u_viewportSize;
-    gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
-    EmitVertex();
-    gl_Position = p1 - vec4(offset.xy * p1.w, 0.0, 0.0);
-    EmitVertex();
-    gl_Position = p2 + vec4(offset.xy * p2.w, 0.0, 0.0);
-    EmitVertex();
-    gl_Position = p2 - vec4(offset.xy * p2.w, 0.0, 0.0);
-    EmitVertex();
-    EndPrimitive();
+
+    // 3D normals
+    vec3 n = normalize(p2.xyz - p1.xyz);
+    vec3 nc = -normalize(camera_pos);
+
+    float d = dot(n, nc);
+
+    if(false)//d > -0.5 && d < 0.5)
+    {
+        return;
+    }
+    else
+    {
+        vec2 dir    = normalize((p2.xy/p2.w - p1.xy/p1.w) * u_viewportSize);
+        vec2 offset = vec2(-dir.y, dir.x) * u_thickness / u_viewportSize;
+        gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
+        EmitVertex();
+        gl_Position = p1 - vec4(offset.xy * p1.w, 0.0, 0.0);
+        EmitVertex();
+        gl_Position = p2 + vec4(offset.xy * p2.w, 0.0, 0.0);
+        EmitVertex();
+        gl_Position = p2 - vec4(offset.xy * p2.w, 0.0, 0.0);
+        EmitVertex();
+        EndPrimitive();
+    }
 }
