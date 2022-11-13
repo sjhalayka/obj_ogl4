@@ -266,12 +266,27 @@ void main()
 	FragColor = vec4(diffAndSpec, 1.0);
 	
 
-    if(do_proj_tex == 1 && fs_in.ProjTexCoord.z > 0.0 )
+
+
+
+    if(do_proj_tex == 1 && fs_in.ProjTexCoord.z > 0.0)
     {
         vec4 projTexColor = textureProj(projectorTexture, fs_in.ProjTexCoord);
 
-        if(projTexColor.a != 0)
-            FragColor = projTexColor;
+        vec3 n =  fs_in.untransformed_normal;
+	    vec3 n2 = vec3(0, 1, 0);
+
+        // If pointing up, then totally go for the projected colour
+		if(dot(n, n2) > 0.95)
+        {
+            if(projTexColor.a != 0)
+                FragColor = projTexColor;
+        }
+        else
+        {
+            if(projTexColor.a != 0)
+                FragColor = mix(FragColor, projTexColor, 0.5);
+        }
     }
 
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
