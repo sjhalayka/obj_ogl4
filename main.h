@@ -72,9 +72,8 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 vertex_fragment_shader tex_reflectance;
 vertex_fragment_shader ortho_text;
-//vertex_fragment_shader proj_tex_shader;
 
-//vertex_geometry_fragment_shader silhouette_shader;
+vertex_geometry_fragment_shader silhouette_shader;
 
 float y_offset = 0;
 
@@ -912,7 +911,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"),0 );
 	
-
+	// Draw characters
 	if (false == reflectance_only)
 	{
 		if (false == solid_white)
