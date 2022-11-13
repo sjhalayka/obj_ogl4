@@ -910,7 +910,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "ProjectorMatrix"), 1, GL_FALSE, &projMat[0][0]);
 
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"),0 );
 	
 
 	if (false == reflectance_only)
@@ -963,8 +963,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 	else
 	{
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
+
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		{
@@ -1002,7 +1006,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		}
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
 	}
 
 	
