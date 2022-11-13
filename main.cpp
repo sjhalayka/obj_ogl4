@@ -296,14 +296,21 @@ bool init_opengl(const int& width, const int& height)
 
 	if (false == ortho_text.init("ortho_text.vs.glsl", "ortho_text.fs.glsl"))
 	{
-		cout << "Could not load ortho reflectance shader" << endl;
+		cout << "Could not load ortho text shader" << endl;
 		return false;
 	}
 
 
 
+	//if (false == proj_tex_shader.init("projtex.vs.glsl", "projtex.fs.glsl"))
+	//{
+	//	cout << "Could not load projtex shader" << endl;
+	//	return false;
+	//}
+	
 
 
+			
 
 	init_character_set();
 
@@ -574,15 +581,15 @@ void draw_scene(GLuint fbo_handle)
 	glDeleteTextures(1, &regular_tex);
 	glDeleteTextures(1, &d_tex);
 
-	const string s = "Paused. Press esc to continue!";
-	const float font_scale = win_x / 1024.0f;
+	//const string s = "Paused. Press esc to continue!";
+	//const float font_scale = win_x / 1024.0f;
 
-	size_t sentence_width = get_sentence_width(font_scale, mimgs, s);
-	size_t window_width = win_x;
-	size_t window_height = win_y;
+	//size_t sentence_width = get_sentence_width(font_scale, mimgs, s);
+	//size_t window_width = win_x;
+	//size_t window_height = win_y;
 
-	ortho_text.use_program();
-	print_sentence(font_scale, mimgs, ortho_text.get_program(), win_x, win_y, window_width / 2 - sentence_width / 2, window_height / 3, s);
+	//ortho_text.use_program();
+	//print_sentence(font_scale, mimgs, ortho_text.get_program(), win_x, win_y, window_width / 2 - sentence_width / 2, window_height / 3, s);
 
 }
 

@@ -2,21 +2,23 @@
 out vec4 FragColor;
 
 in VS_OUT{
-	vec3 FragPos;
-	vec3 Normal;
-	vec2 TexCoords;
-	vec3 mvPosition;
-	vec3 untransformed_normal;
-	vec3 untransformed_position;
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+    vec3 untransformed_normal;
+    vec3 untransformed_position;
+
+    vec4 ProjTexCoord;
 } fs_in;
 
 
 
 
 const int max_num_lights = 4;
+layout (binding=0) uniform sampler2D projectorTexture;
+layout (binding=1) uniform sampler2D diffuseTexture;
+layout (binding=2) uniform sampler2D specularTexture;
 
-uniform sampler2D diffuseTexture;
-uniform sampler2D specularTexture;
 
 uniform samplerCube depthMaps[max_num_lights];
 
@@ -25,13 +27,9 @@ uniform vec3 lightColours[max_num_lights];
 uniform int lightEnabled[max_num_lights];
 uniform int lightShadowCaster[max_num_lights];
 
+uniform int do_proj_tex = 0;
 
 
-
-
-
-
-uniform vec3 viewPos;
 
 uniform float far_plane;
 uniform int shadows = 1;
@@ -189,7 +187,7 @@ float get_shadow(vec3 lp, samplerCube dmap)
 
 void main()
 {
-	if(flat_draw == 1)
+    if(flat_draw == 1)
 	{
 		FragColor = vec4(flat_colour, 1.0);
 		return;
@@ -266,7 +264,16 @@ void main()
 	}
 	
 	FragColor = vec4(diffAndSpec, 1.0);
-	FragColor = pow(FragColor, vec4(1.0 / 2.2));
+	
 
-	return;
+    if(do_proj_tex == 1 && fs_in.ProjTexCoord.z > 0.0 )
+    {
+        vec4 projTexColor = textureProj(projectorTexture, fs_in.ProjTexCoord);
+
+        if(projTexColor.a != 0)
+            FragColor = FragColor + projTexColor * 0.5;
+    }
+
+    FragColor = pow(FragColor, vec4(1.0 / 2.2));
+
 }

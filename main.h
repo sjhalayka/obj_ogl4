@@ -72,6 +72,8 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 vertex_fragment_shader tex_reflectance;
 vertex_fragment_shader ortho_text;
+//vertex_fragment_shader proj_tex_shader;
+
 //vertex_geometry_fragment_shader silhouette_shader;
 
 float y_offset = 0;
@@ -794,31 +796,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		glActiveTexture(GL_TEXTURE4 + i);
+		glActiveTexture(GL_TEXTURE3 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
 
 		string s = "depthMaps[" + to_string(i) + "]";
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 4 + i);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
 	}
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 
 
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[0].get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
-
-
-	glm::mat4 projection = main_camera.projection_mat;
-	glm::mat4 view = main_camera.view_mat;
-
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
@@ -845,55 +833,85 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 
 
-
-	glUniform3f(glGetUniformLocation(point_shader.get_program(), "viewPos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "shadows"), 1);
 	glUniform1f(glGetUniformLocation(point_shader.get_program(), "far_plane"), main_camera.far_plane);
 
 
-	if (1)//false == upside_down && false == reflectance_only && false == solid_white)
-	{
-		glEnable(GL_BLEND); //Enable blending.
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
-		glUseProgram(line_shader.get_program());
 
+	//if (1)//false == upside_down && false == reflectance_only && false == solid_white)
+	//{
+	//	glEnable(GL_BLEND); //Enable blending.
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
+	//	glUseProgram(line_shader.get_program());
+	// 
+	//	glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
+	//	if (screenshot_mode)
+	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+	//	else
+	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
-		glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
+	//	glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
-		if (screenshot_mode)
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-		else
-			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
+	//	glDepthRange(0.1, 1.0);
 
-		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
+	//	mat4 model = board_mesh.model_mat;
+	//	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+	//	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+	//	board_mesh.draw_lines(line_shader.get_program());
 
-		glDepthRange(0.1, 1.0);
+	//	glDepthRange(0.01, 1.0);
 
-		mat4 model = board_mesh.model_mat;
-		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		board_mesh.draw_lines(line_shader.get_program());
+	//	model = player_game_piece_meshes[0].model_mat;
+	//	mvp = main_camera.projection_mat * main_camera.view_mat * model;
+	//	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+	//	player_game_piece_meshes[0].draw_lines(line_shader.get_program());
 
-		glDepthRange(0.01, 1.0);
+	//	glDisable(GL_BLEND);
+	//}
 
-		model = player_game_piece_meshes[0].model_mat;
-		mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
-
-		glDisable(GL_BLEND);
-	}
-
-	glDepthRange(0.0, 1.0);
+	//glDepthRange(0.0, 1.0);
 
 
 
 	point_shader.use_program();
 
 
+
+
+
+
+	GLuint cat_tex = 0;
+
+	std::vector<unsigned char> buffer, colour_data;
+	loadFile(buffer, "cat.png");
+	unsigned long w, h;
+	decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+	glGenTextures(1, &cat_tex);
+	glBindTexture(GL_TEXTURE_2D, cat_tex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);
+
+
+	vec3 projPos = vec3(0.0f, 5.0f, 0.0f);
+	vec3 projAt = vec3(0.0f, -5.0f, 0.0f);
+	vec3 projUp = vec3(1.0f, 0.0f, 0.0f);
+	mat4 projView = glm::lookAt(projPos, projAt, projUp);
+	mat4 projProj = glm::perspective(glm::radians(30.0f), 1.0f, 0.01f, 1000.0f);
+	mat4 bias = glm::translate(mat4(1.0f), vec3(0.5f));
+	bias = glm::scale(bias, vec3(0.5f));
+	mat4 projMat = bias * projProj * projView;
+
+	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "ProjectorMatrix"), 1, GL_FALSE, &projMat[0][0]);
+
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
+	
 
 	if (false == reflectance_only)
 	{
@@ -909,6 +927,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, cat_tex);
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+			
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
+
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_specular_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
+
+
 			mat4 model = player_game_piece_meshes[j].model_mat;
 
 			if (upside_down)
@@ -919,7 +950,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				model = scale(model, vec3(1, -1, 1));
 			}
 
+			glm::mat4 projection = main_camera.projection_mat;
+			glm::mat4 view = main_camera.view_mat;
+
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+
 
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 		}
@@ -931,6 +968,20 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, cat_tex);
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+			
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
+
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_specular_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
+
+
+
 			mat4 model = player_game_piece_meshes[j].model_mat;
 
 			if (upside_down)
@@ -939,43 +990,53 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				model = scale(model, vec3(1, -1, 1));
 			}
 
+			glm::mat4 projection = main_camera.projection_mat;
+			glm::mat4 view = main_camera.view_mat;
+
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+
 
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 		}
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
 	}
 
-	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
+	
 
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cat_tex);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
-
-	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
-
-
-	/*glPolygonOffset(1, 1);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_POLYGON_OFFSET_FILL);*/
 
 	if (false == upside_down)
 	{
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
+
 		for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
 		{
 			for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 			{
 				mat4 model = board_mesh.model_mat;
 
+				glm::mat4 projection = main_camera.projection_mat;
+				glm::mat4 view = main_camera.view_mat;
+
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 			}
@@ -985,12 +1046,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	{
 		if (solid_white == true)
 		{
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
 		}
 		else
 		{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
 		}
 
 		// https://prideout.net/clip-planes
@@ -1023,16 +1086,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 					model = translate(model, vec3(0, -board_mesh.get_y_extent(n[i].x, n[i].y) * 2, 0));				
 					model = scale(model, vec3(1, -1, 1));
 					model = translate(model, vec3(0, -normalized_height*board_mesh.get_y_extent(), 0));
-					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
-
 					float y_plane_min = board_mesh.get_y_plane_min(n[i].x, n[i].y);
 
-
-
-
-
-
 					glUniform1i(glGetUniformLocation(point_shader.get_program(), "clip_plane_enabled"), 0);
+
+
+
+
+					glm::mat4 projection = main_camera.projection_mat;
+					glm::mat4 view = main_camera.view_mat;
+
+					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
+					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
+					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
 
@@ -1054,8 +1120,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
-
-
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
@@ -1084,7 +1148,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	
-	if (1)//false == reflectance_only)
+	if (false)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{
@@ -1133,13 +1197,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glBindTexture(GL_TEXTURE_2D, light_mesh.get_specular_tex_handle());
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
+
 			light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
 		}
 	}
 	
 
 
-
+	glDeleteTextures(1, &cat_tex);
 
 
 	if (upside_down)
