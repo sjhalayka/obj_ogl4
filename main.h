@@ -837,6 +837,36 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
+
+
+
+
+
+
+
+
+
+	silhouette_shader.use_program();
+
+	glm::mat4 projection = main_camera.projection_mat;
+	glm::mat4 view = main_camera.view_mat;
+	mat4 mv = view * board_mesh.model_mat;
+	mat3 normal_matrix = mat3(vec3(mv[0]), vec3(mv[1]), vec3(mv[2]));
+	mat4 mvp = projection * mv;
+
+	glUniformMatrix4fv(glGetUniformLocation(silhouette_shader.get_program(), "ModelViewMatrix"), 1, GL_FALSE, &mv[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(silhouette_shader.get_program(), "NormalMatrix"), 1, GL_FALSE, &normal_matrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(silhouette_shader.get_program(), "MVP"), 1, GL_FALSE, &mvp[0][0]);
+
+	for (size_t x = 0; x < board_mesh.num_cells_wide; x++)
+	{
+		for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
+		{
+			board_mesh.draw(silhouette_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+		}
+	}
+
+
 	//if (1)//false == upside_down && false == reflectance_only && false == solid_white)
 	//{
 	//	glEnable(GL_BLEND); //Enable blending.
@@ -1130,10 +1160,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	
-
-
-
-
 
 
 

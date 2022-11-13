@@ -65,6 +65,8 @@ using std::numeric_limits;
 using std::mt19937;
 using std::uniform_real_distribution;
 
+
+
 class mesh
 {
 public:
@@ -86,6 +88,10 @@ public:
 
 	size_t colour_data_x = 0, colour_data_y = 0;
 	size_t specular_data_x = 0, specular_data_y = 0;
+
+
+
+
 
 
 	GLuint get_colour_tex_handle(void)
@@ -827,17 +833,17 @@ public:
 
 					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
 					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
-					{						
+					{
 
-							t.vertex[0] = q0.vertex[0];
-							t.vertex[1] = q0.vertex[1];
-							t.vertex[2] = q0.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[1];
+						t.vertex[2] = q0.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q0.vertex[0];
-							t.vertex[1] = q0.vertex[2];
-							t.vertex[2] = q0.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[2];
+						t.vertex[2] = q0.vertex[3];
+						tri_vec[0].push_back(t);
 					}
 
 					neighbour_index = x + (y - 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
@@ -862,15 +868,15 @@ public:
 					if (z == scene->models[0]->size_z - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
 
-							t.vertex[0] = q2.vertex[0];
-							t.vertex[1] = q2.vertex[1];
-							t.vertex[2] = q2.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[1];
+						t.vertex[2] = q2.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q2.vertex[0];
-							t.vertex[1] = q2.vertex[2];
-							t.vertex[2] = q2.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[2];
+						t.vertex[2] = q2.vertex[3];
+						tri_vec[0].push_back(t);
 					}
 
 
@@ -890,19 +896,19 @@ public:
 							tri_vec[0].push_back(t);
 						}
 					}
-						
+
 					neighbour_index = (x + 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
 					if (x == scene->models[0]->size_x - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
-							t.vertex[0] = q4.vertex[0];
-							t.vertex[1] = q4.vertex[1];
-							t.vertex[2] = q4.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[1];
+						t.vertex[2] = q4.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q4.vertex[0];
-							t.vertex[1] = q4.vertex[2];
-							t.vertex[2] = q4.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[2];
+						t.vertex[2] = q4.vertex[3];
+						tri_vec[0].push_back(t);
 
 					}
 
@@ -938,9 +944,9 @@ public:
 				vertex_3 normal1 = vertex_3(tri_vec[i][j].vertex[1].nx, tri_vec[i][j].vertex[1].ny, tri_vec[i][j].vertex[1].nz);
 				vertex_3 normal2 = vertex_3(tri_vec[i][j].vertex[2].nx, tri_vec[i][j].vertex[2].ny, tri_vec[i][j].vertex[2].nz);
 
-				tri_vec[i][j].vertex[0].rotate_x( pi<float>() - pi<float>() / 2.0f);
-				tri_vec[i][j].vertex[1].rotate_x( pi<float>() - pi<float>() / 2.0f);
-				tri_vec[i][j].vertex[2].rotate_x( pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[0].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal0.rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal1.rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal2.rotate_x(pi<float>() - pi<float>() / 2.0f);
@@ -1064,7 +1070,7 @@ public:
 	//}	
 
 
-	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data> &ret)
+	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data>& ret)
 	{
 		ret.clear();
 
@@ -1319,7 +1325,7 @@ public:
 					size_t neighbour_index = 0;
 
 					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
-					
+
 					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
 						if (cull_faces == false)
@@ -1537,34 +1543,31 @@ public:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(specular_data_x), static_cast<GLsizei>(specular_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &specular_data[0]);
 
 
-		//for (size_t v = 0; v < opengl_vertex_data.size(); v++)
-		{
-			GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data[cell_index].size()) / components_per_vertex;
+		GLuint num_vertices = static_cast<GLuint>(opengl_vertex_data[cell_index].size()) / components_per_vertex;
 
-			unsigned int VBO, VAO;
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
+		unsigned int VBO, VAO;
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
 
-			glBindVertexArray(VAO);
+		glBindVertexArray(VAO);
 
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, opengl_vertex_data[cell_index].size() * sizeof(GLfloat), &opengl_vertex_data[cell_index][0], GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, opengl_vertex_data[cell_index].size() * sizeof(GLfloat), &opengl_vertex_data[cell_index][0], GL_DYNAMIC_DRAW);
 
-			// position attribute
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
-			glEnableVertexAttribArray(0);
-			// normal attribute
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-			glEnableVertexAttribArray(1);
-			// texture coord attribute
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
-			glEnableVertexAttribArray(2);
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
+		glEnableVertexAttribArray(0);
+		// normal attribute
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		// texture coord attribute
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
 
-			glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+		glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, num_vertices);
 
-			glDeleteBuffers(1, &VBO);
-			glDeleteVertexArrays(1, &VAO);
-		}
+		glDeleteBuffers(1, &VBO);
+		glDeleteVertexArrays(1, &VAO);
 
 	}
 
@@ -1631,17 +1634,17 @@ public:
 		float y_min = numeric_limits<float>::max();
 		float y_max = numeric_limits<float>::min();
 
-			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
 			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[cell_index][i].vertex[j].y < y_min)
-						y_min = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].y > y_max)
-						y_max = tri_vec[cell_index][i].vertex[j].y;
-				}
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
 			}
+		}
 
 		return distance(y_min, y_max);
 	}
@@ -1719,7 +1722,7 @@ public:
 
 					//cout << dot(a, b) << endl;
 
-					if(dot(a, b) > 0.95)
+					if (dot(a, b) > 0.95)
 						y_min = tri_vec[cell_index][i].vertex[j].y;
 				}
 			}
@@ -1759,29 +1762,29 @@ public:
 		float z_max = numeric_limits<float>::min();
 
 
-			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
 			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[cell_index][i].vertex[j].x < x_min)
-						x_min = tri_vec[cell_index][i].vertex[j].x;
+				if (tri_vec[cell_index][i].vertex[j].x < x_min)
+					x_min = tri_vec[cell_index][i].vertex[j].x;
 
-					if (tri_vec[cell_index][i].vertex[j].x > x_max)
-						x_max = tri_vec[cell_index][i].vertex[j].x;
+				if (tri_vec[cell_index][i].vertex[j].x > x_max)
+					x_max = tri_vec[cell_index][i].vertex[j].x;
 
-					if (tri_vec[cell_index][i].vertex[j].y < y_min)
-						y_min = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].y > y_max)
-						y_max = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].z < z_min)
-						z_min = tri_vec[cell_index][i].vertex[j].z;
+				if (tri_vec[cell_index][i].vertex[j].z < z_min)
+					z_min = tri_vec[cell_index][i].vertex[j].z;
 
-					if (tri_vec[cell_index][i].vertex[j].z > z_max)
-						z_max = tri_vec[cell_index][i].vertex[j].z;
-				}
+				if (tri_vec[cell_index][i].vertex[j].z > z_max)
+					z_max = tri_vec[cell_index][i].vertex[j].z;
 			}
+		}
 
 
 		vec3 ret((x_max + x_min) / 2.0f, (y_max + y_min) / 2.0f, (z_max + z_min) / 2.0f);
