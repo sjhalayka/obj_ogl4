@@ -271,7 +271,7 @@ void main()
         vec4 projTexColor = textureProj(projectorTexture, fs_in.ProjTexCoord);
 
         if(projTexColor.a != 0)
-            FragColor = FragColor + projTexColor * 0.5;
+            FragColor = projTexColor;
     }
 
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
