@@ -697,7 +697,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
 
-			
+
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight, false);
 
@@ -843,7 +843,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-
+	{
 
 
 	silhouette_shader.use_program();
@@ -865,6 +865,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			board_mesh.draw(silhouette_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 		}
 	}
+}
+
 
 
 	//if (1)//false == upside_down && false == reflectance_only && false == solid_white)

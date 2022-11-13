@@ -12,8 +12,8 @@ flat out int GIsEdge;
 in vec3 VNormal[];
 in vec3 VPosition[];
 
-uniform float EdgeWidth = 0.005;
-uniform float PctExtend = 0.25;
+uniform float EdgeWidth = 0.01;
+uniform float PctExtend = 0.0;
 
 bool isFrontFacing( vec3 a, vec3 b, vec3 c )
 {

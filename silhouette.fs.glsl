@@ -10,18 +10,15 @@ flat in int GIsEdge;
 
 layout( location = 0 ) out vec4 FragColor;
 
-
-
-
 void main()
 {
     if( GIsEdge == 1 ) 
     {
         FragColor = LineColor;
-    } 
-//    else 
-//   {
- //       FragColor =  vec4( toonShade(), 1.0 );
-  //  }
+    }
+    else 
+   {
+       FragColor = vec4(1, 0, 0, 1);
+   }
 
 }
