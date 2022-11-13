@@ -11,257 +11,8 @@ void mesh::init_opengl_data(void)
 	// triangles
 	for (size_t v = 0; v < tri_vec.size(); v++)
 	{
-		map<ordered_edge, vector<size_t>> edge_neighbour_data;
-
 		for (size_t i = 0; i < tri_vec[v].size(); i++)
 		{
-			const ordered_edge edge0(tri_vec[v][i].vertex[0], tri_vec[v][i].vertex[1]);
-			const ordered_edge edge1(tri_vec[v][i].vertex[1], tri_vec[v][i].vertex[2]);
-			const ordered_edge edge2(tri_vec[v][i].vertex[2], tri_vec[v][i].vertex[0]);
-
-			edge_neighbour_data[edge0].push_back(i);
-			edge_neighbour_data[edge1].push_back(i);
-			edge_neighbour_data[edge2].push_back(i);
-		}
-
-
-		for (size_t i = 0; i < tri_vec[v].size(); i++)
-		{
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].v);
-
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].v);
-
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].v);
-
-			// add adjacent triangle data here
-			// only include the 3 vertices that do not belong to the centre triangle
-
-
-
-
-
-
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].v);
-
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].v);
-
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].x);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].y);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].z);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].nx);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].ny);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].nz);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].u);
-			//opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].v);
-
-
-			
-
-	
-
-			const ordered_edge edge0(tri_vec[v][i].vertex[0], tri_vec[v][i].vertex[1]);
-			size_t neighbour0_index = 0;
-			vector<size_t> edge_sharers0 = edge_neighbour_data[edge0];
-			vertex_3 far_vertex0;
-
-			if (edge_sharers0.size() == 2)
-			for (size_t j = 0; j < edge_sharers0.size(); j++)
-			{
-				if (edge_sharers0[j] != i)
-				{
-					neighbour0_index = edge_sharers0[j];
-
-					vertex_3 neighbour_v0 = tri_vec[v][neighbour0_index].vertex[0];
-					vertex_3 neighbour_v1 = tri_vec[v][neighbour0_index].vertex[1];
-					vertex_3 neighbour_v2 = tri_vec[v][neighbour0_index].vertex[2];
-
-					if (neighbour_v0 == edge0.v0)
-					{
-						if (neighbour_v1 == edge0.v1)
-							far_vertex0 = tri_vec[v][neighbour0_index].vertex[2];
-						else
-							far_vertex0 = tri_vec[v][neighbour0_index].vertex[1];
-					}
-					else
-					{
-						if (neighbour_v1 == edge0.v1)
-							far_vertex0 = tri_vec[v][neighbour0_index].vertex[2];
-						else
-							far_vertex0 = tri_vec[v][neighbour0_index].vertex[0];
-					}
-				}
-			}
-
-
-			//if (far_vertex0.x != 0 && far_vertex0.y != 0 && far_vertex0.z != 0)
-			//{
-			//	opengl_vertex_data[v].push_back(far_vertex0.x);
-			//	opengl_vertex_data[v].push_back(far_vertex0.y);
-			//	opengl_vertex_data[v].push_back(far_vertex0.z);
-			//	opengl_vertex_data[v].push_back(far_vertex0.nx);
-			//	opengl_vertex_data[v].push_back(far_vertex0.ny);
-			//	opengl_vertex_data[v].push_back(far_vertex0.nz);
-			//	opengl_vertex_data[v].push_back(far_vertex0.u);
-			//	opengl_vertex_data[v].push_back(far_vertex0.v);
-			//}
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		
-
-				const ordered_edge edge1(tri_vec[v][i].vertex[1], tri_vec[v][i].vertex[2]);
-				size_t neighbour1_index = 0;
-				vector<size_t> edge_sharers1 = edge_neighbour_data[edge1];
-				vertex_3 far_vertex1;
-				if (edge_sharers1.size() == 2)
-				for (size_t j = 0; j < edge_sharers1.size(); j++)
-				{
-					if (edge_sharers1[j] != i)
-					{
-						neighbour1_index = edge_sharers1[j];
-
-						vertex_3 neighbour_v0 = tri_vec[v][neighbour1_index].vertex[0];
-						vertex_3 neighbour_v1 = tri_vec[v][neighbour1_index].vertex[1];
-						vertex_3 neighbour_v2 = tri_vec[v][neighbour1_index].vertex[2];
-
-						if (neighbour_v0 == edge1.v0)
-						{
-							if (neighbour_v1 == edge1.v1)
-								far_vertex1 = tri_vec[v][neighbour1_index].vertex[2];
-							else
-								far_vertex1 = tri_vec[v][neighbour1_index].vertex[1];
-						}
-						else
-						{
-							if (neighbour_v1 == edge1.v1)
-								far_vertex1 = tri_vec[v][neighbour1_index].vertex[2];
-							else
-								far_vertex1 = tri_vec[v][neighbour1_index].vertex[0];
-						}
-					}
-				}
-
-	/*			if (far_vertex1.x != 0 && far_vertex1.y != 0 && far_vertex1.z != 0)
-				{
-					opengl_vertex_data[v].push_back(far_vertex1.x);
-					opengl_vertex_data[v].push_back(far_vertex1.y);
-					opengl_vertex_data[v].push_back(far_vertex1.z);
-					opengl_vertex_data[v].push_back(far_vertex1.nx);
-					opengl_vertex_data[v].push_back(far_vertex1.ny);
-					opengl_vertex_data[v].push_back(far_vertex1.nz);
-					opengl_vertex_data[v].push_back(far_vertex1.u);
-					opengl_vertex_data[v].push_back(far_vertex1.v);
-				}*/
-
-
-		
-
-
-
-
-
-
-
-
-			
-
-				const ordered_edge edge2(tri_vec[v][i].vertex[2], tri_vec[v][i].vertex[0]);
-				size_t neighbour2_index = 0;
-				vector<size_t> edge_sharers2 = edge_neighbour_data[edge2];
-				vertex_3 far_vertex2;
-
-				if(edge_sharers2.size() == 2)
-				for (size_t j = 0; j < edge_sharers2.size(); j++)
-				{
-					if (edge_sharers2[j] != i)
-					{
-						neighbour2_index = edge_sharers2[j];
-
-						vertex_3 neighbour_v0 = tri_vec[v][neighbour2_index].vertex[0];
-						vertex_3 neighbour_v1 = tri_vec[v][neighbour2_index].vertex[1];
-						vertex_3 neighbour_v2 = tri_vec[v][neighbour2_index].vertex[2];
-
-						if (neighbour_v0 == edge2.v0)
-						{
-							if (neighbour_v1 == edge2.v1)
-								far_vertex2 = tri_vec[v][neighbour2_index].vertex[2];
-							else
-								far_vertex2 = tri_vec[v][neighbour2_index].vertex[1];
-						}
-						else
-						{
-							if (neighbour_v1 == edge2.v1)
-								far_vertex2 = tri_vec[v][neighbour2_index].vertex[2];
-							else
-								far_vertex2 = tri_vec[v][neighbour2_index].vertex[0];
-						}
-					}
-				}
-
-				//if (far_vertex2.x != 0 && far_vertex2.y != 0 && far_vertex2.z != 0)
-				//{
-				//	opengl_vertex_data[v].push_back(far_vertex2.x);
-				//	opengl_vertex_data[v].push_back(far_vertex2.y);
-				//	opengl_vertex_data[v].push_back(far_vertex2.z);
-				//	opengl_vertex_data[v].push_back(far_vertex2.nx);
-				//	opengl_vertex_data[v].push_back(far_vertex2.ny);
-				//	opengl_vertex_data[v].push_back(far_vertex2.nz);
-				//	opengl_vertex_data[v].push_back(far_vertex2.u);
-				//	opengl_vertex_data[v].push_back(far_vertex2.v);
-				//}
-		
-
-
-
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].x);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].y);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].z);
@@ -270,15 +21,6 @@ void mesh::init_opengl_data(void)
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].nz);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].u);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[0].v);
-
-			opengl_vertex_data[v].push_back(far_vertex0.x);
-			opengl_vertex_data[v].push_back(far_vertex0.y);
-			opengl_vertex_data[v].push_back(far_vertex0.z);
-			opengl_vertex_data[v].push_back(far_vertex0.nx);
-			opengl_vertex_data[v].push_back(far_vertex0.ny);
-			opengl_vertex_data[v].push_back(far_vertex0.nz);
-			opengl_vertex_data[v].push_back(far_vertex0.u);
-			opengl_vertex_data[v].push_back(far_vertex0.v);
 
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].x);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].y);
@@ -289,15 +31,6 @@ void mesh::init_opengl_data(void)
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].u);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[1].v);
 
-			opengl_vertex_data[v].push_back(far_vertex1.x);
-			opengl_vertex_data[v].push_back(far_vertex1.y);
-			opengl_vertex_data[v].push_back(far_vertex1.z);
-			opengl_vertex_data[v].push_back(far_vertex1.nx);
-			opengl_vertex_data[v].push_back(far_vertex1.ny);
-			opengl_vertex_data[v].push_back(far_vertex1.nz);
-			opengl_vertex_data[v].push_back(far_vertex1.u);
-			opengl_vertex_data[v].push_back(far_vertex1.v);
-
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].x);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].y);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].z);
@@ -306,19 +39,6 @@ void mesh::init_opengl_data(void)
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].nz);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].u);
 			opengl_vertex_data[v].push_back(tri_vec[v][i].vertex[2].v);
-
-			opengl_vertex_data[v].push_back(far_vertex2.x);
-			opengl_vertex_data[v].push_back(far_vertex2.y);
-			opengl_vertex_data[v].push_back(far_vertex2.z);
-			opengl_vertex_data[v].push_back(far_vertex2.nx);
-			opengl_vertex_data[v].push_back(far_vertex2.ny);
-			opengl_vertex_data[v].push_back(far_vertex2.nz);
-			opengl_vertex_data[v].push_back(far_vertex2.u);
-			opengl_vertex_data[v].push_back(far_vertex2.v);
-
-
-
-
 		}
 	}
 
@@ -438,7 +158,7 @@ void mesh::draw(GLint render_shader_program,
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
 
-		glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, num_vertices);
+		glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
 		glDeleteBuffers(1, &VBO);
 		glDeleteVertexArrays(1, &VAO);

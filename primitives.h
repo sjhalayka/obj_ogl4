@@ -41,12 +41,6 @@ public:
 			return false;
 	}
 
-	inline bool operator!=(const vertex_3& right) const
-	{
-		return !(*this == right);
-	}
-
-
 	inline bool operator<(const vertex_3& right) const
 	{
 		if (right.x > x)
@@ -67,30 +61,6 @@ public:
 		return false;
 	}
 
-	
-
-	inline bool operator>(const vertex_3& right) const
-	{
-		if (right.x < x)
-			return true;
-		else if (right.x > x)
-			return false;
-
-		if (right.y < y)
-			return true;
-		else if (right.y > y)
-			return false;
-
-		if (right.z < z)
-			return true;
-		else if (right.z > z)
-			return false;
-
-		return false;
-	}
-	
-	
-	
 	inline const vertex_3& operator-(const vertex_3& right) const
 	{
 		static vertex_3 temp;
@@ -211,48 +181,6 @@ class quad
 public:
 	vertex_3 vertex[4];
 };
-
-
-
-class ordered_edge
-{
-public:
-	vertex_3 v0, v1;
-
-	ordered_edge(vertex_3& a, vertex_3& b)
-	{
-		if (a < b)
-		{
-			v0 = a;
-			v1 = b;
-		}
-		else
-		{
-			v0 = b;
-			v1 = a;
-		}
-	}
-
-
-	inline bool operator<(const ordered_edge& right) const
-	{
-		if (right.v0 > v0)
-			return true;
-		else if (right.v0 < v0)
-			return false;
-
-		if (right.v1 > v1)
-			return true;
-		else if (right.v1 < v1)
-			return false;
-
-		return false;
-	}
-
-};
-
-
-
 
 
 #endif
