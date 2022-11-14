@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
 	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
 
 
-	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", false))
+	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", "3x3x3.png", "3x3x3.png", false))
 	{
 		cout << "Error: Could not properly read file 3x3x3.vox" << endl;
 		return 2;
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
 
 	//if (false == board_mesh.read_quads_from_obj_array(false, "board"))
-	if (false == board_mesh.read_quads_from_vox_file("board.vox", true))
+	if (false == board_mesh.read_quads_from_vox_file("board.vox", "board.png", "board_specular.png", true))
 	{
 		cout << "Error: Could not properly read file board.vox" << endl;
 		return 2;
@@ -200,6 +200,10 @@ void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex
 	const vec3 m2 = main_camera.eye;
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
+	
+	//glUniform3f(glGetUniformLocation(tex_passthrough.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+	//glUniform3f(glGetUniformLocation(tex_passthrough.get_program(), "model_pos"), m.x, m.y, m.z);
+
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
 

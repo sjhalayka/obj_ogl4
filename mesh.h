@@ -268,30 +268,6 @@ public:
 		return ret;
 	}
 
-	bool read_quads_from_obj_array(bool cull_back_faces, string filename_base)
-	{
-		tri_vec.clear();
-
-		vector<string> filenames = get_masked_paths(filename_base);
-
-		if (filenames.size() == 0)
-			return false;
-
-		tri_vec.resize(filenames.size());
-
-		for (size_t i = 0; i < filenames.size(); i++)
-		{
-			if (false == read_quads_from_wavefront_obj_file(cull_back_faces, filenames[i], i))
-				return false;
-		}
-
-		centre_mesh_on_xyz();
-
-
-		init_opengl_data();
-
-		return true;
-	}
 
 	void process_line(bool cull_back_faces, string line,
 		vector<triangle>& triangles,
@@ -558,83 +534,6 @@ public:
 	}
 
 
-	bool read_quads_from_wavefront_obj_file(bool cull_back_faces, string file_name, size_t index)
-	{
-		tri_vec[index].clear();
-
-		vector<triangle> triangles;
-
-		vector<vertex_3> verts;
-		vector<uv_coord> tex_coords;
-		vector<vertex_3> norms;
-
-		string line;
-
-		map<vertex_3, size_t> face_normal_counts;
-
-		ifstream infile(file_name, ifstream::ate | ifstream::binary);
-
-		if (infile.fail())
-		{
-			cout << "Could not open file" << endl;
-			return false;
-		}
-
-		size_t file_size = infile.tellg();
-
-		infile.close();
-
-		if (file_size == 0)
-			return false;
-
-		infile.open(file_name, ifstream::binary);
-
-		if (infile.fail())
-		{
-			cout << "Could not re-open file" << endl;
-			return false;
-		}
-
-		string s(file_size, ' ');
-
-		infile.read(&s[0], file_size);
-		infile.close();
-
-		// Make sure that the last line ends in a newline
-		if (s[s.size() - 1] != '\n')
-		{
-			s += '\n';
-			file_size++;
-		}
-
-		string temp_token;
-
-		// For each character in the file
-		for (size_t i = 0; i < file_size; i++)
-		{
-			if (s[i] == '\r')
-			{
-				// Skip over Windows carriage return
-				continue;
-			}
-			else if (s[i] == '\n')
-			{
-				process_line(cull_back_faces, temp_token, triangles, verts, tex_coords, norms, face_normal_counts);
-
-				temp_token.clear();
-			}
-			else
-			{
-				temp_token += s[i];
-			}
-		}
-
-		tri_vec[index] = triangles;
-
-		return true;
-	}
-
-
 
 	void draw(GLint render_shader_program,
 		int win_x,
@@ -667,8 +566,13 @@ public:
 		model_mat[3] = vec4(n_up * displacement, 1.0f);
 	}
 
-	bool read_quads_from_vox_file(string file_name, bool cull_faces)
+	bool read_quads_from_vox_file(string file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
 	{
+		//	bool read_quads_from_vox_file(string file_name, bool cull_faces)
+		//	{
+
+
+
 		tri_vec.clear();
 		opengl_vertex_data.clear();
 
@@ -827,17 +731,17 @@ public:
 
 					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
 					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
-					{						
+					{
 
-							t.vertex[0] = q0.vertex[0];
-							t.vertex[1] = q0.vertex[1];
-							t.vertex[2] = q0.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[1];
+						t.vertex[2] = q0.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q0.vertex[0];
-							t.vertex[1] = q0.vertex[2];
-							t.vertex[2] = q0.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q0.vertex[0];
+						t.vertex[1] = q0.vertex[2];
+						t.vertex[2] = q0.vertex[3];
+						tri_vec[0].push_back(t);
 					}
 
 					neighbour_index = x + (y - 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
@@ -862,15 +766,15 @@ public:
 					if (z == scene->models[0]->size_z - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
 
-							t.vertex[0] = q2.vertex[0];
-							t.vertex[1] = q2.vertex[1];
-							t.vertex[2] = q2.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[1];
+						t.vertex[2] = q2.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q2.vertex[0];
-							t.vertex[1] = q2.vertex[2];
-							t.vertex[2] = q2.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q2.vertex[0];
+						t.vertex[1] = q2.vertex[2];
+						t.vertex[2] = q2.vertex[3];
+						tri_vec[0].push_back(t);
 					}
 
 
@@ -890,19 +794,19 @@ public:
 							tri_vec[0].push_back(t);
 						}
 					}
-						
+
 					neighbour_index = (x + 1) + (y)*scene->models[0]->size_x + (z)*scene->models[0]->size_x * scene->models[0]->size_y;
 					if (x == scene->models[0]->size_x - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
-							t.vertex[0] = q4.vertex[0];
-							t.vertex[1] = q4.vertex[1];
-							t.vertex[2] = q4.vertex[2];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[1];
+						t.vertex[2] = q4.vertex[2];
+						tri_vec[0].push_back(t);
 
-							t.vertex[0] = q4.vertex[0];
-							t.vertex[1] = q4.vertex[2];
-							t.vertex[2] = q4.vertex[3];
-							tri_vec[0].push_back(t);
+						t.vertex[0] = q4.vertex[0];
+						t.vertex[1] = q4.vertex[2];
+						t.vertex[2] = q4.vertex[3];
+						tri_vec[0].push_back(t);
 
 					}
 
@@ -938,9 +842,9 @@ public:
 				vertex_3 normal1 = vertex_3(tri_vec[i][j].vertex[1].nx, tri_vec[i][j].vertex[1].ny, tri_vec[i][j].vertex[1].nz);
 				vertex_3 normal2 = vertex_3(tri_vec[i][j].vertex[2].nx, tri_vec[i][j].vertex[2].ny, tri_vec[i][j].vertex[2].nz);
 
-				tri_vec[i][j].vertex[0].rotate_x( pi<float>() - pi<float>() / 2.0f);
-				tri_vec[i][j].vertex[1].rotate_x( pi<float>() - pi<float>() / 2.0f);
-				tri_vec[i][j].vertex[2].rotate_x( pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[0].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[1].rotate_x(pi<float>() - pi<float>() / 2.0f);
+				tri_vec[i][j].vertex[2].rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal0.rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal1.rotate_x(pi<float>() - pi<float>() / 2.0f);
 				normal2.rotate_x(pi<float>() - pi<float>() / 2.0f);
@@ -964,6 +868,51 @@ public:
 
 			}
 		}
+
+
+		if (colour_tex != 0)
+			glDeleteTextures(1, &colour_tex);
+
+		if (specular_tex != 0)
+			glDeleteTextures(1, &specular_tex);
+
+
+
+		std::vector<unsigned char> buffer;
+		loadFile(buffer, colour_tex_file_name.c_str());
+		unsigned long w, h;
+		decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		colour_data_x = w;
+		colour_data_y = h;
+
+		glGenTextures(1, &colour_tex);
+		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+
+		//		std::vector<unsigned char> buffer;
+		loadFile(buffer, specular_tex_file_name.c_str());
+		//			unsigned long w, h;
+		decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		specular_data_x = w;
+		specular_data_y = h;
+
+		glGenTextures(1, &specular_tex);
+		glBindTexture(GL_TEXTURE_2D, specular_tex);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+
 
 		init_opengl_data();
 
@@ -1064,7 +1013,7 @@ public:
 	//}	
 
 
-	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data> &ret)
+	void get_all_neighbour_indices(size_t x, size_t y, vector<neighbour_data>& ret)
 	{
 		ret.clear();
 
@@ -1149,7 +1098,7 @@ public:
 	//}
 
 
-	bool read_quads_from_vox_file(string file_name, bool cull_faces)
+	bool read_quads_from_vox_file(string file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
 	{
 		tri_vec.clear();
 		opengl_vertex_data.clear();
@@ -1319,7 +1268,7 @@ public:
 					size_t neighbour_index = 0;
 
 					neighbour_index = x + (y + 1) * scene->models[0]->size_x + z * scene->models[0]->size_x * scene->models[0]->size_y;
-					
+
 					if (y == scene->models[0]->size_y - 1 || 0 == scene->models[0]->voxel_data[neighbour_index])
 					{
 						if (cull_faces == false)
@@ -1468,6 +1417,48 @@ public:
 
 			}
 		}
+
+
+		if (colour_tex != 0)
+			glDeleteTextures(1, &colour_tex);
+
+		if (specular_tex != 0)
+			glDeleteTextures(1, &specular_tex);
+
+
+		std::vector<unsigned char> buffer;
+		loadFile(buffer, colour_tex_file_name.c_str());
+		unsigned long w, h;
+		decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		colour_data_x = w;
+		colour_data_y = h;
+
+		glGenTextures(1, &colour_tex);
+		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+
+		//		std::vector<unsigned char> buffer;
+		loadFile(buffer, specular_tex_file_name.c_str());
+		//			unsigned long w, h;
+		decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		specular_data_x = w;
+		specular_data_y = h;
+
+		glGenTextures(1, &specular_tex);
+		glBindTexture(GL_TEXTURE_2D, specular_tex);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 
 		init_opengl_data();
 
@@ -1631,17 +1622,17 @@ public:
 		float y_min = numeric_limits<float>::max();
 		float y_max = numeric_limits<float>::min();
 
-			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
 			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[cell_index][i].vertex[j].y < y_min)
-						y_min = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].y > y_max)
-						y_max = tri_vec[cell_index][i].vertex[j].y;
-				}
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
 			}
+		}
 
 		return distance(y_min, y_max);
 	}
@@ -1719,7 +1710,7 @@ public:
 
 					//cout << dot(a, b) << endl;
 
-					if(dot(a, b) > 0.95)
+					if (dot(a, b) > 0.95)
 						y_min = tri_vec[cell_index][i].vertex[j].y;
 				}
 			}
@@ -1759,29 +1750,29 @@ public:
 		float z_max = numeric_limits<float>::min();
 
 
-			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
 			{
-				for (size_t j = 0; j < 3; j++)
-				{
-					if (tri_vec[cell_index][i].vertex[j].x < x_min)
-						x_min = tri_vec[cell_index][i].vertex[j].x;
+				if (tri_vec[cell_index][i].vertex[j].x < x_min)
+					x_min = tri_vec[cell_index][i].vertex[j].x;
 
-					if (tri_vec[cell_index][i].vertex[j].x > x_max)
-						x_max = tri_vec[cell_index][i].vertex[j].x;
+				if (tri_vec[cell_index][i].vertex[j].x > x_max)
+					x_max = tri_vec[cell_index][i].vertex[j].x;
 
-					if (tri_vec[cell_index][i].vertex[j].y < y_min)
-						y_min = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].y > y_max)
-						y_max = tri_vec[cell_index][i].vertex[j].y;
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
 
-					if (tri_vec[cell_index][i].vertex[j].z < z_min)
-						z_min = tri_vec[cell_index][i].vertex[j].z;
+				if (tri_vec[cell_index][i].vertex[j].z < z_min)
+					z_min = tri_vec[cell_index][i].vertex[j].z;
 
-					if (tri_vec[cell_index][i].vertex[j].z > z_max)
-						z_max = tri_vec[cell_index][i].vertex[j].z;
-				}
+				if (tri_vec[cell_index][i].vertex[j].z > z_max)
+					z_max = tri_vec[cell_index][i].vertex[j].z;
 			}
+		}
 
 
 		vec3 ret((x_max + x_min) / 2.0f, (y_max + y_min) / 2.0f, (z_max + z_min) / 2.0f);
