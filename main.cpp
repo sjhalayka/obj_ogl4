@@ -281,11 +281,6 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
-	//if (false == silhouette_shader.init("silhouette.vs.glsl", "silhouette.gs.glsl", "silhouette.fs.glsl"))
-	//{
-	//	cout << "Could not load silhouette shader" << endl;
-	//	return false;
-	//}
 
 	
 	if (false == tex_reflectance.init("ortho_reflectance.vs.glsl", "ortho_reflectance.fs.glsl"))
@@ -302,12 +297,6 @@ bool init_opengl(const int& width, const int& height)
 
 
 
-	//if (false == proj_tex_shader.init("projtex.vs.glsl", "projtex.fs.glsl"))
-	//{
-	//	cout << "Could not load projtex shader" << endl;
-	//	return false;
-	//}
-	
 
 
 			

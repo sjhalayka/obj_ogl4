@@ -631,17 +631,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	lightPositions[0] = vec3(-6, 6, 6);
 	lightPositions[1] = vec3(6, 6, -6);
-	lightPositions[2] = vec3(6, 6, 6);
+	lightPositions[2] = vec3(0, 4, 0);
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r = 0.75 * 2;
-	lightColours[0].g = 0.75 * 2;
-	lightColours[0].b = 0.75 * 2;
+	lightColours[0].r = 0.175 * 2;
+	lightColours[0].g = 0.175 * 2;
+	lightColours[0].b = 0.175 * 2;
 
-	lightColours[1].r = 0.5 * 2;
-	lightColours[1].g = 0.5 * 2;
-	lightColours[1].b = 0.5 * 2;
+	lightColours[1].r = 0.15 * 2;
+	lightColours[1].g = 0.15 * 2;
+	lightColours[1].b = 0.15 * 2;
 
 	lightColours[2].r = 0.2 * 2;
 	lightColours[2].g = 0.2 * 2;
@@ -656,7 +656,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightEnabled[0] = 1;
 	lightEnabled[1] = 1;
 	lightEnabled[2] = 1;
-	lightEnabled[3] = 1;
+	lightEnabled[3] = 0;
 
 	lightShadowCaster[0] = 1;
 	lightShadowCaster[1] = 1;
@@ -838,41 +838,58 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	//if (1)//false == upside_down && false == reflectance_only && false == solid_white)
-	//{
-	//	glEnable(GL_BLEND); //Enable blending.
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
-	//	glUseProgram(line_shader.get_program());
-	// 
-	//	glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
-	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
-	//	glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
-	//	if (screenshot_mode)
-	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
-	//	else
-	//		glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
-	//	glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
-	//	glDepthRange(0.1, 1.0);
+	if (false == upside_down && false == reflectance_only && false == solid_white)
+	{
+		glUseProgram(line_shader.get_program());
 
-	//	mat4 model = board_mesh.model_mat;
-	//	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-	//	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-	//	board_mesh.draw_lines(line_shader.get_program());
+		glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(line_shader.get_program(), "img_height"), win_y);
 
-	//	glDepthRange(0.01, 1.0);
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(line_shader.get_program(), "cam_factor"), 1);
 
-	//	model = player_game_piece_meshes[0].model_mat;
-	//	mvp = main_camera.projection_mat * main_camera.view_mat * model;
-	//	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-	//	player_game_piece_meshes[0].draw_lines(line_shader.get_program());
+		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
-	//	glDisable(GL_BLEND);
-	//}
 
-	//glDepthRange(0.0, 1.0);
+
+		glDepthRange(0.1, 1.0);
+
+		mat4 model = board_mesh.model_mat;
+		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.5, 0.5, 0.5, 1.0);
+		board_mesh.draw_lines(line_shader.get_program());
+
+
+
+		glDepthRange(0.01, 1.0);
+
+		model = player_game_piece_meshes[0].model_mat;
+		mvp = main_camera.projection_mat * main_camera.view_mat * model;
+		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+	
+		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
+		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
+	}
+
+	glDepthRange(0.0, 1.0);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1151,8 +1168,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
+
 	
-	if (false)//false == reflectance_only)
+	if (1)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{

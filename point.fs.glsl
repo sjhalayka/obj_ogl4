@@ -285,7 +285,7 @@ void main()
         else
         {
             if(projTexColor.a != 0)
-                FragColor = mix(FragColor, projTexColor, 0.5);
+                FragColor = mix(FragColor, projTexColor, 0.125);
         }
     }
 
