@@ -41,9 +41,20 @@ vec4 get_blurred_pixel(vec2 tc)
 
     // tent function
     if(x > 0.5)
-         x = 1.0 - x;
+        x = 1.0 - x; // from 0 to 0.5
 
-    x = 1.0 - pow(x, 1.0/10.0);
+    x *= 2.0; // from 0 to 1
+    x *= 2.0; // from 0 to 2
+    x -= 1.0; // from -1 to 1
+
+    x = pow(x, 10.0);// from -1 to 1;
+
+    x += 1.0; // from 0 to 2;
+    x /= 2.0; // from 0 to 1;
+    
+
+
+
 
    const float pi_times_2 = 6.28318530718; // Pi*2
     
