@@ -22,6 +22,15 @@ int main(int argc, char** argv)
 
 
 
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox", "chr_rain.png", "chr_rain_specular.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
+
 	//if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox"))
 	//	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
 	//{
@@ -52,18 +61,9 @@ int main(int argc, char** argv)
 		player_game_piece_meshes[i].model_mat = mat4(1.0f);
 	}
 
+	situate_player_mesh(0, 0, 0);
+	situate_player_mesh(2, 2, 1);
 
-	// todo: fix this
-
-	vec3 centre = board_mesh.get_centre(0, 0);
-	centre.y = board_mesh.get_y_plane_min(0, 0);
-	float mesh_y_extent = player_game_piece_meshes[0].get_y_extent();
-	centre.y += player_game_piece_meshes[0].get_y_extent() * 0.5;
-	centre.x += -player_game_piece_meshes[0].get_x_extent() * 0.5 - board_mesh.get_x_extent(0, 0) * 0.5;
-	centre.z += -player_game_piece_meshes[0].get_z_extent() * 0.5 - board_mesh.get_z_extent(0, 0) * 0.5;
-
-
-	player_game_piece_meshes[0].model_mat = translate(player_game_piece_meshes[0].model_mat, centre);
 
 
 	board_mesh.model_mat = mat4(1.0f);

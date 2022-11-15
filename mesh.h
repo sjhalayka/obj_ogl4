@@ -90,7 +90,7 @@ public:
 
 	float get_y_max(void)
 	{
-		float y_max = numeric_limits<float>::min();
+		float y_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -130,7 +130,7 @@ public:
 
 	float get_x_max(void)
 	{
-		float x_max = numeric_limits<float>::min();
+		float x_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -172,7 +172,7 @@ public:
 
 	float get_z_max(void)
 	{
-		float z_max = numeric_limits<float>::min();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -223,9 +223,9 @@ public:
 		float x_min = numeric_limits<float>::max();
 		float y_min = numeric_limits<float>::max();
 		float z_min = numeric_limits<float>::max();
-		float x_max = numeric_limits<float>::min();
-		float y_max = numeric_limits<float>::min();
-		float z_max = numeric_limits<float>::min();
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -456,28 +456,6 @@ public:
 
 
 
-	//float get_y_extent(void)
-	//{
-	//	float y_min = numeric_limits<float>::max();
-	//	float y_max = numeric_limits<float>::min();
-
-	//	for (size_t t = 0; t < tri_vec.size(); t++)
-	//	{
-	//		for (size_t i = 0; i < tri_vec[t].size(); i++)
-	//		{
-	//			for (size_t j = 0; j < 3; j++)
-	//			{
-	//				if (tri_vec[t][i].vertex[j].y < y_min)
-	//					y_min = tri_vec[t][i].vertex[j].y;
-
-	//				if (tri_vec[t][i].vertex[j].y > y_max)
-	//					y_max = tri_vec[t][i].vertex[j].y;
-	//			}
-	//		}
-	//	}
-
-	//	return distance(y_min, y_max);
-	//}
 
 
 	void centre_mesh_on_xyz(void)
@@ -485,9 +463,9 @@ public:
 		float x_min = numeric_limits<float>::max();
 		float y_min = numeric_limits<float>::max();
 		float z_min = numeric_limits<float>::max();
-		float x_max = numeric_limits<float>::min();
-		float y_max = numeric_limits<float>::min();
-		float z_max = numeric_limits<float>::min();
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -1270,11 +1248,11 @@ public:
 	const size_t num_cells_wide = level_size / grid_cell_size;
 
 	float cached_y_min = numeric_limits<float>::max();
-	float cached_y_max = numeric_limits<float>::min();
+	float cached_y_max = -numeric_limits<float>::max();
 
 	map<size_t, float> cached_y_max_cells;
 	float cached_y_min_extent = numeric_limits<float>::max();
-	float cached_y_max_extent = numeric_limits<float>::min();
+	float cached_y_max_extent = -numeric_limits<float>::max();
 
 
 	//float get_neighbour_average_height(size_t x, size_t y)
@@ -1420,11 +1398,11 @@ public:
 		opengl_vertex_data.clear();
 
 		cached_y_min = numeric_limits<float>::max();
-		cached_y_max = numeric_limits<float>::min();
+		cached_y_max = -numeric_limits<float>::max();
 
 		cached_y_max_cells.clear();
 		cached_y_min_extent = numeric_limits<float>::max();
-		cached_y_max_extent = numeric_limits<float>::min();
+		cached_y_max_extent = -numeric_limits<float>::max();
 
 		ifstream infile(file_name, ifstream::ate | ifstream::binary);
 
@@ -1903,7 +1881,7 @@ public:
 
 	float get_y_max(void)
 	{
-		if (cached_y_max == numeric_limits<float>::min())
+		if (cached_y_max == -numeric_limits<float>::max())
 		{
 			for (size_t t = 0; t < tri_vec.size(); t++)
 			{
@@ -1944,7 +1922,7 @@ public:
 
 	float get_x_max(void)
 	{
-		float x_max = numeric_limits<float>::min();
+		float x_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -1986,7 +1964,7 @@ public:
 
 	float get_z_max(void)
 	{
-		float z_max = numeric_limits<float>::min();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t t = 0; t < tri_vec.size(); t++)
 		{
@@ -2036,7 +2014,7 @@ public:
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
 		float y_min = numeric_limits<float>::max();
-		float y_max = numeric_limits<float>::min();
+		float y_max = -numeric_limits<float>::max();
 
 		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 		{
@@ -2058,7 +2036,7 @@ public:
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
 		float x_min = numeric_limits<float>::max();
-		float x_max = numeric_limits<float>::min();
+		float x_max = -numeric_limits<float>::max();
 
 		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 		{
@@ -2080,7 +2058,7 @@ public:
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
 		float z_min = numeric_limits<float>::max();
-		float z_max = numeric_limits<float>::min();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 		{
@@ -2109,7 +2087,7 @@ public:
 		// If not in cache
 		if (ci == cached_y_max_cells.end())
 		{
-			ret = numeric_limits<float>::min();
+			ret = -numeric_limits<float>::max();
 
 			for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 			{
@@ -2131,25 +2109,6 @@ public:
 	}
 
 
-
-
-	//float get_y_max(size_t cell_x, size_t cell_y)
-	//{
-	//	size_t cell_index = cell_y * num_cells_wide + cell_x;
-
-	//	float y_max = numeric_limits<float>::min();
-
-	//	for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
-	//	{
-	//		for (size_t j = 0; j < 3; j++)
-	//		{
-	//			if (tri_vec[cell_index][i].vertex[j].y > y_max)
-	//				y_max = tri_vec[cell_index][i].vertex[j].y;
-	//		}
-	//	}
-
-	//	return y_max;
-	//}
 
 
 	float get_y_plane_min(size_t cell_x, size_t cell_y)
@@ -2179,6 +2138,37 @@ public:
 	}
 
 
+	float get_y_plane_max(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float y_max = -numeric_limits<float>::max();
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			for (size_t j = 0; j < 3; j++)
+			{
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+				{
+					vec3 a = normalize(vec3(tri_vec[cell_index][i].vertex[j].nx, tri_vec[cell_index][i].vertex[j].ny, tri_vec[cell_index][i].vertex[j].nz));
+					vec3 b(0, 1, 0);
+
+					//cout << dot(a, b) << endl;
+
+					if (dot(a, b) > 0.95)
+						y_max = tri_vec[cell_index][i].vertex[j].y;
+				}
+			}
+		}
+
+		return y_max;
+	}
+
+
+
+
+
+
 	float get_y_min(size_t cell_x, size_t cell_y)
 	{
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
@@ -2197,6 +2187,61 @@ public:
 		return y_min;
 	}
 
+	vec3 get_y_plane_centre(size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float x_min = numeric_limits<float>::max();
+		float y_min = numeric_limits<float>::max();
+		float z_min = numeric_limits<float>::max();
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
+
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			
+				vec3 a = normalize(vec3(tri_vec[cell_index][i].vertex[0].nx, tri_vec[cell_index][i].vertex[0].ny, tri_vec[cell_index][i].vertex[0].nz));
+				vec3 b(0, 1, 0);
+
+				//cout << dot(a, b) << endl;
+
+				if (dot(a, b) < 0.95)
+					continue;// y_max = tri_vec[cell_index][i].vertex[j].y;
+			
+
+
+
+			for (size_t j = 0; j < 3; j++)
+			{
+				if (tri_vec[cell_index][i].vertex[j].x < x_min)
+					x_min = tri_vec[cell_index][i].vertex[j].x;
+
+				if (tri_vec[cell_index][i].vertex[j].x > x_max)
+					x_max = tri_vec[cell_index][i].vertex[j].x;
+
+				if (tri_vec[cell_index][i].vertex[j].y < y_min)
+					y_min = tri_vec[cell_index][i].vertex[j].y;
+
+				if (tri_vec[cell_index][i].vertex[j].y > y_max)
+					y_max = tri_vec[cell_index][i].vertex[j].y;
+
+				if (tri_vec[cell_index][i].vertex[j].z < z_min)
+					z_min = tri_vec[cell_index][i].vertex[j].z;
+
+				if (tri_vec[cell_index][i].vertex[j].z > z_max)
+					z_max = tri_vec[cell_index][i].vertex[j].z;
+			}
+		}
+
+
+		vec3 ret((x_max + x_min) / 2.0f, (y_max + y_min) / 2.0f, (z_max + z_min) / 2.0f);
+
+		return ret;
+	}
+
+
 	vec3 get_centre(size_t cell_x, size_t cell_y)
 	{
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
@@ -2204,10 +2249,9 @@ public:
 		float x_min = numeric_limits<float>::max();
 		float y_min = numeric_limits<float>::max();
 		float z_min = numeric_limits<float>::max();
-		float x_max = numeric_limits<float>::min();
-		float y_max = numeric_limits<float>::min();
-		float z_max = numeric_limits<float>::min();
-
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
 
 		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
 		{

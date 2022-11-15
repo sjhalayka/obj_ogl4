@@ -1087,6 +1087,25 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 }
 
 
+void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
+{
+
+
+	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
+
+//	vec3 centre = board_mesh.get_y_plane_centre(x_cell, y_cell);
+
+
+	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
+	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
+
+//	centre.x += -player_game_piece_meshes[index].get_x_extent() * 0.5;// -board_mesh.get_z_extent(x_cell, y_cell) * 0.5;
+//	centre.z += -player_game_piece_meshes[index].get_z_extent() * 0.5;// -board_mesh.get_z_extent(x_cell, y_cell) * 0.5;
+
+	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
+}
+
+
 
 #endif
 
