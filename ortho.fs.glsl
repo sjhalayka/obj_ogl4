@@ -55,6 +55,8 @@ vec4 get_blurred_pixel(vec2 tc)
     */
     
     float x = clamp(distance_to_pixel, 0.0, 2*model_distance) / (2*model_distance);
+        
+    //float x = clamp((distance_to_pixel - model_distance) / model_distance, 0.0, 1.0);
 
     // tent function
     if(x > 0.5)
