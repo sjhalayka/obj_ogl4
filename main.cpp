@@ -6,7 +6,13 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	//if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	//{
+	//	cout << "Error: Could not properly read vox file" << endl;
+	//	return 2;
+	//}
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", "chr_knight.png", "chr_knight_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -45,6 +51,20 @@ int main(int argc, char** argv)
 	{
 		player_game_piece_meshes[i].model_mat = mat4(1.0f);
 	}
+
+
+	// todo: fix this
+
+	vec3 centre = board_mesh.get_centre(0, 0);
+	centre.y = board_mesh.get_y_plane_min(0, 0);
+	float mesh_y_extent = player_game_piece_meshes[0].get_y_extent();
+	centre.y += player_game_piece_meshes[0].get_y_extent() * 0.5;
+	centre.x += -player_game_piece_meshes[0].get_x_extent() * 0.5 - board_mesh.get_x_extent(0, 0) * 0.5;
+	centre.z += -player_game_piece_meshes[0].get_z_extent() * 0.5 - board_mesh.get_z_extent(0, 0) * 0.5;
+
+
+	player_game_piece_meshes[0].model_mat = translate(player_game_piece_meshes[0].model_mat, centre);
+
 
 	board_mesh.model_mat = mat4(1.0f);
 
@@ -199,9 +219,6 @@ void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
 	
-	//glUniform3f(glGetUniformLocation(tex_passthrough.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
-	//glUniform3f(glGetUniformLocation(tex_passthrough.get_program(), "model_pos"), m.x, m.y, m.z);
-
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "near"), main_camera.near_plane);
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "far"), main_camera.far_plane);
 

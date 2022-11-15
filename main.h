@@ -688,6 +688,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == upside_down && false == reflectance_only && false == solid_white)
 	{
+
+
+
 		glUseProgram(line_shader.get_program());
 
 		glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
@@ -721,6 +724,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
 		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
+		player_game_piece_meshes[0].draw_AABB(line_shader.get_program());
 	}
 
 	glDepthRange(0.0, 1.0);
@@ -989,11 +993,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-
-	
-
 
 
 
