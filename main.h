@@ -65,6 +65,12 @@ binned_mesh board_mesh;
 
 vector<vec3> colours;
 
+vec3 ray;
+vec3 collision_location;
+enum possible_collision_locations { player_game_piece, enemy_game_piece, game_board, background };
+possible_collision_locations col_loc = background;
+size_t collision_location_index = 0;
+
 
 vertex_fragment_shader point_shader;
 vertex_geometry_fragment_shader point_depth_shader;
@@ -114,8 +120,6 @@ bool rmb_down = false;
 int mouse_x = 0;
 int mouse_y = 0;
 
-vec3 ray;
-vec3 collision_location;
 
 
 bool screenshot_mode = false;
@@ -718,13 +722,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		glDepthRange(0.01, 1.0);
 
-		model = player_game_piece_meshes[0].model_mat;
-		mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-	
-		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
-		player_game_piece_meshes[0].draw_lines(line_shader.get_program());
-		player_game_piece_meshes[0].draw_AABB(line_shader.get_program());
+
+		for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+		{
+			model = player_game_piece_meshes[i].model_mat;
+			mvp = main_camera.projection_mat * main_camera.view_mat * model;
+			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+
+			glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
+			player_game_piece_meshes[i].draw_lines(line_shader.get_program());
+
+			if(i == collision_location_index)
+			player_game_piece_meshes[i].draw_AABB(line_shader.get_program());
+		}
 	}
 
 	glDepthRange(0.0, 1.0);
@@ -1089,18 +1099,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 {
-
-
 	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
-
-//	vec3 centre = board_mesh.get_y_plane_centre(x_cell, y_cell);
-
-
 	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
 	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
-
-//	centre.x += -player_game_piece_meshes[index].get_x_extent() * 0.5;// -board_mesh.get_z_extent(x_cell, y_cell) * 0.5;
-//	centre.z += -player_game_piece_meshes[index].get_z_extent() * 0.5;// -board_mesh.get_z_extent(x_cell, y_cell) * 0.5;
 
 	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
 }

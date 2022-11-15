@@ -214,7 +214,7 @@ void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
-	const vec3 m = vec3(player_game_piece_meshes[0].model_mat[3].x, player_game_piece_meshes[0].model_mat[3].y, player_game_piece_meshes[0].model_mat[3].z);
+	const vec3 m = vec3(player_game_piece_meshes[collision_location_index].model_mat[3].x, player_game_piece_meshes[collision_location_index].model_mat[3].y, player_game_piece_meshes[collision_location_index].model_mat[3].z);
 	const vec3 m2 = main_camera.eye;
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
@@ -625,6 +625,112 @@ void mouse_func(int button, int state, int x, int y)
 	{
 		if (GLUT_DOWN == state)
 		{
+			ray = screen_coords_to_world_coords(x, y, win_x, win_y);
+
+			float t = 0;
+
+			bool first_assignment = true;
+			mat4 collision_transform(1.0f);
+
+
+
+			for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+			{
+				mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
+				vec4 start = inv * vec4(main_camera.eye, 1.0);
+				vec4 direction = inv * vec4(ray, 0.0);
+				direction = normalize(direction);
+
+				if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
+				{
+					vec3 closest_intersection_point;
+
+					if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point))
+					{
+						closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+						if (first_assignment)
+						{
+							collision_location = closest_intersection_point;
+
+							col_loc = player_game_piece;
+							collision_location_index = i;
+
+							first_assignment = false;
+							collision_transform = inv;
+						}
+						else
+						{
+							vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+							vec3 c1 = vec3(main_camera.eye) - collision_location;
+
+							if (length(c0) < length(c1))
+							{
+								collision_location = closest_intersection_point;
+
+								col_loc = player_game_piece;
+								collision_location_index = i;
+								collision_transform = inv;
+							}
+						}
+					}
+				}
+			}
+
+			/*
+			for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
+			{
+				mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
+				vec4 start = inv * vec4(main_camera.eye, 1.0);
+				vec4 direction = inv * vec4(ray, 0.0);
+				direction = normalize(direction);
+
+				if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
+				{
+					vec3 closest_intersection_point;
+
+					if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point))
+					{
+						closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+						if (first_assignment)
+						{
+							collision_location = closest_intersection_point;
+
+							col_loc = enemy_game_piece;
+							collision_location_index = i;
+
+							first_assignment = false;
+							collision_transform = inv;
+						}
+						else
+						{
+							vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+							vec3 c1 = vec3(main_camera.eye) - collision_location;
+
+							if (length(c0) < length(c1))
+							{
+								collision_location = closest_intersection_point;
+
+								col_loc = enemy_game_piece;
+								collision_location_index = i;
+								collision_transform = inv;
+							}
+						}
+					}
+				}
+			}
+			*/
+
+			collision_location = collision_transform * vec4(collision_location, 1);
+
+			if (first_assignment)
+			{
+				collision_location = vec3(0, 0, 0);
+				col_loc = background;
+				collision_transform = mat4(1.0f);
+			}
+
 			lmb_down = true;
 		}
 		else
