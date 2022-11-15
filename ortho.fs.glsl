@@ -36,9 +36,9 @@ vec4 get_blurred_pixel(vec2 tc)
 	float depth_colour = texture(depth_tex, tc).r;
 
     float distance_to_pixel = to_distance(depth_colour);
-    
-    float x = clamp((distance_to_pixel - model_distance) / (model_distance), 0.0, 1.0);
-   
+
+    float x = clamp(distance_to_pixel, 0.0, 2*model_distance) / (2*model_distance);
+
     // tent function
     if(x > 0.5)
          x = 1.0 - x;
@@ -68,7 +68,7 @@ vec4 get_blurred_pixel(vec2 tc)
 // https://www.blitzcoder.org/forum/topic.php?id=124
 void main()
 {
-    frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb; //;
+    frag_colour.rgb = get_blurred_pixel(ftexcoord).rgb;
     frag_colour.a = 1.0;    
 }
 
