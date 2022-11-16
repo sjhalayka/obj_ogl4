@@ -1364,7 +1364,7 @@ public:
 	vector<vec3> bin_min_locations;
 	vector<vec3> bin_max_locations;
 
-	void calc_bin_AABB_min_max_locations(void)//size_t cell_x, size_t cell_y)
+	void calc_bin_AABB_min_max_locations(void)
 	{
 		bin_min_locations.clear();
 		bin_min_locations.resize(num_cells_wide*num_cells_wide);
@@ -2548,6 +2548,107 @@ public:
 		calc_bin_AABB_min_max_locations();
 	}
 
+	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+	bool intersect_bin_AABB(vec3 ray_origin, vec3 ray_dir, size_t cell_x, size_t cell_y)
+	{
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		float tmin = (bin_min_locations[cell_index].x - ray_origin.x) / ray_dir.x;
+		float tmax = (bin_max_locations[cell_index].x - ray_origin.x) / ray_dir.x;
+
+		if (tmin > tmax) swap(tmin, tmax);
+
+		float tymin = (bin_min_locations[cell_index].y - ray_origin.y) / ray_dir.y;
+		float tymax = (bin_max_locations[cell_index].y - ray_origin.y) / ray_dir.y;
+
+		if (tymin > tymax) swap(tymin, tymax);
+
+		if ((tmin > tymax) || (tymin > tmax))
+			return false;
+
+		if (tymin > tmin)
+			tmin = tymin;
+
+		if (tymax < tmax)
+			tmax = tymax;
+
+		float tzmin = (bin_min_locations[cell_index].z - ray_origin.z) / ray_dir.z;
+		float tzmax = (bin_max_locations[cell_index].z - ray_origin.z) / ray_dir.z;
+
+		if (tzmin > tzmax) swap(tzmin, tzmax);
+
+		if ((tmin > tzmax) || (tzmin > tmax))
+			return false;
+
+		if (tzmin > tmin)
+			tmin = tzmin;
+
+		if (tzmax < tmax)
+			tmax = tzmax;
+
+		return true;
+	}
+
+
+	bool intersect_triangles(vec3 ray_origin, vec3 ray_dir, vec3& closest_intersection_point, size_t cell_x, size_t cell_y)
+	{
+		if (false == intersect_bin_AABB(ray_origin, ray_dir, cell_x, cell_y))
+			return false;
+
+		bool global_found_intersection = false;
+		bool first_assignment = true;
+
+		size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+		for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+		{
+			vec3 v0;
+			v0.x = tri_vec[cell_index][i].vertex[0].x;
+			v0.y = tri_vec[cell_index][i].vertex[0].y;
+			v0.z = tri_vec[cell_index][i].vertex[0].z;
+
+			vec3 v1;
+			v1.x = tri_vec[cell_index][i].vertex[1].x;
+			v1.y = tri_vec[cell_index][i].vertex[1].y;
+			v1.z = tri_vec[cell_index][i].vertex[1].z;
+
+			vec3 v2;
+			v2.x = tri_vec[cell_index][i].vertex[2].x;
+			v2.y = tri_vec[cell_index][i].vertex[2].y;
+			v2.z = tri_vec[cell_index][i].vertex[2].z;
+
+			vec3 closest;
+			bool found_intersection = RayIntersectsTriangle(ray_origin,
+				ray_dir,
+				v0, v1, v2,
+				closest);
+
+			if (true == found_intersection)
+			{
+				global_found_intersection = true;
+
+				if (first_assignment)
+				{
+					closest_intersection_point = closest;
+					first_assignment = false;
+
+					//if (abort_early)
+					//	return global_found_intersection;
+				}
+				else
+				{
+					vec3 c0 = ray_origin - closest;
+					vec3 c1 = ray_origin - closest_intersection_point;
+
+					if (length(c0) < length(c1))
+						closest_intersection_point = closest;
+				}
+			}
+		}
+
+
+		return global_found_intersection;
+	}
 
 
 

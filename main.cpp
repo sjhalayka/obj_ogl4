@@ -625,13 +625,19 @@ void get_hover_collision_location(size_t x, size_t y)
 	{
 		vec3 closest_intersection_point;
 
-		if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, true))
+		for (size_t cell_x = 0; cell_x < board_mesh.num_cells_wide; cell_x++)
 		{
-			closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+			for (size_t cell_y = 0; cell_y < board_mesh.num_cells_wide; cell_y++)
+			{
+				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, cell_x, cell_y))
+				{
+					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
 
-			hover_collision_location = closest_intersection_point;
-			hover_col_loc = game_board;
-			first_assignment = false;
+					hover_collision_location = closest_intersection_point;
+					hover_col_loc = game_board;
+					first_assignment = false;
+				}
+			}
 		}
 	}
 
@@ -763,13 +769,19 @@ void get_collision_location(size_t x, size_t y)
 	{
 		vec3 closest_intersection_point;
 
-		if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, true))
+		for (size_t cell_x = 0; cell_x < board_mesh.num_cells_wide; cell_x++)
 		{
-			closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+			for (size_t cell_y = 0; cell_y < board_mesh.num_cells_wide; cell_y++)
+			{
+				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, cell_x, cell_y))
+				{
+					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
 
-			clicked_collision_location = closest_intersection_point;
-			clicked_col_loc = game_board;
-			first_assignment = false;
+					clicked_collision_location = closest_intersection_point;
+					clicked_col_loc = game_board;
+					first_assignment = false;
+				}
+			}
 		}
 	}
 
