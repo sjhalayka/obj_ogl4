@@ -740,8 +740,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
 			player_game_piece_meshes[i].draw_lines(line_shader.get_program());
 
-			if(clicked_col_loc == player_game_piece && i == clicked_collision_location_index)
-			player_game_piece_meshes[i].draw_AABB(line_shader.get_program());
+			//if(clicked_col_loc == player_game_piece && i == clicked_collision_location_index)
+			//player_game_piece_meshes[i].draw_AABB(line_shader.get_program());
 		}
 	}
 
@@ -927,6 +927,42 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+
+
+				if (hover_col_loc == game_board && hover_cell_x == x && hover_cell_y == y)
+				{
+					if(reflectance_only)
+						glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+					else
+						glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0);
+
+					board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+				}
+
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+
+
+
+
+				//	enum possible_collision_locations { player_game_piece, enemy_game_piece, game_board, background };
+
+				//	vec3 clicked_collision_location;
+				//	size_t clicked_collision_location_index = 0;
+				//	possible_collision_locations clicked_col_loc = background;
+				//	size_t clicked_cell_x, clicked_cell_y;
+
+
+				//vec3 hover_collision_location;
+				//size_t hover_collision_location_index = 0;
+				//possible_collision_locations hover_col_loc = background;
+				//size_t hover_cell_x, hover_cell_y;
+
+
+
+
+
 			}
 		}
 	}
@@ -989,6 +1025,24 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+
+
+					//if (solid_white)
+					//{
+					//	glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+					//}
+
+					//else
+					//{
+					//	glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+					//}
+
+					//	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+
+					//if (hover_col_loc == game_board && hover_cell_x == n[i].x && hover_cell_y == n[i].y)
+					//	board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+
+					//glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 
 
 

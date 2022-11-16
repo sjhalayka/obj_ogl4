@@ -56,7 +56,7 @@ vec4 get_blurred_pixel(vec2 tc)
     if(x > 0.5)
          x = 1.0 - x;
 
-  x = 1.0 - pow(x, 1.0/10.0);
+     x = 1.0 - pow(x, 1.0/10.0);
 
 
 
