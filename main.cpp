@@ -625,15 +625,46 @@ void mouse_func(int button, int state, int x, int y)
 	{
 		if (GLUT_DOWN == state)
 		{
+			// Get closest intersection point
+
 			ray = screen_coords_to_world_coords(x, y, win_x, win_y);
 
 			float t = 0;
 
+			col_loc = background;
 			bool first_assignment = true;
 			mat4 collision_transform(1.0f);
+			
+			mat4 inv = inverse(board_mesh.model_mat);
+			vec4 start = inv * vec4(main_camera.eye, 1.0);
+			vec4 direction = inv * vec4(ray, 0.0);
+			direction = normalize(direction);
 
+			if (true == board_mesh.intersect_AABB(start, direction))
+			{
+				vec3 closest_intersection_point;
 
+				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point))
+				{
+					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
 
+					collision_location = closest_intersection_point;
+					col_loc = game_board;
+					first_assignment = false;
+					collision_transform = inv;
+				}
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 			{
 				mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
@@ -677,7 +708,7 @@ void mouse_func(int button, int state, int x, int y)
 				}
 			}
 
-			/*
+			
 			for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
 			{
 				mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
@@ -720,10 +751,8 @@ void mouse_func(int button, int state, int x, int y)
 					}
 				}
 			}
-			*/
 
-			collision_location = collision_transform * vec4(collision_location, 1);
-
+			// Nothing was clicked on, so the background is set
 			if (first_assignment)
 			{
 				collision_location = vec3(0, 0, 0);
