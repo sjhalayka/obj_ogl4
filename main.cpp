@@ -87,25 +87,6 @@ int main(int argc, char** argv)
 
 
 
-	vec3 c;
-
-	c.x = 1.0f;
-	c.y = 0.0f;
-	c.z = 0.0f;
-
-	colours.push_back(c);
-
-	c.x = 0.0f;
-	c.y = 1.0f;
-	c.z = 0.0f;
-
-	colours.push_back(c);
-
-	c.x = 0.0f;
-	c.y = 0.0f;
-	c.z = 1.0f;
-	colours.push_back(c);
-
 
 
 
@@ -214,7 +195,7 @@ void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_width"), win_x);
 	glUniform1i(glGetUniformLocation(tex_passthrough.get_program(), "img_height"), win_y);
 
-	const vec3 m = vec3(player_game_piece_meshes[collision_location_index].model_mat[3].x, player_game_piece_meshes[collision_location_index].model_mat[3].y, player_game_piece_meshes[collision_location_index].model_mat[3].z);
+	const vec3 m = vec3(player_game_piece_meshes[clicked_collision_location_index].model_mat[3].x, player_game_piece_meshes[clicked_collision_location_index].model_mat[3].y, player_game_piece_meshes[clicked_collision_location_index].model_mat[3].z);
 	const vec3 m2 = main_camera.eye;
 
 	glUniform1f(glGetUniformLocation(tex_passthrough.get_program(), "model_distance"), distance(m, m2));
@@ -617,6 +598,276 @@ void display_func(void)
 
 
 
+void get_hover_collision_location(size_t x, size_t y)
+{
+	// Get intersection point closest to camera
+
+	vec3 ray = screen_coords_to_world_coords(x, y, win_x, win_y);
+
+	float t = 0;
+
+	hover_col_loc = background;
+	bool first_assignment = true;
+
+	mat4 inv = inverse(board_mesh.model_mat);
+	vec4 start = inv * vec4(main_camera.eye, 1.0);
+	vec4 direction = inv * vec4(ray, 0.0);
+	direction = normalize(direction);
+
+	if (true == board_mesh.intersect_AABB(start, direction))
+	{
+		vec3 closest_intersection_point;
+
+		if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, true))
+		{
+			closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+
+			hover_collision_location = closest_intersection_point;
+			hover_col_loc = game_board;
+			first_assignment = false;
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
+		mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+				if (first_assignment)
+				{
+					hover_collision_location = closest_intersection_point;
+
+					hover_col_loc = player_game_piece;
+					hover_collision_location_index = i;
+
+					first_assignment = false;
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - hover_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						hover_collision_location = closest_intersection_point;
+
+						hover_col_loc = player_game_piece;
+						hover_collision_location_index = i;
+					}
+				}
+			}
+		}
+	}
+
+
+	for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
+	{
+		mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+				if (first_assignment)
+				{
+					hover_collision_location = closest_intersection_point;
+
+					hover_col_loc = enemy_game_piece;
+					hover_collision_location_index = i;
+
+					first_assignment = false;
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - hover_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						hover_collision_location = closest_intersection_point;
+
+						hover_col_loc = enemy_game_piece;
+						hover_collision_location_index = i;
+
+					}
+				}
+			}
+		}
+	}
+
+	// Nothing was clicked on, so the background is set
+	if (first_assignment)
+	{
+		hover_collision_location = vec3(0, 0, 0);
+		hover_col_loc = background;
+	}
+
+}
+
+
+
+
+
+
+void get_collision_location(size_t x, size_t y)
+{
+	// Get intersection point closest to camera
+
+	vec3 ray = screen_coords_to_world_coords(x, y, win_x, win_y);
+
+	float t = 0;
+
+	clicked_col_loc = background;
+	bool first_assignment = true;
+
+	mat4 inv = inverse(board_mesh.model_mat);
+	vec4 start = inv * vec4(main_camera.eye, 1.0);
+	vec4 direction = inv * vec4(ray, 0.0);
+	direction = normalize(direction);
+
+	if (true == board_mesh.intersect_AABB(start, direction))
+	{
+		vec3 closest_intersection_point;
+
+		if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, true))
+		{
+			closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+
+			clicked_collision_location = closest_intersection_point;
+			clicked_col_loc = game_board;
+			first_assignment = false;
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
+		mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+				if (first_assignment)
+				{
+					clicked_collision_location = closest_intersection_point;
+
+					clicked_col_loc = player_game_piece;
+					clicked_collision_location_index = i;
+
+					first_assignment = false;
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - clicked_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						clicked_collision_location = closest_intersection_point;
+
+						clicked_col_loc = player_game_piece;
+						clicked_collision_location_index = i;
+					}
+				}
+			}
+		}
+	}
+
+
+	for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
+	{
+		mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+				if (first_assignment)
+				{
+					clicked_collision_location = closest_intersection_point;
+
+					clicked_col_loc = enemy_game_piece;
+					clicked_collision_location_index = i;
+
+					first_assignment = false;
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - clicked_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						clicked_collision_location = closest_intersection_point;
+
+						clicked_col_loc = enemy_game_piece;
+						clicked_collision_location_index = i;
+					}
+				}
+			}
+		}
+	}
+
+	// Nothing was clicked on, so the background is set
+	if (first_assignment)
+	{
+		clicked_collision_location = vec3(0, 0, 0);
+		clicked_col_loc = background;
+	}
+
+}
+
 
 
 void mouse_func(int button, int state, int x, int y)
@@ -625,140 +876,7 @@ void mouse_func(int button, int state, int x, int y)
 	{
 		if (GLUT_DOWN == state)
 		{
-			// Get closest intersection point
-
-			ray = screen_coords_to_world_coords(x, y, win_x, win_y);
-
-			float t = 0;
-
-			col_loc = background;
-			bool first_assignment = true;
-			mat4 collision_transform(1.0f);
-			
-			mat4 inv = inverse(board_mesh.model_mat);
-			vec4 start = inv * vec4(main_camera.eye, 1.0);
-			vec4 direction = inv * vec4(ray, 0.0);
-			direction = normalize(direction);
-
-			if (true == board_mesh.intersect_AABB(start, direction))
-			{
-				vec3 closest_intersection_point;
-
-				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point))
-				{
-					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
-
-					collision_location = closest_intersection_point;
-					col_loc = game_board;
-					first_assignment = false;
-					collision_transform = inv;
-				}
-			}
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
-			{
-				mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
-				vec4 start = inv * vec4(main_camera.eye, 1.0);
-				vec4 direction = inv * vec4(ray, 0.0);
-				direction = normalize(direction);
-
-				if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
-				{
-					vec3 closest_intersection_point;
-
-					if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point))
-					{
-						closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
-
-						if (first_assignment)
-						{
-							collision_location = closest_intersection_point;
-
-							col_loc = player_game_piece;
-							collision_location_index = i;
-
-							first_assignment = false;
-							collision_transform = inv;
-						}
-						else
-						{
-							vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
-							vec3 c1 = vec3(main_camera.eye) - collision_location;
-
-							if (length(c0) < length(c1))
-							{
-								collision_location = closest_intersection_point;
-
-								col_loc = player_game_piece;
-								collision_location_index = i;
-								collision_transform = inv;
-							}
-						}
-					}
-				}
-			}
-
-			
-			for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
-			{
-				mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
-				vec4 start = inv * vec4(main_camera.eye, 1.0);
-				vec4 direction = inv * vec4(ray, 0.0);
-				direction = normalize(direction);
-
-				if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
-				{
-					vec3 closest_intersection_point;
-
-					if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point))
-					{
-						closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
-
-						if (first_assignment)
-						{
-							collision_location = closest_intersection_point;
-
-							col_loc = enemy_game_piece;
-							collision_location_index = i;
-
-							first_assignment = false;
-							collision_transform = inv;
-						}
-						else
-						{
-							vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
-							vec3 c1 = vec3(main_camera.eye) - collision_location;
-
-							if (length(c0) < length(c1))
-							{
-								collision_location = closest_intersection_point;
-
-								col_loc = enemy_game_piece;
-								collision_location_index = i;
-								collision_transform = inv;
-							}
-						}
-					}
-				}
-			}
-
-			// Nothing was clicked on, so the background is set
-			if (first_assignment)
-			{
-				collision_location = vec3(0, 0, 0);
-				col_loc = background;
-				collision_transform = mat4(1.0f);
-			}
+			get_collision_location(x, y);
 
 			lmb_down = true;
 		}
@@ -789,6 +907,7 @@ void motion_func(int x, int y)
 	mouse_x = x;
 	mouse_y = y;
 
+
 	int mouse_delta_x = mouse_x - prev_mouse_x;
 	int mouse_delta_y = prev_mouse_y - mouse_y;
 
@@ -814,6 +933,8 @@ void passive_motion_func(int x, int y)
 {
 	mouse_x = x;
 	mouse_y = y;
+
+	get_hover_collision_location(x, y);
 }
 
 

@@ -218,7 +218,7 @@ public:
 	}
 
 	
-	bool intersect_triangles(vec3 ray_origin, vec3 ray_dir, vec3& closest_intersection_point)
+	bool intersect_triangles(vec3 ray_origin, vec3 ray_dir, vec3& closest_intersection_point, bool abort_early)
 	{
 		bool global_found_intersection = false;
 		bool first_assignment = true;
@@ -257,6 +257,9 @@ public:
 					{
 						closest_intersection_point = closest;
 						first_assignment = false;
+
+						if (abort_early)
+							return global_found_intersection;
 					}
 					else
 					{
@@ -1000,11 +1003,6 @@ public:
 
 	bool read_quads_from_vox_file(string file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
 	{
-		//	bool read_quads_from_vox_file(string file_name, bool cull_faces)
-		//	{
-
-
-
 		tri_vec.clear();
 		opengl_vertex_data.clear();
 
