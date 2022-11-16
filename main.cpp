@@ -98,6 +98,13 @@ int main(int argc, char** argv)
 		return 1;
 	
 
+	main_camera.u = 0;
+	main_camera.v = glm::pi<float>() - pi<float>()/4;
+	main_camera.w = 25.0f;
+
+
+	main_camera.calculate_camera_matrices(win_x, win_y, true);
+
 	glutReshapeFunc(reshape_func);
 	glutIdleFunc(idle_func);
 	glutDisplayFunc(display_func);
