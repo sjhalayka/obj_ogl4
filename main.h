@@ -69,10 +69,13 @@ enum possible_collision_locations { player_game_piece, enemy_game_piece, game_bo
 vec3 clicked_collision_location;
 size_t clicked_collision_location_index = 0;
 possible_collision_locations clicked_col_loc = background;
+size_t clicked_cell_x, clicked_cell_y;
+
 
 vec3 hover_collision_location;
 size_t hover_collision_location_index = 0;
 possible_collision_locations hover_col_loc = background;
+size_t hover_cell_x, hover_cell_y;
 
 
 

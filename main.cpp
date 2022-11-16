@@ -635,6 +635,8 @@ void get_hover_collision_location(size_t x, size_t y)
 
 					hover_collision_location = closest_intersection_point;
 					hover_col_loc = game_board;
+					hover_cell_x = cell_x;
+					hover_cell_y = cell_y;
 					first_assignment = false;
 				}
 			}
@@ -779,6 +781,8 @@ void get_collision_location(size_t x, size_t y)
 
 					clicked_collision_location = closest_intersection_point;
 					clicked_col_loc = game_board;
+					clicked_cell_x = cell_x;
+					clicked_cell_y = cell_y;
 					first_assignment = false;
 				}
 			}
