@@ -404,44 +404,12 @@ public:
 		max_location.z = z_max;
 	}
 
-	//void draw_AABB(void)
-	//{
-	//	//glBegin(GL_LINE_LOOP);
 
-	//	//glVertex3f(min_location.x, max_location.y, min_location.z);
-	//	//glVertex3f(min_location.x, min_location.y, min_location.z);
-	//	//glVertex3f(max_location.x, min_location.y, min_location.z);
-	//	//glVertex3f(max_location.x, max_location.y, min_location.z);
-
-	//	//glEnd();
-
-	//	//glBegin(GL_LINE_LOOP);
-
-	//	//glVertex3f(min_location.x, max_location.y, max_location.z);
-	//	//glVertex3f(min_location.x, min_location.y, max_location.z);
-	//	//glVertex3f(max_location.x, min_location.y, max_location.z);
-	//	//glVertex3f(max_location.x, max_location.y, max_location.z);
-
-	//	//glEnd();
-
-	//	glBegin(GL_LINES);
-
-	//	glVertex3f(max_location.x, min_location.y, min_location.z);
-	//	glVertex3f(max_location.x, min_location.y, max_location.z);
-
-	//	glVertex3f(min_location.x, max_location.y, min_location.z);
-	//	glVertex3f(min_location.x, max_location.y, max_location.z);
-
-	//	glVertex3f(max_location.x, max_location.y, min_location.z);
-	//	glVertex3f(max_location.x, max_location.y, max_location.z);
-
-	//	glVertex3f(min_location.x, min_location.y, min_location.z);
-	//	glVertex3f(min_location.x, min_location.y, max_location.z);
-
-	//	glEnd();
-	//}
 
 	vec3 min_location, max_location;
+
+
+
 
 	GLuint colour_tex = 0;
 	GLuint specular_tex = 0;
@@ -1392,6 +1360,116 @@ public:
 	float cached_y_min_extent = numeric_limits<float>::max();
 	float cached_y_max_extent = -numeric_limits<float>::max();
 
+
+	vector<vec3> bin_min_locations;
+	vector<vec3> bin_max_locations;
+
+	void calc_bin_AABB_min_max_locations(void)//size_t cell_x, size_t cell_y)
+	{
+		bin_min_locations.clear();
+		bin_min_locations.resize(num_cells_wide*num_cells_wide);
+
+		bin_max_locations.clear();
+		bin_max_locations.resize(num_cells_wide * num_cells_wide);
+
+		for (size_t cell_x = 0; cell_x < num_cells_wide; cell_x++)
+		{
+			for (size_t cell_y = 0; cell_y < num_cells_wide; cell_y++)
+			{
+				size_t cell_index = cell_y * num_cells_wide + cell_x;
+
+				float x_min = numeric_limits<float>::max();
+				float y_min = numeric_limits<float>::max();
+				float z_min = numeric_limits<float>::max();
+				float x_max = -numeric_limits<float>::max();
+				float y_max = -numeric_limits<float>::max();
+				float z_max = -numeric_limits<float>::max();
+
+
+					for (size_t i = 0; i < tri_vec[cell_index].size(); i++)
+					{
+						for (size_t j = 0; j < 3; j++)
+						{
+							if (tri_vec[cell_index][i].vertex[j].x < x_min)
+								x_min = tri_vec[cell_index][i].vertex[j].x;
+
+							if (tri_vec[cell_index][i].vertex[j].x > x_max)
+								x_max = tri_vec[cell_index][i].vertex[j].x;
+
+							if (tri_vec[cell_index][i].vertex[j].y < y_min)
+								y_min = tri_vec[cell_index][i].vertex[j].y;
+
+							if (tri_vec[cell_index][i].vertex[j].y > y_max)
+								y_max = tri_vec[cell_index][i].vertex[j].y;
+
+							if (tri_vec[cell_index][i].vertex[j].z < z_min)
+								z_min = tri_vec[cell_index][i].vertex[j].z;
+
+							if (tri_vec[cell_index][i].vertex[j].z > z_max)
+								z_max = tri_vec[cell_index][i].vertex[j].z;
+						}
+					}
+
+					bin_min_locations[cell_index].x = x_min;
+					bin_min_locations[cell_index].y = y_min;
+					bin_min_locations[cell_index].z = z_min;
+
+					bin_max_locations[cell_index].x = x_max;
+					bin_max_locations[cell_index].y = y_max;
+					bin_max_locations[cell_index].z = z_max;
+
+
+
+
+
+			}
+		}
+
+
+
+
+		float x_min = numeric_limits<float>::max();
+		float y_min = numeric_limits<float>::max();
+		float z_min = numeric_limits<float>::max();
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].x < x_min)
+						x_min = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].x > x_max)
+						x_max = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].z < z_min)
+						z_min = tri_vec[t][i].vertex[j].z;
+
+					if (tri_vec[t][i].vertex[j].z > z_max)
+						z_max = tri_vec[t][i].vertex[j].z;
+				}
+			}
+		}
+
+		min_location.x = x_min;
+		min_location.y = y_min;
+		min_location.z = z_min;
+
+		max_location.x = x_max;
+		max_location.y = y_max;
+		max_location.z = z_max;
+	}
 
 	//float get_neighbour_average_height(size_t x, size_t y)
 	//{
@@ -2420,5 +2498,57 @@ public:
 
 		return ret;
 	}
+
+
+
+	void calc_AABB_min_max_locations(void)
+	{
+		float x_min = numeric_limits<float>::max();
+		float y_min = numeric_limits<float>::max();
+		float z_min = numeric_limits<float>::max();
+		float x_max = -numeric_limits<float>::max();
+		float y_max = -numeric_limits<float>::max();
+		float z_max = -numeric_limits<float>::max();
+
+		for (size_t t = 0; t < tri_vec.size(); t++)
+		{
+			for (size_t i = 0; i < tri_vec[t].size(); i++)
+			{
+				for (size_t j = 0; j < 3; j++)
+				{
+					if (tri_vec[t][i].vertex[j].x < x_min)
+						x_min = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].x > x_max)
+						x_max = tri_vec[t][i].vertex[j].x;
+
+					if (tri_vec[t][i].vertex[j].y < y_min)
+						y_min = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].y > y_max)
+						y_max = tri_vec[t][i].vertex[j].y;
+
+					if (tri_vec[t][i].vertex[j].z < z_min)
+						z_min = tri_vec[t][i].vertex[j].z;
+
+					if (tri_vec[t][i].vertex[j].z > z_max)
+						z_max = tri_vec[t][i].vertex[j].z;
+				}
+			}
+		}
+
+		min_location.x = x_min;
+		min_location.y = y_min;
+		min_location.z = z_min;
+
+		max_location.x = x_max;
+		max_location.y = y_max;
+		max_location.z = z_max;
+
+		calc_bin_AABB_min_max_locations();
+	}
+
+
+
 
 };
