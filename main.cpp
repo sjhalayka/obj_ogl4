@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 	
 
 	main_camera.u = 0;
-	main_camera.v = glm::pi<float>() - pi<float>()/4;
+	main_camera.v = glm::pi<float>();// -pi<float>() / 4;
 	main_camera.w = 25.0f;
 
 
@@ -616,11 +616,11 @@ void get_hover_collision_location(size_t x, size_t y)
 	hover_col_loc = background;
 	bool first_assignment = true;
 
-	mat4 inv = inverse(board_mesh.model_mat);
-	vec4 start = inv * vec4(main_camera.eye, 1.0);
-	vec4 direction = inv * vec4(ray, 0.0);
+	vec4 start = vec4(main_camera.eye, 1.0);
+	vec4 direction = vec4(ray, 0.0);
 	direction = normalize(direction);
-
+	
+	// bounding box is axis aligned for the board mesh
 	if (true == board_mesh.intersect_AABB(start, direction))
 	{
 		vec3 closest_intersection_point;
@@ -721,11 +721,12 @@ void get_collision_location(size_t x, size_t y)
 	clicked_col_loc = background;
 	bool first_assignment = true;
 
-	mat4 inv = inverse(board_mesh.model_mat);
-	vec4 start = inv * vec4(main_camera.eye, 1.0);
-	vec4 direction = inv * vec4(ray, 0.0);
+	vec4 start = vec4(main_camera.eye, 1.0);
+	vec4 direction = vec4(ray, 0.0);
 	direction = normalize(direction);
 
+	// bounding box is axis aligned for the board mesh
+	// bounding box is centred on xyz -- the mesh model matrix is the identity matrix
 	if (true == board_mesh.intersect_AABB(start, direction))
 	{
 		vec3 closest_intersection_point;
@@ -760,6 +761,7 @@ void get_collision_location(size_t x, size_t y)
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
+		// Not necessarily axis-aligned (characters can rotate)
 		mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
 		vec4 start = inv * vec4(main_camera.eye, 1.0);
 		vec4 direction = inv * vec4(ray, 0.0);
