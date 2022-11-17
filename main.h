@@ -695,6 +695,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 
@@ -843,6 +845,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+		
+		
+			if (hover_col_loc == player_game_piece && j == hover_collision_location_index)
+			{
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
+				player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+			}
 		}
 	}
 	else
@@ -887,6 +900,29 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+
+
+
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
+
+
+			if (hover_col_loc == player_game_piece && j == hover_collision_location_index)
+			{
+				//if (reflectance_only)
+					glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
+				//else
+				//{
+				//	glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
+				//}
+
+
+				player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+
+			}
+
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
+
+
 		}
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
@@ -909,8 +945,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 
