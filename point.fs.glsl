@@ -34,7 +34,7 @@ uniform int do_proj_tex = 0;
 uniform float far_plane;
 uniform int shadows = 1;
 uniform int flat_draw = 0;
-uniform vec3 flat_colour;
+uniform vec4 flat_colour;
 
 
 uniform int specular_only = 0;
@@ -189,7 +189,7 @@ void main()
 {
     if(flat_draw == 1)
 	{
-		FragColor = vec4(flat_colour, 1.0);
+		FragColor = vec4(flat_colour.r, flat_colour.g, flat_colour.b, flat_colour.a);
 		return;
 	}
 

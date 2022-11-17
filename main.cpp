@@ -695,47 +695,6 @@ void get_hover_collision_location(size_t x, size_t y)
 	}
 
 
-	for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
-	{
-		mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
-		vec4 start = inv * vec4(main_camera.eye, 1.0);
-		vec4 direction = inv * vec4(ray, 0.0);
-		direction = normalize(direction);
-
-		if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
-		{
-			vec3 closest_intersection_point;
-
-			if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
-			{
-				closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
-
-				if (first_assignment)
-				{
-					hover_collision_location = closest_intersection_point;
-
-					hover_col_loc = enemy_game_piece;
-					hover_collision_location_index = i;
-
-					first_assignment = false;
-				}
-				else
-				{
-					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
-					vec3 c1 = vec3(main_camera.eye) - hover_collision_location;
-
-					if (length(c0) < length(c1))
-					{
-						hover_collision_location = closest_intersection_point;
-
-						hover_col_loc = enemy_game_piece;
-						hover_collision_location_index = i;
-
-					}
-				}
-			}
-		}
-	}
 
 	// Nothing was clicked on, so the background is set
 	if (first_assignment)
@@ -840,47 +799,6 @@ void get_collision_location(size_t x, size_t y)
 		}
 	}
 
-
-	for (size_t i = 0; i < enemy_game_piece_meshes.size(); i++)
-	{
-		mat4 inv = inverse(enemy_game_piece_meshes[i].model_mat);
-		vec4 start = inv * vec4(main_camera.eye, 1.0);
-		vec4 direction = inv * vec4(ray, 0.0);
-		direction = normalize(direction);
-
-		if (true == enemy_game_piece_meshes[i].intersect_AABB(start, direction))
-		{
-			vec3 closest_intersection_point;
-
-			if (true == enemy_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
-			{
-				closest_intersection_point = enemy_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
-
-				if (first_assignment)
-				{
-					clicked_collision_location = closest_intersection_point;
-
-					clicked_col_loc = enemy_game_piece;
-					clicked_collision_location_index = i;
-
-					first_assignment = false;
-				}
-				else
-				{
-					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
-					vec3 c1 = vec3(main_camera.eye) - clicked_collision_location;
-
-					if (length(c0) < length(c1))
-					{
-						clicked_collision_location = closest_intersection_point;
-
-						clicked_col_loc = enemy_game_piece;
-						clicked_collision_location_index = i;
-					}
-				}
-			}
-		}
-	}
 
 	// Nothing was clicked on, so the background is set
 	if (first_assignment)

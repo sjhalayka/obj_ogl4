@@ -58,13 +58,13 @@ void passive_motion_func(int x, int y);
 mt19937 mt_rand(0);// static_cast<unsigned int>(time(0)));
 
 vector<mesh> player_game_piece_meshes; 
-vector<mesh> enemy_game_piece_meshes;
+//vector<mesh> enemy_game_piece_meshes;
 mesh light_mesh;
 binned_mesh board_mesh;
 
 
 
-enum possible_collision_locations { player_game_piece, enemy_game_piece, game_board, background };
+enum possible_collision_locations { player_game_piece, game_board, background };
 
 vec3 clicked_collision_location;
 size_t clicked_collision_location_index = 0;
@@ -806,7 +806,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		else
 		{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+			glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 		}
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
@@ -850,7 +850,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-		glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+		glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
 
@@ -909,6 +909,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+
 	if (false == upside_down)
 	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
@@ -933,10 +938,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				if (hover_col_loc == game_board && hover_cell_x == x && hover_cell_y == y)
 				{
-					if(reflectance_only)
-						glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+					if (reflectance_only)
+						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 					else
-						glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0);
+					{
+						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
+					}
 
 					board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
 				}
@@ -945,19 +952,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-
-				//	enum possible_collision_locations { player_game_piece, enemy_game_piece, game_board, background };
-
-				//	vec3 clicked_collision_location;
-				//	size_t clicked_collision_location_index = 0;
-				//	possible_collision_locations clicked_col_loc = background;
-				//	size_t clicked_cell_x, clicked_cell_y;
-
-
-				//vec3 hover_collision_location;
-				//size_t hover_collision_location_index = 0;
-				//possible_collision_locations hover_col_loc = background;
-				//size_t hover_cell_x, hover_cell_y;
 
 
 
@@ -972,7 +966,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+			glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 		}
 		else
 		{
@@ -1063,6 +1057,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 	}
 
+
+	glDisable(GL_BLEND);
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -1096,13 +1093,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
 			if(solid_white)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 			
 			if (reflectance_only)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 
 			if(solid_white == false && reflectance_only == false)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), lightColours[j].x, lightColours[j].y, lightColours[j].z, 1);
 
 			glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
@@ -1147,13 +1144,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
 			if (solid_white)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 
 			if (reflectance_only)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 
 			if (solid_white == false && reflectance_only == false)
-				glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 
 			glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
@@ -1187,13 +1184,15 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
 		if (solid_white)
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1);
+			glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1, 1, 1, 1);
 
 		if (reflectance_only)
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0);
+			glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 
 		if (solid_white == false && reflectance_only == false)
-			glUniform3f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 1);
+		{
+			glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 1);
+		}
 
 		glm::mat4 projection = main_camera.projection_mat;// glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = main_camera.view_mat;// .GetViewMatrix();
