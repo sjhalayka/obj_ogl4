@@ -31,14 +31,26 @@ int main(int argc, char** argv)
 
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
-	//if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox"))
-	//	//if (false == game_piece_mesh.read_quads_from_obj_array(false, "chr_knight"))
-	//{
-	//	cout << "Error: Could not properly read file chr_rain.vox" << endl;
-	//	return 2;
-	//}
 
-	//player_game_piece_meshes.push_back(game_piece_mesh);
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
+
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
+
+
 
 
 
@@ -56,15 +68,26 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
+	board_highlight_colours.resize(board_mesh.num_cells_wide*board_mesh.num_cells_wide, vec3(0, 0, 0));
+	board_highlight_enabled.resize(board_mesh.num_cells_wide * board_mesh.num_cells_wide, false);
+
+
+
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 	{
 		player_game_piece_meshes[i].model_mat = mat4(1.0f);
+		player_highlight_colours.push_back(vec3(0, 0, 0));
+		player_highlight_enabled.push_back(false);
 	}
+
+
+
 
 	situate_player_mesh(0, 0, 0);
 	situate_player_mesh(2, 2, 1);
 
-
+	situate_player_mesh(4, 4, 2);
+	situate_player_mesh(6, 6, 3);
 
 	board_mesh.model_mat = mat4(1.0f);
 
@@ -98,9 +121,9 @@ int main(int argc, char** argv)
 		return 1;
 	
 
-	main_camera.u = 0;
-	main_camera.v = glm::pi<float>();// -pi<float>() / 4;
-	main_camera.w = 25.0f;
+	main_camera.u = glm::pi<float>()/6;
+	main_camera.v = glm::pi<float>() - pi<float>() / 4;
+	main_camera.w = 27.5f;
 
 
 	main_camera.calculate_camera_matrices(win_x, win_y, true);
@@ -607,7 +630,12 @@ void display_func(void)
 
 void get_hover_collision_location(size_t x, size_t y)
 {
+	// Only one can be picked at a time
+	player_highlight_enabled.clear();
+	player_highlight_enabled.resize(player_game_piece_meshes.size(), false);
+
 	// Get intersection point closest to camera
+
 
 	vec3 ray = screen_coords_to_world_coords(x, y, win_x, win_y);
 
@@ -629,6 +657,8 @@ void get_hover_collision_location(size_t x, size_t y)
 		{
 			for (size_t cell_y = 0; cell_y < board_mesh.num_cells_wide; cell_y++)
 			{
+				size_t index = cell_y * board_mesh.num_cells_wide + cell_x;
+
 				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, cell_x, cell_y))
 				{
 					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
@@ -638,6 +668,14 @@ void get_hover_collision_location(size_t x, size_t y)
 					hover_cell_x = cell_x;
 					hover_cell_y = cell_y;
 					first_assignment = false;
+
+					board_highlight_colours[index] = vec3(1, 0.5, 0);
+					board_highlight_enabled[index] = true;
+				}
+				else
+				{
+					//board_highlight_colours[index] = vec3(1, 0.5, 0);
+					board_highlight_enabled[index] = false;
 				}
 			}
 		}
@@ -667,6 +705,10 @@ void get_hover_collision_location(size_t x, size_t y)
 			if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
 			{
 				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+
+				player_highlight_colours[i] = vec3(1, 0.5, 0);
+				player_highlight_enabled[i] = true;
 
 				if (first_assignment)
 				{
@@ -701,6 +743,23 @@ void get_hover_collision_location(size_t x, size_t y)
 	{
 		hover_collision_location = vec3(0, 0, 0);
 		hover_col_loc = background;
+	}
+
+	bool player_highlighted = false;
+
+	for (size_t j = 0; j < player_highlight_enabled.size(); j++)
+	{
+		if (player_highlight_enabled[j])
+		{
+			player_highlighted = true;
+			break;
+		}
+	}
+
+	if (player_highlighted)
+	{
+		board_highlight_enabled.clear();
+		board_highlight_enabled.resize(board_mesh.num_cells_wide* board_mesh.num_cells_wide, false);
 	}
 
 }
@@ -808,7 +867,6 @@ void get_collision_location(size_t x, size_t y)
 		clicked_collision_location = vec3(0, 0, 0);
 		clicked_col_loc = background;
 	}
-
 }
 
 

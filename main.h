@@ -50,6 +50,15 @@ void passive_motion_func(int x, int y);
 
 
 
+vector<vec3> board_highlight_colours;
+vector<bool> board_highlight_enabled;
+
+
+// This needs to be adjusted when players die
+vector<vec3> player_highlight_colours;
+vector<bool> player_highlight_enabled;
+
+
 
 
 
@@ -846,12 +855,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 		
+
+
+
+
 		
-			if (hover_col_loc == player_game_piece && j == hover_collision_location_index)
+			if ( player_highlight_enabled[j])
 			{
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
-				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
+				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), player_highlight_colours[j].r, player_highlight_colours[j].g, player_highlight_colours[j].b, 0.5);
 				player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
@@ -906,7 +919,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
 
-			if (hover_col_loc == player_game_piece && j == hover_collision_location_index)
+
+
+			if (player_highlight_enabled[j])
 			{
 				//if (reflectance_only)
 					glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
@@ -935,7 +950,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, cat_tex);
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
-
+		
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
@@ -969,14 +984,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
+				size_t index = y * board_mesh.num_cells_wide + x;
 
-				if (hover_col_loc == game_board && hover_cell_x == x && hover_cell_y == y)
+
+				if (board_highlight_enabled[index])
 				{
 					if (reflectance_only)
 						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 					else
 					{
-						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
+						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), board_highlight_colours[index].r, board_highlight_colours[index].g, board_highlight_colours[index].b, 0.5);
 					}
 
 					board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
