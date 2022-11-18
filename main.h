@@ -501,13 +501,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r =  2;
-	lightColours[0].g =  2;
-	lightColours[0].b =  2;
+	lightColours[0].r =  0.01;
+	lightColours[0].g =  0.01;
+	lightColours[0].b = 0.01;
 
-	lightColours[1].r = 0.15 * 2;
-	lightColours[1].g = 0.15 * 2;
-	lightColours[1].b = 0.15 * 2;
+	lightColours[1].r = 0.01;
+	lightColours[1].g = 0.01;
+	lightColours[1].b = 0.01;
 
 	lightColours[2].r = 0.2;
 	lightColours[2].g = 0.2;
@@ -711,9 +711,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == upside_down && false == reflectance_only && false == solid_white)
 	{
-
-
-
 		glUseProgram(line_shader.get_program());
 
 		glUniform3f(glGetUniformLocation(line_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
@@ -924,14 +921,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			if (player_highlight_enabled[j])
 			{
 				//if (reflectance_only)
-					glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
+					//glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 				//else
 				//{
 				//	glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 1.0, 0.5, 0, 0.5);
 				//}
 
 
-				player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+				//player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
 
 			}
 

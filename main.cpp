@@ -707,8 +707,7 @@ void get_hover_collision_location(size_t x, size_t y)
 				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
 
 
-				player_highlight_colours[i] = vec3(1, 0.5, 0);
-				player_highlight_enabled[i] = true;
+
 
 				if (first_assignment)
 				{
@@ -718,6 +717,10 @@ void get_hover_collision_location(size_t x, size_t y)
 					hover_collision_location_index = i;
 
 					first_assignment = false;
+
+					player_highlight_colours[i] = vec3(1, 0.5, 0);
+					player_highlight_enabled[i] = true;
+
 				}
 				else
 				{
@@ -730,13 +733,18 @@ void get_hover_collision_location(size_t x, size_t y)
 
 						hover_col_loc = player_game_piece;
 						hover_collision_location_index = i;
+
+						// ... so that only one player is highlighted
+						for (size_t j = 0; j < player_highlight_enabled.size(); j++)
+							player_highlight_enabled[j] = false;
+
+						player_highlight_colours[i] = vec3(1, 0.5, 0);
+						player_highlight_enabled[i] = true;
 					}
 				}
 			}
 		}
 	}
-
-
 
 	// Nothing was clicked on, so the background is set
 	if (first_assignment)
@@ -745,19 +753,22 @@ void get_hover_collision_location(size_t x, size_t y)
 		hover_col_loc = background;
 	}
 
-	bool player_highlighted = false;
+	size_t number_players_highlighted = 0;
 
 	for (size_t j = 0; j < player_highlight_enabled.size(); j++)
 	{
 		if (player_highlight_enabled[j])
 		{
-			player_highlighted = true;
-			break;
+			number_players_highlighted++;
 		}
 	}
 
-	if (player_highlighted)
+	if (number_players_highlighted > 0)
 	{
+		cout << "num highlighted " << number_players_highlighted << endl;
+
+
+
 		board_highlight_enabled.clear();
 		board_highlight_enabled.resize(board_mesh.num_cells_wide* board_mesh.num_cells_wide, false);
 	}
