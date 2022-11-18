@@ -649,6 +649,7 @@ void get_hover_collision_location(size_t x, size_t y)
 	direction = normalize(direction);
 	
 	// bounding box is axis aligned for the board mesh
+	// and assuming that board_mesh's model matrix equals mat4(1.0f)
 	if (true == board_mesh.intersect_AABB(start, direction))
 	{
 		vec3 closest_intersection_point;
@@ -735,8 +736,8 @@ void get_hover_collision_location(size_t x, size_t y)
 						hover_collision_location_index = i;
 
 						// ... so that only one player is highlighted
-						for (size_t j = 0; j < player_highlight_enabled.size(); j++)
-							player_highlight_enabled[j] = false;
+						player_highlight_enabled.clear();
+						player_highlight_enabled.resize(player_highlight_colours.size(), false);
 
 						player_highlight_colours[i] = vec3(1, 0.5, 0);
 						player_highlight_enabled[i] = true;
@@ -765,7 +766,7 @@ void get_hover_collision_location(size_t x, size_t y)
 
 	if (number_players_highlighted > 0)
 	{
-		cout << "num highlighted " << number_players_highlighted << endl;
+		//cout << "num highlighted " << number_players_highlighted << endl;
 
 
 
@@ -797,6 +798,7 @@ void get_collision_location(size_t x, size_t y)
 
 	// bounding box is axis aligned for the board mesh
 	// bounding box is centred on xyz -- the mesh model matrix is the identity matrix
+	// (assumes that board_mesh's model matrix equals mat4(1.0f))
 	if (true == board_mesh.intersect_AABB(start, direction))
 	{
 		vec3 closest_intersection_point;
@@ -818,15 +820,6 @@ void get_collision_location(size_t x, size_t y)
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
 
 
 	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
