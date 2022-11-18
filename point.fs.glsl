@@ -268,7 +268,7 @@ void main()
 
 
 
-
+    /*
     if(do_proj_tex == 1 && fs_in.ProjTexCoord.z > 0.0)
     {
         vec4 projTexColor = textureProj(projectorTexture, fs_in.ProjTexCoord);
@@ -288,6 +288,9 @@ void main()
                 FragColor = mix(FragColor, projTexColor, 0.125);
         }
     }
+    */
+
+
 
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
 

@@ -775,32 +775,32 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	GLuint cat_tex = 0;
+	//GLuint cat_tex = 0;
 
-	std::vector<unsigned char> buffer, colour_data;
-	loadFile(buffer, "cat.png");
-	unsigned long w, h;
-	decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+	//std::vector<unsigned char> buffer, colour_data;
+	//loadFile(buffer, "cat.png");
+	//unsigned long w, h;
+	//decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-	glGenTextures(1, &cat_tex);
-	glBindTexture(GL_TEXTURE_2D, cat_tex);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);
+	//glGenTextures(1, &cat_tex);
+	//glBindTexture(GL_TEXTURE_2D, cat_tex);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);
 
 
-	vec3 projPos = vec3(0.0f, 5.0f, 0.0f);
-	vec3 projAt = vec3(0.0f, -5.0f, 0.0f);
-	vec3 projUp = vec3(1.0f, 0.0f, 0.0f);
-	mat4 projView = glm::lookAt(projPos, projAt, projUp);
-	mat4 projProj = glm::perspective(glm::radians(30.0f), 1.0f, 0.01f, 1000.0f);
-	mat4 bias = glm::translate(mat4(1.0f), vec3(0.5f));
-	bias = glm::scale(bias, vec3(0.5f));
-	mat4 projMat = bias * projProj * projView;
+	//vec3 projPos = vec3(0.0f, 5.0f, 0.0f);
+	//vec3 projAt = vec3(0.0f, -5.0f, 0.0f);
+	//vec3 projUp = vec3(1.0f, 0.0f, 0.0f);
+	//mat4 projView = glm::lookAt(projPos, projAt, projUp);
+	//mat4 projProj = glm::perspective(glm::radians(30.0f), 1.0f, 0.01f, 1000.0f);
+	//mat4 bias = glm::translate(mat4(1.0f), vec3(0.5f));
+	//bias = glm::scale(bias, vec3(0.5f));
+	//mat4 projMat = bias * projProj * projView;
 
-	glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "ProjectorMatrix"), 1, GL_FALSE, &projMat[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "ProjectorMatrix"), 1, GL_FALSE, &projMat[0][0]);
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"),0 );
 	
@@ -819,9 +819,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, cat_tex);
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+			//glActiveTexture(GL_TEXTURE0);
+			//glBindTexture(GL_TEXTURE_2D, cat_tex);
+			//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
 			
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
@@ -875,13 +875,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 		glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);
 
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 1);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "do_proj_tex"), 0);// 1);
 
 		for (size_t j = 0; j < player_game_piece_meshes.size(); j++)
 		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, cat_tex);
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+			//glActiveTexture(GL_TEXTURE0);
+			//glBindTexture(GL_TEXTURE_2D, cat_tex);
+			//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
 			
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
@@ -944,9 +944,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, cat_tex);
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, cat_tex);
+	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
 		
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
@@ -1275,7 +1275,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	glDeleteTextures(1, &cat_tex);
+	//glDeleteTextures(1, &cat_tex);
 
 
 	if (upside_down)
