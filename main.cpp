@@ -888,10 +888,8 @@ void mouse_func(int button, int state, int x, int y)
 
 			size_t index = clicked_cell_y * board_mesh.num_cells_wide + clicked_cell_x;
 
-			// to do: change the parameter used here to the player's distance paramter
-			// like, far reach for an archer or mage, close reach for
-			// tanks 
-			if (distance(player_centre, start_centre) < 4.0 && board_highlight_colours[index].g == 1.0)
+
+			if (board_highlight_colours[index].g == 1.0)
 			{
 				situate_player_mesh(clicked_cell_x, clicked_cell_y, current_player);
 			}
