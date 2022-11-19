@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 
 
 	situate_player_mesh(0, 0, 0);
-	situate_player_mesh(2, 2, 1);
+	situate_player_mesh(4, 2, 1);
 
 	//situate_player_mesh(4, 4, 2);
 	//situate_player_mesh(6, 6, 3);
@@ -944,7 +944,7 @@ void passive_motion_func(int x, int y)
 
 
 
-	pair<size_t, size_t> hover_start = player_locations[current_player];
+	pair<size_t, size_t> hover_start = player_game_piece_meshes[current_player].cell_location;
 	size_t hover_start_x = hover_start.first;
 	size_t hover_start_y = hover_start.second;
 
@@ -981,11 +981,11 @@ void passive_motion_func(int x, int y)
 			{
 				if (k == current_player)
 				{
-					grid_temp[player_locations[k].first][player_locations[k].second] = 1;
+					grid_temp[player_game_piece_meshes[k].cell_location.first][player_game_piece_meshes[k].cell_location.second] = 1;
 				}
 				else
 				{
-					grid_temp[player_locations[k].first][player_locations[k].second] = 0;
+					grid_temp[player_game_piece_meshes[k].cell_location.first][player_game_piece_meshes[k].cell_location.second] = 0;
 				}
 			}
 

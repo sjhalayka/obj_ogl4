@@ -22,6 +22,9 @@ using std::filesystem::directory_iterator;
 #include "GL/glew.h"
 #include "GL/glut.h"
 
+#include <utility>
+using std::pair;
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -68,6 +71,8 @@ using std::uniform_real_distribution;
 class mesh
 {
 public:
+
+	pair<size_t, size_t> cell_location;
 
 	float get_y_min(void)
 	{
