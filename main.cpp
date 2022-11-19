@@ -940,25 +940,90 @@ void passive_motion_func(int x, int y)
 	mouse_y = y;
 
 	get_hover_collision_location(x, y);
-	path_line_strip.clear();
 
-	pair<size_t, size_t> hover_start = player_locations[0];
+
+
+
+	pair<size_t, size_t> hover_start = player_locations[current_player];
 	size_t hover_start_x = hover_start.first;
 	size_t hover_start_y = hover_start.second;
 
 	size_t hover_end_x = hover_cell_x;
 	size_t hover_end_y = hover_cell_y;
 
-	vec3 start_centre = board_mesh.get_centre(hover_start_x, hover_start_y);
-	start_centre.y = board_mesh.get_y_plane_min(hover_start_x, hover_start_y);
+
+	Pair src = make_pair(hover_start_x, hover_start_y);
+
+	// Destination is the left-most top-most corner
+	Pair dest = make_pair(hover_end_x, hover_end_y);
+
+	vector<pair<int, int>> output_path;
+
+	path_line_strip.clear();
+
+	int grid_temp[ROW][COL] =
+	{
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 }
+	};
+
+	for (size_t i = 0; i < ROW; i++)
+	{
+		for (size_t j = 0; j < COL; j++)
+		{
+			for (size_t k = 0; k < player_game_piece_meshes.size(); k++)
+			{
+				if (k == current_player)
+				{
+					grid_temp[player_locations[k].first][player_locations[k].second] = 1;
+				}
+				else
+				{
+					grid_temp[player_locations[k].first][player_locations[k].second] = 0;
+				}
+			}
+
+			grid[i][j] = grid_temp[i][j];
+		}
+	}
 
 
-	path_line_strip.push_back(start_centre);
 
-	vec3 end_centre = board_mesh.get_centre(hover_end_x, hover_end_y);
-	end_centre.y = board_mesh.get_y_plane_min(hover_end_x, hover_end_y);
+	if (false == aStarSearch(grid, src, dest, output_path))
+	{
+		cout << "did not find path" << endl;
+	}
+	else
+	{
+		for (size_t i = 0; i < output_path.size(); i++)
+		{
+			vec3 start_centre = board_mesh.get_centre(output_path[i].first, output_path[i].second);
+			start_centre.y = board_mesh.get_y_plane_min(output_path[i].first, output_path[i].second);
+			start_centre.y += 1;
 
-	path_line_strip.push_back(end_centre);
+			path_line_strip.push_back(start_centre);
+		}
+	}
+
+
+
+
+
+	//vec3 start_centre = board_mesh.get_centre(hover_start_x, hover_start_y);
+	//start_centre.y = board_mesh.get_y_plane_min(hover_start_x, hover_start_y);
+
+	//path_line_strip.push_back(start_centre);
+
+	//vec3 end_centre = board_mesh.get_centre(hover_end_x, hover_end_y);
+	//end_centre.y = board_mesh.get_y_plane_min(hover_end_x, hover_end_y);
+
+	//path_line_strip.push_back(end_centre);
 }
 
 

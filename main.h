@@ -55,9 +55,27 @@ vector<vec3> board_highlight_colours;
 vector<bool> board_highlight_enabled;
 
 
-// This needs to be adjusted when players die
+// These need to be adjusted when players die
+// that is, delete the item, then reduce the index of
+// the remaining items by 1
 vector<vec3> player_highlight_colours;
 vector<bool> player_highlight_enabled;
+map<size_t, pair<size_t, size_t>> player_locations;
+
+size_t current_player = 0;
+
+int grid[ROW][COL] =
+{
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+
 
 
 vector<vec3> path_line_strip;
@@ -502,8 +520,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r =  0.01;
-	lightColours[0].g =  0.01;
+	lightColours[0].r = 0.01;
+	lightColours[0].g = 0.01;
 	lightColours[0].b = 0.01;
 
 	lightColours[1].r = 0.01;
@@ -565,7 +583,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
 
-			
+
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight, false);
 
@@ -768,19 +786,21 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	mat4 model  = board_mesh.model_mat;
+	mat4 model = board_mesh.model_mat;
 	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 
 
 
 	vector<float> l;
-	l.push_back(path_line_strip[0].x);
-	l.push_back(path_line_strip[0].y);
-	l.push_back(path_line_strip[0].z);
-	l.push_back(path_line_strip[1].x);
-	l.push_back(path_line_strip[1].y);
-	l.push_back(path_line_strip[1].z);
+
+	for (size_t i = 0; i < path_line_strip.size(); i++)
+	{
+		l.push_back(path_line_strip[i].x);
+		l.push_back(path_line_strip[i].y);
+		l.push_back(path_line_strip[i].z);
+	}
+
 
 
 	GLuint components_per_vertex = 3;
@@ -803,7 +823,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		components_per_vertex * sizeof(GLfloat),
 		NULL);
 
-	glDrawArrays(GL_LINES, 0, num_vertices);
+	glDrawArrays(GL_LINE_STRIP, 0, num_vertices);
 
 	glDeleteBuffers(1, &axis_buffer);
 
@@ -1347,26 +1367,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-int grid[ROW][COL] =
-{
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 1, 1, 1, 1, 1, 1, 1, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0 }
-
-};
-
-
-map<size_t, pair<size_t, size_t>> player_locations;
 
 
 
-
-
+// todo get rid of the 
 void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 {
 	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
@@ -1377,7 +1381,10 @@ void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 
 	player_locations[index] = pair<size_t, size_t>(x_cell, y_cell);
 
-	grid[x_cell][y_cell] = 0;
+	//if (index != 0)
+	//	grid[x_cell][y_cell] = 0;
+	//else
+	//	grid[x_cell][y_cell] = 1;
 }
 
 void move_player_mesh(size_t old_x_cell, size_t old_y_cell, size_t x_cell, size_t y_cell, size_t index)
@@ -1388,11 +1395,11 @@ void move_player_mesh(size_t old_x_cell, size_t old_y_cell, size_t x_cell, size_
 
 	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
 
-	grid[old_x_cell][old_y_cell] = 1;
+//	grid[old_x_cell][old_y_cell] = 1;
 
 	player_locations[index] = pair<size_t, size_t>(x_cell, y_cell);
 
-	grid[x_cell][y_cell] = 0;
+//	grid[x_cell][y_cell] = 0;
 }
 
 #endif
