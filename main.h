@@ -9,6 +9,7 @@
 #include "logging_system.h"
 #include "vertex_fragment_shader.h"
 #include "vertex_geometry_fragment_shader.h"
+#include "astar.h"
 
 #include <cstdlib>
 #include "GL/glew.h"
@@ -59,7 +60,7 @@ vector<vec3> player_highlight_colours;
 vector<bool> player_highlight_enabled;
 
 
-
+vector<vec3> path_line_strip;
 
 
 
@@ -757,6 +758,58 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
+	//glBegin(GL_LINES);
+
+	//glVertex3f(path_line_strip[0].x, path_line_strip[0].y, path_line_strip[0].z);
+	//glVertex3f(path_line_strip[1].x, path_line_strip[1].y, path_line_strip[1].z);
+
+
+	//glEnd();
+
+
+
+	mat4 model  = board_mesh.model_mat;
+	mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+	glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+
+
+
+	vector<float> l;
+	l.push_back(path_line_strip[0].x);
+	l.push_back(path_line_strip[0].y);
+	l.push_back(path_line_strip[0].z);
+	l.push_back(path_line_strip[1].x);
+	l.push_back(path_line_strip[1].y);
+	l.push_back(path_line_strip[1].z);
+
+
+	GLuint components_per_vertex = 3;
+	GLuint components_per_position = 3;
+
+	GLuint axis_buffer;
+
+	glGenBuffers(1, &axis_buffer);
+
+	GLuint num_vertices = static_cast<GLuint>(l.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, l.size() * sizeof(GLfloat), &l[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(line_shader.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(line_shader.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	glDeleteBuffers(1, &axis_buffer);
+
+
+
+
 
 
 
@@ -769,6 +822,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	point_shader.use_program();
+
 
 
 
@@ -1292,6 +1346,27 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 }
 
 
+
+int grid[ROW][COL] =
+{
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0 }
+
+};
+
+
+map<size_t, pair<size_t, size_t>> player_locations;
+
+
+
+
+
 void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 {
 	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
@@ -1299,9 +1374,26 @@ void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
 
 	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
+
+	player_locations[index] = pair<size_t, size_t>(x_cell, y_cell);
+
+	grid[x_cell][y_cell] = 0;
 }
 
+void move_player_mesh(size_t old_x_cell, size_t old_y_cell, size_t x_cell, size_t y_cell, size_t index)
+{
+	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
+	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
+	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
 
+	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
+
+	grid[old_x_cell][old_y_cell] = 1;
+
+	player_locations[index] = pair<size_t, size_t>(x_cell, y_cell);
+
+	grid[x_cell][y_cell] = 0;
+}
 
 #endif
 

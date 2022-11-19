@@ -33,22 +33,22 @@ int main(int argc, char** argv)
 
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
-	{
-		cout << "Error: Could not properly read vox file" << endl;
-		return 2;
-	}
+	//if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
+	//{
+	//	cout << "Error: Could not properly read vox file" << endl;
+	//	return 2;
+	//}
 
-	player_game_piece_meshes.push_back(game_piece_mesh);
+	//player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
-	{
-		cout << "Error: Could not properly read vox file" << endl;
-		return 2;
-	}
+	//if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	//{
+	//	cout << "Error: Could not properly read vox file" << endl;
+	//	return 2;
+	//}
 
-	player_game_piece_meshes.push_back(game_piece_mesh);
+	//player_game_piece_meshes.push_back(game_piece_mesh);
 
 
 
@@ -86,8 +86,8 @@ int main(int argc, char** argv)
 	situate_player_mesh(0, 0, 0);
 	situate_player_mesh(2, 2, 1);
 
-	situate_player_mesh(4, 4, 2);
-	situate_player_mesh(6, 6, 3);
+	//situate_player_mesh(4, 4, 2);
+	//situate_player_mesh(6, 6, 3);
 
 	board_mesh.model_mat = mat4(1.0f);
 
@@ -940,6 +940,25 @@ void passive_motion_func(int x, int y)
 	mouse_y = y;
 
 	get_hover_collision_location(x, y);
+	path_line_strip.clear();
+
+	pair<size_t, size_t> hover_start = player_locations[0];
+	size_t hover_start_x = hover_start.first;
+	size_t hover_start_y = hover_start.second;
+
+	size_t hover_end_x = hover_cell_x;
+	size_t hover_end_y = hover_cell_y;
+
+	vec3 start_centre = board_mesh.get_centre(hover_start_x, hover_start_y);
+	start_centre.y = board_mesh.get_y_plane_min(hover_start_x, hover_start_y);
+
+
+	path_line_strip.push_back(start_centre);
+
+	vec3 end_centre = board_mesh.get_centre(hover_end_x, hover_end_y);
+	end_centre.y = board_mesh.get_y_plane_min(hover_end_x, hover_end_y);
+
+	path_line_strip.push_back(end_centre);
 }
 
 
