@@ -880,6 +880,27 @@ void mouse_func(int button, int state, int x, int y)
 		{
 			get_collision_location(x, y);
 
+			vec4 m = player_game_piece_meshes[current_player].model_mat[3];
+			vec3 player_centre(m.x, m.y, m.z);
+				
+			vec3 start_centre = board_mesh.get_centre(clicked_cell_x, clicked_cell_y);
+			start_centre.y = board_mesh.get_y_plane_min(clicked_cell_x, clicked_cell_y);
+
+			size_t index = clicked_cell_y * board_mesh.num_cells_wide + clicked_cell_x;
+
+			// to do: change the parameter used here to the player's distance paramter
+			// like, far reach for an archer or mage, close reach for
+			// tanks 
+			if (distance(player_centre, start_centre) < 4.0 && board_highlight_colours[index].g == 1.0)
+			{
+				situate_player_mesh(clicked_cell_x, clicked_cell_y, current_player);
+			}
+
+
+
+
+
+
 			lmb_down = true;
 		}
 		else
@@ -1005,7 +1026,7 @@ void passive_motion_func(int x, int y)
 			// to do: change the parameter used here to the player's distance paramter
 			// like, far reach for an archer or mage, close reach for
 			// tanks
-			if (distance(player_centre, start_centre) < 4.0)
+			if (distance(player_centre, start_centre) < 4.0 && aStarSearch(grid, pair<size_t, size_t>(player_game_piece_meshes[current_player].cell_location.first, player_game_piece_meshes[current_player].cell_location.second), pair<size_t, size_t>(i, j), output_path))
 			{
 				if (hover_cell_x == i && hover_cell_y == j)
 				{

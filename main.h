@@ -60,7 +60,7 @@ vector<bool> board_highlight_enabled;
 // the remaining items by 1
 vector<vec3> player_highlight_colours;
 vector<bool> player_highlight_enabled;
-//map<size_t, pair<size_t, size_t>> player_locations;
+ 
 
 size_t current_player = 0;
 
@@ -1375,13 +1375,14 @@ void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
 	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
 
+	player_game_piece_meshes[index].model_mat[3] = vec4(0, 0, 0, 1);// = mat4(1.0f);
 	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
 
 	player_game_piece_meshes[index].cell_location.first = x_cell;
 	player_game_piece_meshes[index].cell_location.second = y_cell;
 }
 
-void move_player_mesh(size_t old_x_cell, size_t old_y_cell, size_t x_cell, size_t y_cell, size_t index)
+void move_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 {
 	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
 	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
