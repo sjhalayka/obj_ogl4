@@ -33,22 +33,22 @@ int main(int argc, char** argv)
 
 
 
-	//if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
-	//{
-	//	cout << "Error: Could not properly read vox file" << endl;
-	//	return 2;
-	//}
+	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
 
-	//player_game_piece_meshes.push_back(game_piece_mesh);
+	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	//if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
-	//{
-	//	cout << "Error: Could not properly read vox file" << endl;
-	//	return 2;
-	//}
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
 
-	//player_game_piece_meshes.push_back(game_piece_mesh);
+	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
 
@@ -86,8 +86,8 @@ int main(int argc, char** argv)
 	situate_player_mesh(0, 0, 0);
 	situate_player_mesh(4, 2, 1);
 
-	//situate_player_mesh(4, 4, 2);
-	//situate_player_mesh(6, 6, 3);
+	situate_player_mesh(5, 0, 2);
+	situate_player_mesh(6, 1, 3);
 
 	board_mesh.model_mat = mat4(1.0f);
 
@@ -768,12 +768,9 @@ void get_hover_collision_location(size_t x, size_t y)
 	{
 		//cout << "num highlighted " << number_players_highlighted << endl;
 
-
-
 		board_highlight_enabled.clear();
-		board_highlight_enabled.resize(board_mesh.num_cells_wide* board_mesh.num_cells_wide, false);
+		board_highlight_enabled.resize(board_mesh.num_cells_wide * board_mesh.num_cells_wide, false);
 	}
-
 }
 
 
@@ -990,6 +987,49 @@ void passive_motion_func(int x, int y)
 			}
 
 			grid[i][j] = grid_temp[i][j];
+		}
+	}
+
+	for (size_t i = 0; i < (ROW); i++)
+	{
+		for (size_t j = 0; j < (COL); j++)
+		{
+			size_t index = j * ROW + i;
+
+			vec4 m = player_game_piece_meshes[current_player].model_mat[3];
+			vec3 player_centre(m.x, m.y, m.z);
+
+			vec3 start_centre = board_mesh.get_centre(i, j);
+			start_centre.y = board_mesh.get_y_plane_min(i, j);
+
+			// to do: change the parameter used here to the player's distance paramter
+			// like, far reach for an archer or mage, close reach for
+			// tanks
+			if (distance(player_centre, start_centre) < 4.0)
+			{
+				if (hover_cell_x == i && hover_cell_y == j)
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(0, 1, 0);
+				}
+				else
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(0, 0, 1);
+				}
+			}
+			else
+			{
+				if (hover_cell_x == i && hover_cell_y == j)
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(1, 0, 0);
+				}
+				else
+				{
+					board_highlight_enabled[index] = false;
+				}
+			}
 		}
 	}
 

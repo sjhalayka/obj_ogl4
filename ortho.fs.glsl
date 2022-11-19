@@ -49,14 +49,7 @@ vec4 get_blurred_pixel(vec2 tc)
     x -= 1.0; // from -1 to 1
 
     x = abs(x);
-
-    x = pow(x, 20.0);
-
-    // tent function
-    if(x > 0.5)
-         x = 1.0 - x;
-
-     x = 1.0 - pow(x, 1.0/10.0);
+    x = pow(x, 10.0);
 
 
 
