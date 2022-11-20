@@ -6,13 +6,9 @@ int main(int argc, char** argv)
 
 	mesh game_piece_mesh;
 
-	//if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
-	//{
-	//	cout << "Error: Could not properly read vox file" << endl;
-	//	return 2;
-	//}
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", "chr_knight.png", "chr_knight.png", "chr_knight_specular.png", false))
+
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", "board_glow.png", "chr_knight.png", "chr_knight_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -23,7 +19,7 @@ int main(int argc, char** argv)
 
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox", "chr_rain.png", "chr_rain.png", "chr_rain_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox", "board_glow.png", "chr_rain.png", "chr_rain_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -33,7 +29,7 @@ int main(int argc, char** argv)
 
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith.png", "wraith_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith_glow.png", "wraith.png", "wraith_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -42,7 +38,7 @@ int main(int argc, char** argv)
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox",  "beholder.png", "beholder.png", "beholder_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox",  "board_glow.png", "beholder.png", "beholder_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -56,13 +52,13 @@ int main(int argc, char** argv)
 
 
 	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", "3x3x3.png", "3x3x3.png", "3x3x3.png", false))
-	{
+	{	
 		cout << "Error: Could not properly read file 3x3x3.vox" << endl;
 		return 2;
 	}
 
 
-	if (false == board_mesh.read_quads_from_vox_file("board.vox", "board.png", "board.png", "board_specular.png", true))
+	if (false == board_mesh.read_quads_from_vox_file("board.vox", "board_glow.png", "board.png", "board_specular.png", true))
 	{
 		cout << "Error: Could not properly read file board.vox" << endl;
 		return 2;

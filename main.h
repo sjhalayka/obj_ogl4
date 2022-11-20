@@ -144,7 +144,7 @@ GLuint offscreen_depth_tex = 0;
 uv_camera main_camera;
 
 GLint win_id = 0;
-size_t win_x = 800, win_y = 600;
+size_t win_x = 1920, win_y = 1080;
 
 float u_spacer = 0.01f;
 float v_spacer = 0.5f*u_spacer;
@@ -568,9 +568,14 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//	glCullFace(GL_BACK);
 
 
+	//if (glowmap_only)
+	//	glClearColor(1, 1, 1, 0);
+	//else
+	//	glClearColor(0, 0, 0, 0);
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 
 	if (false == reflectance_only && false == solid_white && false == glowmap_only)
@@ -740,8 +745,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-
-	if (false == upside_down && false == reflectance_only && false == solid_white)
+	/*
+	if (false == upside_down && false == reflectance_only && false == solid_white && false == glowmap_only)
 	{
 		glUseProgram(line_shader.get_program());
 
@@ -786,6 +791,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 
 	glDepthRange(0.0, 1.0);
+	*/
+
 
 
 
@@ -1048,13 +1055,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_glow_tex_handle());
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
 
-	glActiveTexture(GL_TEXTURE2);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
 
-	glActiveTexture(GL_TEXTURE3);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
 
@@ -1231,7 +1238,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	
-	if (1)//false == reflectance_only)
+	if (false == glowmap_only)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{
@@ -1290,7 +1297,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 
 	
-	if (clicked_collision_location != vec3(0, 0, 0))
+	if (false == glowmap_only && clicked_collision_location != vec3(0, 0, 0))
 	{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
@@ -1332,7 +1339,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 
 
-	if (hover_collision_location != vec3(0, 0, 0))
+	if (false == glowmap_only && hover_collision_location != vec3(0, 0, 0))
 	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 

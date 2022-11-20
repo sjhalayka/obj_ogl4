@@ -21,8 +21,8 @@ void main()
 {
 
 
-    // for debug purposs
-//  frag_colour = texture( glowmap_tex, ftexcoord);
+    // for debug purposes
+//  frag_colour = texture( regular_tex, ftexcoord);
 
 //  return;
 
@@ -30,14 +30,14 @@ void main()
    const float pi_times_2 = 6.28318530718; // Pi*2
     
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
-    float quality = 10.0; // BLUR quality (Default 4.0 - More is better but slower)
-    float size = 10.0; // BLUR size (radius)
+    float quality = 4.0; // BLUR quality (Default 4.0 - More is better but slower)
+    float size = 20.0; // BLUR size (radius)
     vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
 
 
 
-       int count = 0;
+   int count = 0;
 
    vec4 glowmap_blurred_colour = texture(glowmap_tex, ftexcoord);
    count++;
@@ -59,9 +59,11 @@ void main()
     // Output to screen
     glowmap_blurred_colour /= count;
 
+    
 
 
 
+ 
 
 
 
@@ -124,7 +126,8 @@ void main()
 
     vec4 final_colour = mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);
 
-    frag_colour = (glowmap_blurred_colour + final_colour ) / 2.0;                 
+    // Bloom mixer
+    frag_colour = mix(final_colour, glowmap_blurred_colour, glowmap_blurred_colour);                 
 }
 
 
