@@ -948,7 +948,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 		
-			if ( player_highlight_enabled[j] && false == upside_down)
+			if ( player_highlight_enabled[j] && false == upside_down && false == glowmap_only)
 			{
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
@@ -1084,7 +1084,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				size_t index = y * board_mesh.num_cells_wide + x;
 
 
-				if (board_highlight_enabled[index])
+				if (board_highlight_enabled[index] && false == glowmap_only)
 				{
 					if (reflectance_only)
 						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), 0, 0, 0, 1);

@@ -22,9 +22,9 @@ void main()
 
 
     // for debug purposs
-  frag_colour = texture( glowmap_tex, ftexcoord);
+//  frag_colour = texture( glowmap_tex, ftexcoord);
 
-  return;
+//  return;
 
 
    const float pi_times_2 = 6.28318530718; // Pi*2
@@ -37,7 +37,40 @@ void main()
 
 
 
-   int count = 0;
+       int count = 0;
+
+   vec4 glowmap_blurred_colour = texture(glowmap_tex, ftexcoord);
+   count++;
+   
+    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+    {
+		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
+        {
+            vec4 temp_colour = texture( glowmap_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
+
+            if(temp_colour.xyz != vec3(0, 0, 0))
+            {
+        	    glowmap_blurred_colour += temp_colour;
+                count++;
+            }
+        }
+    }
+    
+    // Output to screen
+    glowmap_blurred_colour /= count;
+
+
+
+
+
+
+
+
+
+
+
+
+   count = 0;
 
    vec4 blurred_colour = texture(upside_down_tex, ftexcoord);
    count++;
@@ -89,14 +122,9 @@ void main()
     // Make glossiness out of the reflectance texture (the more reflective, the sharper the image)
     upside_down_white_mask = mix(upside_down_white_mask, texture(upside_down_white_mask_tex, ftexcoord), texture(reflectance_tex, ftexcoord));
 
+    vec4 final_colour = mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);
 
-    frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);                 
-    return;
-
-
-
-
-
+    frag_colour = (glowmap_blurred_colour + final_colour ) / 2.0;                 
 }
 
 
