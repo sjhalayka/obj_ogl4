@@ -14,14 +14,13 @@ in VS_OUT{
 
 
 
+uniform sampler2D glowTexture;
+uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
+
+
 const int max_num_lights = 4;
-layout (binding=0) uniform sampler2D projectorTexture;
-layout (binding=1) uniform sampler2D diffuseTexture;
-layout (binding=2) uniform sampler2D specularTexture;
-
-
 uniform samplerCube depthMaps[max_num_lights];
-
 uniform vec3 lightPositions[max_num_lights];
 uniform vec3 lightColours[max_num_lights];
 uniform int lightEnabled[max_num_lights];
@@ -38,7 +37,7 @@ uniform vec4 flat_colour;
 
 
 uniform int specular_only = 0;
-
+uniform int glowmap_only = 0;
 
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 1.0, 1.0);
@@ -206,7 +205,18 @@ void main()
 		return;
 	}
 
+    if(glowmap_only == 1)
+	{
+		FragColor = texture(glowTexture, fs_in.TexCoords);
+		
+//		vec3 n =  fs_in.untransformed_normal;
+//		vec3 n2 = vec3(0, 1, 0);
 
+//		if(dot(n, n2) < 0.95)
+//			FragColor = vec4(0, 0, 0, 1);
+	
+		return;
+	}
 
 	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 

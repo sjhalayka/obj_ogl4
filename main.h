@@ -161,7 +161,7 @@ int mouse_y = 0;
 bool screenshot_mode = false;
 
 
-void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white);
+void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white, bool glowmap_only);
 void use_buffers(GLuint frame_buffer, GLuint depth_tex_handle, GLuint colour_tex_handle);
 void draw_scene(GLuint fbo_handle);
 
@@ -496,7 +496,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 
 
-void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white)
+void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool solid_white, bool glowmap_only)
 {
 
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
@@ -573,7 +573,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	if (false == reflectance_only && false == solid_white)
+	if (false == reflectance_only && false == solid_white && false == glowmap_only)
 	{
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
@@ -625,7 +625,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 				glUniformMatrix4fv(glGetUniformLocation(point_depth_shader.get_program(), "model"), 1, GL_FALSE, &model[0][0]);
 
-				player_game_piece_meshes[j].draw(point_depth_shader.get_program(), shadowMapWidth, shadowMapHeight, "beholder.png", "beholder_specular.png");
+				player_game_piece_meshes[j].draw(point_depth_shader.get_program());// , shadowMapWidth, shadowMapHeight, "beholder.png", "beholder_specular.png");
 			}
 
 
@@ -637,7 +637,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			{
 				for (size_t y = 0; y < board_mesh.num_cells_wide; y++)
 				{
-					board_mesh.draw(point_depth_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+					board_mesh.draw(point_depth_shader.get_program(), x, y);// , win_x, win_y, "board_glow.png", "board.png", "board_specular.png");
 				}
 			}
 
@@ -668,9 +668,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	point_shader.use_program();
 
 	if (reflectance_only)
+	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 1);
+	}
 	else
+	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 0);
+	
+		if (glowmap_only)
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 1);
+		else
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 0);
+	}
+
 
 
 
@@ -681,11 +691,11 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	for (size_t i = 0; i < max_num_lights; i++)
 	{
-		glActiveTexture(GL_TEXTURE3 + i);
+		glActiveTexture(GL_TEXTURE4 + i);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemaps[i]);
 
 		string s = "depthMaps[" + to_string(i) + "]";
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 3 + i);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), s.c_str()), 4 + i);
 	}
 
 	glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
@@ -897,6 +907,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			//glBindTexture(GL_TEXTURE_2D, cat_tex);
 			//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
 			
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_glow_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
+
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
@@ -924,7 +938,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
-			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+			player_game_piece_meshes[j].draw(point_shader.get_program());// , win_x, win_y, "beholder.png", "beholder_specular.png");
 		
 
 
@@ -936,7 +950,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
 				glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), player_highlight_colours[j].r, player_highlight_colours[j].g, player_highlight_colours[j].b, 0.5);
-				player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+				player_game_piece_meshes[j].draw(point_shader.get_program());// , win_x, win_y, "beholder.png", "beholder_specular.png");
 
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
 			}
@@ -957,6 +971,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			//glBindTexture(GL_TEXTURE_2D, cat_tex);
 			//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
 			
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_glow_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
+
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, player_game_piece_meshes[j].get_colour_tex_handle());
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
@@ -983,7 +1001,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
-			player_game_piece_meshes[j].draw(point_shader.get_program(), win_x, win_y, "beholder.png", "beholder_specular.png");
+			player_game_piece_meshes[j].draw(point_shader.get_program());// , win_x, win_y, "beholder.png", "beholder_specular.png");
 
 
 
@@ -1021,14 +1039,19 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, cat_tex);
 	//glUniform1i(glGetUniformLocation(point_shader.get_program(), "projectorTexture"), 0);
-		
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, board_mesh.get_glow_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
 
 	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, board_mesh.get_colour_tex_handle());
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
+
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, board_mesh.get_specular_tex_handle());
-	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
+	glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
 
 
 
@@ -1051,7 +1074,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 				glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
-				board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+				board_mesh.draw(point_shader.get_program(), x, y);// , win_x, win_y, "board_glow.png", "board.png", "board_specular.png");
 
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
@@ -1067,7 +1090,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 						glUniform4f(glGetUniformLocation(point_shader.get_program(), "flat_colour"), board_highlight_colours[index].r, board_highlight_colours[index].g, board_highlight_colours[index].b, 0.5);
 					}
 
-					board_mesh.draw(point_shader.get_program(), x, y, win_x, win_y, "board.png", "board_specular.png");
+					board_mesh.draw(point_shader.get_program(), x, y);// , win_x, win_y, "board_glow.png", "board.png", "board_specular.png");
 				}
 
 				glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 0);
@@ -1140,7 +1163,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 					glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
-					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y, win_x, win_y, "board.png", "board_specular.png");
+					board_mesh.draw(point_shader.get_program(), n[i].x, n[i].y);// , win_x, win_y, "board_glow.png", "board.png", "board_specular.png");
 
 
 					//if (solid_white)
@@ -1245,17 +1268,20 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, light_mesh.get_glow_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
 
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
-
-			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, light_mesh.get_specular_tex_handle());
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
-			light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
+			light_mesh.draw(point_shader.get_program());// , win_x, win_y, "3x3x3.png", "3x3x3.png");
 		}
 	}
 	
@@ -1285,18 +1311,20 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "projection"), 1, GL_FALSE, &projection[0][0]);
 			glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, light_mesh.get_glow_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
 
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
 
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
-
-			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, light_mesh.get_specular_tex_handle());
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+			glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
-			light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
+			light_mesh.draw(point_shader.get_program());// , win_x, win_y, "3x3x3.png", "3x3x3.png");
 	}
 	
 
@@ -1328,17 +1356,20 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniformMatrix4fv(glGetUniformLocation(point_shader.get_program(), "view"), 1, GL_FALSE, &view[0][0]);
 
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, light_mesh.get_glow_tex_handle());
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowTexture"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 1);
 
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, light_mesh.get_colour_tex_handle());
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "diffuseTexture"), 2);
-
-		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, light_mesh.get_specular_tex_handle());
-		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 3);
+		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specularTexture"), 2);
 
 
-		light_mesh.draw(point_shader.get_program(), win_x, win_y, "3x3x3.png", "3x3x3.png");
+		light_mesh.draw(point_shader.get_program());// , win_x, win_y, "3x3x3.png", "3x3x3.png");
 	}
 
 

@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	//	return 2;
 	//}
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", "chr_knight.png", "chr_knight_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_knight.vox", "chr_knight.png", "chr_knight.png", "chr_knight_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox", "chr_rain.png", "chr_rain_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("chr_rain.vox", "chr_rain.png", "chr_rain.png", "chr_rain_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("wraith.vox", "wraith.png", "wraith.png", "wraith_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
-	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox", "beholder.png", "beholder_specular.png", false))
+	if (false == game_piece_mesh.read_quads_from_vox_file("beholder.vox",  "beholder.png", "beholder.png", "beholder_specular.png", false))
 	{
 		cout << "Error: Could not properly read vox file" << endl;
 		return 2;
@@ -55,14 +55,14 @@ int main(int argc, char** argv)
 
 
 
-	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", "3x3x3.png", "3x3x3.png", false))
+	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", "3x3x3.png", "3x3x3.png", "3x3x3.png", false))
 	{
 		cout << "Error: Could not properly read file 3x3x3.vox" << endl;
 		return 2;
 	}
 
 
-	if (false == board_mesh.read_quads_from_vox_file("board.vox", "board.png", "board_specular.png", true))
+	if (false == board_mesh.read_quads_from_vox_file("board.vox", "board.png", "board.png", "board_specular.png", true))
 	{
 		cout << "Error: Could not properly read file board.vox" << endl;
 		return 2;
@@ -462,22 +462,22 @@ void draw_scene(GLuint fbo_handle)
 
 
 	// Upside down white mask
-	draw_stuff(offscreen_fbo, true, false, true);
+	draw_stuff(offscreen_fbo, true, false, true, false);
 	glBindTexture(GL_TEXTURE_2D, upside_down_white_mask_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
 	//// Upside down
-	draw_stuff(offscreen_fbo, true, false, false);
+	draw_stuff(offscreen_fbo, true, false, false, false);
 	glBindTexture(GL_TEXTURE_2D, upside_down_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
 	// Reflectance map
-	draw_stuff(offscreen_fbo, false, true, false);
+	draw_stuff(offscreen_fbo, false, true, false, false);
 	glBindTexture(GL_TEXTURE_2D, reflectance_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
 	// Regular map
-	draw_stuff(offscreen_fbo, false, false, false);
+	draw_stuff(offscreen_fbo, false, false, false, false);
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 

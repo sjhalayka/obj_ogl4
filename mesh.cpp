@@ -78,10 +78,7 @@ void mesh::init_opengl_data(void)
 
 
 
-void mesh::draw(GLint render_shader_program,
-	int win_x,
-	int win_y,
-	string texture_filename, string specular_texture_filename)
+void mesh::draw(GLint render_shader_program)
 {
 	glUseProgram(render_shader_program);
 
@@ -90,15 +87,35 @@ void mesh::draw(GLint render_shader_program,
 	const GLuint components_per_normal = 3;
 	const GLuint components_per_texcoord = 2;
 
+
+	if (glow_tex == 0)
+	{
+		//std::vector<unsigned char> buffer;
+		//loadFile(buffer, texture_filename.c_str());
+		//unsigned long w, h;
+		//decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		//colour_data_x = w;
+		//colour_data_y = h;
+
+		glGenTextures(1, &glow_tex);
+		glBindTexture(GL_TEXTURE_2D, glow_tex);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+
 	if (colour_tex == 0)
 	{
-		std::vector<unsigned char> buffer;
-		loadFile(buffer, texture_filename.c_str());
-		unsigned long w, h;
-		decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+		//std::vector<unsigned char> buffer;
+		//loadFile(buffer, texture_filename.c_str());
+		//unsigned long w, h;
+		//decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-		colour_data_x = w;
-		colour_data_y = h;
+		//colour_data_x = w;
+		//colour_data_y = h;
 		
 		glGenTextures(1, &colour_tex);
 		glBindTexture(GL_TEXTURE_2D, colour_tex);
@@ -111,13 +128,13 @@ void mesh::draw(GLint render_shader_program,
 
 	if (specular_tex == 0)
 	{
-		std::vector<unsigned char> buffer;
-		loadFile(buffer, specular_texture_filename.c_str());
-		unsigned long w, h;
-		decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+		//std::vector<unsigned char> buffer;
+		//loadFile(buffer, specular_texture_filename.c_str());
+		//unsigned long w, h;
+		//decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
 
-		specular_data_x = w;
-		specular_data_y = h;
+		//specular_data_x = w;
+		//specular_data_y = h;
 
 		glGenTextures(1, &specular_tex);
 		glBindTexture(GL_TEXTURE_2D, specular_tex);
@@ -127,6 +144,10 @@ void mesh::draw(GLint render_shader_program,
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
+
+	glBindTexture(GL_TEXTURE_2D, glow_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(glow_data_x), static_cast<GLsizei>(glow_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &glow_data[0]);
+
 
 	glBindTexture(GL_TEXTURE_2D, colour_tex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(colour_data_x), static_cast<GLsizei>(colour_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);

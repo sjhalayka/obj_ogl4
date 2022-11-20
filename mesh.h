@@ -416,11 +416,15 @@ public:
 
 
 
+	GLuint glow_tex = 0;
 	GLuint colour_tex = 0;
 	GLuint specular_tex = 0;
 
 	~mesh(void)
 	{
+		if (glow_tex != 0)
+			glDeleteTextures(1, &glow_tex);
+
 		if (colour_tex != 0)
 			glDeleteTextures(1, &colour_tex);
 
@@ -428,12 +432,19 @@ public:
 			glDeleteTextures(1, &specular_tex);
 	}
 
+	vector<unsigned char> glow_data;
 	vector<unsigned char> colour_data;
 	vector<unsigned char> specular_data;
 
+
+	size_t glow_data_x = 0, glow_data_y = 0;
 	size_t colour_data_x = 0, colour_data_y = 0;
 	size_t specular_data_x = 0, specular_data_y = 0;
 
+	GLuint get_glow_tex_handle(void)
+	{
+		return glow_tex;
+	}
 
 	GLuint get_colour_tex_handle(void)
 	{
@@ -943,10 +954,7 @@ public:
 
 
 
-	void draw(GLint render_shader_program,
-		int win_x,
-		int win_y,
-		string texture_filename, string specular_texture_filename);
+	void draw(GLint render_shader_program);
 
 	vec3 geodesic_dir;
 	vec3 geodesic_left;
@@ -974,7 +982,7 @@ public:
 		model_mat[3] = vec4(n_up * displacement, 1.0f);
 	}
 
-	bool read_quads_from_vox_file(string file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
+	bool read_quads_from_vox_file(string file_name, string glow_tex_file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
 	{
 		tri_vec.clear();
 		opengl_vertex_data.clear();
@@ -1273,6 +1281,9 @@ public:
 		}
 
 
+		if (glow_tex != 0)
+			glDeleteTextures(1, &glow_tex);
+
 		if (colour_tex != 0)
 			glDeleteTextures(1, &colour_tex);
 
@@ -1295,6 +1306,24 @@ public:
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+		//		std::vector<unsigned char> buffer;
+		loadFile(buffer, glow_tex_file_name.c_str());
+		//			unsigned long w, h;
+		decodePNG(glow_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		glow_data_x = w;
+		glow_data_y = h;
+
+		glGenTextures(1, &glow_tex);
+		glBindTexture(GL_TEXTURE_2D, glow_tex);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 
 
 
@@ -1613,7 +1642,7 @@ public:
 	//}
 
 
-	bool read_quads_from_vox_file(string file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
+	bool read_quads_from_vox_file(string file_name, string glow_tex_file_name, string colour_tex_file_name, string specular_tex_file_name, bool cull_faces)
 	{
 		tri_vec.clear();
 		opengl_vertex_data.clear();
@@ -1933,6 +1962,8 @@ public:
 			}
 		}
 
+		if (glow_tex != 0)
+			glDeleteTextures(1, &glow_tex);
 
 		if (colour_tex != 0)
 			glDeleteTextures(1, &colour_tex);
@@ -1951,6 +1982,22 @@ public:
 
 		glGenTextures(1, &colour_tex);
 		glBindTexture(GL_TEXTURE_2D, colour_tex);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+		loadFile(buffer, glow_tex_file_name.c_str());
+		//			unsigned long w, h;
+		decodePNG(glow_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
+
+		glow_data_x = w;
+		glow_data_y = h;
+
+		glGenTextures(1, &glow_tex);
+		glBindTexture(GL_TEXTURE_2D, glow_tex);
+
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1985,10 +2032,7 @@ public:
 
 
 	void draw(GLint render_shader_program,
-		size_t cell_x, size_t cell_y,
-		int win_x,
-		int win_y,
-		string texture_filename, string specular_texture_filename)
+		size_t cell_x, size_t cell_y)
 	{
 		size_t cell_index = cell_y * num_cells_wide + cell_x;
 
@@ -1999,16 +2043,18 @@ public:
 		const GLuint components_per_normal = 3;
 		const GLuint components_per_texcoord = 2;
 
+		if (glow_tex == 0)
+		{
+			glGenTextures(1, &glow_tex);
+			glBindTexture(GL_TEXTURE_2D, glow_tex);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
 		if (colour_tex == 0)
 		{
-			std::vector<unsigned char> buffer;
-			loadFile(buffer, texture_filename.c_str());
-			unsigned long w, h;
-			decodePNG(colour_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
-
-			colour_data_x = w;
-			colour_data_y = h;
-
 			glGenTextures(1, &colour_tex);
 			glBindTexture(GL_TEXTURE_2D, colour_tex);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -2017,17 +2063,8 @@ public:
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 
-
 		if (specular_tex == 0)
 		{
-			std::vector<unsigned char> buffer;
-			loadFile(buffer, specular_texture_filename.c_str());
-			unsigned long w, h;
-			decodePNG(specular_data, w, h, &buffer[0], buffer.size() * sizeof(unsigned char));
-
-			specular_data_x = w;
-			specular_data_y = h;
-
 			glGenTextures(1, &specular_tex);
 			glBindTexture(GL_TEXTURE_2D, specular_tex);
 
@@ -2036,6 +2073,10 @@ public:
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
+
+		glBindTexture(GL_TEXTURE_2D, glow_tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(glow_data_x), static_cast<GLsizei>(glow_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &glow_data[0]);
+
 
 		glBindTexture(GL_TEXTURE_2D, colour_tex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(colour_data_x), static_cast<GLsizei>(colour_data_y), 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour_data[0]);

@@ -4,6 +4,7 @@ uniform sampler2D regular_tex;
 uniform sampler2D upside_down_tex;
 uniform sampler2D reflectance_tex;
 uniform sampler2D upside_down_white_mask_tex;
+uniform sampler2D glowmap_tex;
 uniform sampler2D depth_tex;
 
 in vec2 ftexcoord;
@@ -20,9 +21,10 @@ void main()
 {
 
 
-  //frag_colour = texture( upside_down_tex, ftexcoord);
+    // for debug purposs
+  frag_colour = texture( regular_tex, ftexcoord);
 
-  //return;
+  return;
 
 
    const float pi_times_2 = 6.28318530718; // Pi*2
@@ -90,6 +92,9 @@ void main()
 
     frag_colour =  mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);                 
     return;
+
+
+
 
 
 }
