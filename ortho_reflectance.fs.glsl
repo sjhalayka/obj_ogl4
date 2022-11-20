@@ -1,4 +1,4 @@
-#version 430
+    #version 430
 
 uniform sampler2D regular_tex;
 uniform sampler2D upside_down_tex;
@@ -127,7 +127,7 @@ void main()
     vec4 final_colour = mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);
 
     // Bloom mixer
-    final_colour += glowmap_blurred_colour;
+    final_colour += glowmap_blurred_colour*2;
 
     frag_colour = final_colour;
     //frag_colour = mix(final_colour, glowmap_blurred_colour, glowmap_blurred_colour);                 
