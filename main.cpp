@@ -415,6 +415,7 @@ void draw_scene(GLuint fbo_handle)
 	GLuint upside_down_tex = 0;
 	GLuint reflectance_tex = 0;
 	GLuint regular_tex = 0;
+	GLuint glowmap_tex = 0;
 	GLuint d_tex = 0;
 
 	glGenTextures(1, &upside_down_white_mask_tex);
@@ -457,6 +458,15 @@ void draw_scene(GLuint fbo_handle)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	glGenTextures(1, &glowmap_tex);
+	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -479,6 +489,12 @@ void draw_scene(GLuint fbo_handle)
 	// Regular map
 	draw_stuff(offscreen_fbo, false, false, false, false);
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+
+	// Glow map
+	draw_stuff(offscreen_fbo, false, false, false, true);
+	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
 
@@ -516,9 +532,14 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 3);
 
+
 	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
+
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 4);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 5);
 
 
 

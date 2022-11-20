@@ -22,7 +22,7 @@ void main()
 
 
     // for debug purposs
-  frag_colour = texture( regular_tex, ftexcoord);
+  frag_colour = texture( glowmap_tex, ftexcoord);
 
   return;
 

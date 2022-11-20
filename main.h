@@ -675,10 +675,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "specular_only"), 0);
 	
-		if (glowmap_only)
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 1);
-		else
-			glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 0);
+		if (false == solid_white)
+		{
+			if (glowmap_only)
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 1);
+			else
+				glUniform1i(glGetUniformLocation(point_shader.get_program(), "glowmap_only"), 0);
+		}
 	}
 
 
