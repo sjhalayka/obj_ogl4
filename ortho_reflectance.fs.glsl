@@ -48,7 +48,7 @@ void main()
         {
             vec4 temp_colour = texture( glowmap_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
 
-            if(temp_colour.xyz != vec3(0, 0, 0))
+            if(true)//temp_colour.xyz != vec3(0, 0, 0))
             {
         	    glowmap_blurred_colour += temp_colour;
                 count++;
@@ -57,7 +57,7 @@ void main()
     }
     
     // Output to screen
-    glowmap_blurred_colour /= count;
+   glowmap_blurred_colour /= count;
 
     
 
@@ -127,7 +127,10 @@ void main()
     vec4 final_colour = mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);
 
     // Bloom mixer
-    frag_colour = mix(final_colour, glowmap_blurred_colour, glowmap_blurred_colour);                 
+    final_colour += glowmap_blurred_colour;
+
+    frag_colour = final_colour;
+    //frag_colour = mix(final_colour, glowmap_blurred_colour, glowmap_blurred_colour);                 
 }
 
 
