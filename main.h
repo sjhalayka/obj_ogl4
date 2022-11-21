@@ -56,7 +56,7 @@ vector<bool> board_highlight_enabled;
 
 
 GLuint last_frame_glowmap_tex = 0;
-
+GLuint last_frame_glowmap_tex2 = 0;
 
 
 // These need to be adjusted when players die
@@ -578,12 +578,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	//	glClearColor(0, 0, 0, 0);
 
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 
 	if (false == reflectance_only && false == solid_white && false == glowmap_only)
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
 			if (lightEnabled[i] == 0 || lightShadowCaster[i] == 0)
@@ -673,6 +673,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 	point_shader.use_program();
 
