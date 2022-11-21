@@ -208,13 +208,6 @@ void main()
     if(glowmap_only == 1)
 	{
 		FragColor = texture(glowTexture, fs_in.TexCoords);
-		
-//		vec3 n =  fs_in.untransformed_normal;
-//		vec3 n2 = vec3(0, 1, 0);
-
-//		if(dot(n, n2) < 0.95)
-//			FragColor = vec4(0, 0, 0, 1);
-	
 		return;
 	}
 
