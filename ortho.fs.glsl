@@ -38,6 +38,7 @@ vec4 get_blurred_pixel(vec2 tc)
     float distance_to_pixel = to_distance(depth_colour);
 
 
+    /*
     float x = clamp(distance_to_pixel, 0.0, 2*model_distance) / (2*model_distance);
 
     // tent function
@@ -48,8 +49,30 @@ vec4 get_blurred_pixel(vec2 tc)
     x *= 2.0; // from 0 to 2
     x -= 1.0; // from -1 to 1
 
-    x = abs(x);
-    x = pow(x, 10.0);
+    x = 1 - abs(x);
+  //  x = pow(x, 30.0);
+   */
+
+
+
+   float x = clamp(distance_to_pixel, 0.0, 2*model_distance) / (2*model_distance);
+
+// tent function
+if(x > 0.5)
+    x = 1.0 - x; // from 0 to 0.5
+
+x *= 2.0; // from 0 to 1
+x *= 2.0; // from 0 to 2
+x -= 1.0; // from -1 to 1
+
+x = abs(x);
+x = pow(x, 20.0);
+
+// tent function
+if(x > 0.5)
+     x = 1.0 - x;
+
+ x = 1.0 - pow(x, 1.0/10.0);
 
 
 
