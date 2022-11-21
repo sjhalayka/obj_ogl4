@@ -56,7 +56,6 @@ vector<bool> board_highlight_enabled;
 
 
 GLuint last_frame_glowmap_tex = 0;
-GLuint last_frame_glowmap_tex2 = 0;
 
 
 // These need to be adjusted when players die
@@ -1243,7 +1242,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	
-	if (false == glowmap_only)//false == reflectance_only)
+	if (1)//false == glowmap_only)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{
@@ -1302,7 +1301,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 
 	
-	if (false == glowmap_only && clicked_collision_location != vec3(0, 0, 0))
+	if (/*false == glowmap_only &&*/ clicked_collision_location != vec3(0, 0, 0))
 	{
 			glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 
@@ -1344,7 +1343,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	
 
 
-	if (false == glowmap_only && hover_collision_location != vec3(0, 0, 0))
+	if (/*false == glowmap_only &&*/ hover_collision_location != vec3(0, 0, 0))
 	{
 		glUniform1i(glGetUniformLocation(point_shader.get_program(), "flat_draw"), 1);
 

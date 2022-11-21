@@ -7,6 +7,7 @@ uniform sampler2D upside_down_white_mask_tex;
 uniform sampler2D glowmap_tex;
 uniform sampler2D last_frame_glowmap_tex;
 
+
 uniform sampler2D depth_tex;
 
 in vec2 ftexcoord;
@@ -41,8 +42,9 @@ void main()
 
    int count = 0;
 
-   vec4 glowmap_blurred_colour = mix(texture( glowmap_tex, ftexcoord), texture(last_frame_glowmap_tex, ftexcoord), 0.9);
+   vec4 glowmap_blurred_colour = texture( glowmap_tex, ftexcoord) +  texture(last_frame_glowmap_tex, ftexcoord);
    count++;
+   
    
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
     {
@@ -50,41 +52,14 @@ void main()
         {
             vec2 texcoords = ftexcoord + vec2(cos(d),sin(d))*radius*i;
 
-            vec4 temp_colour = mix(texture( glowmap_tex, texcoords), texture(last_frame_glowmap_tex, texcoords), 0.9);
-            glowmap_blurred_colour += temp_colour;
+            glowmap_blurred_colour += texture( glowmap_tex, texcoords) + texture(last_frame_glowmap_tex, texcoords);
+           
             count++;
         }
     }
-    
-   glowmap_blurred_colour /= count;
-
-
-    /*
-   int count = 0;
-
-   vec4 glowmap_blurred_colour = texture(glowmap_tex, ftexcoord);
-   count++;
    
-    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
-    {
-		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
-        {
-            vec4 temp_colour = texture( glowmap_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
-            glowmap_blurred_colour += temp_colour;
-            count++;
-        }
-    }
-    
+
    glowmap_blurred_colour /= count;
-   */
-    
-
-
-
- 
-
-
-
 
 
 
