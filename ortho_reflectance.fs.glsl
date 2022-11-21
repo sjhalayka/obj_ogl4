@@ -41,6 +41,27 @@ void main()
 
    int count = 0;
 
+   vec4 glowmap_blurred_colour = mix(texture( glowmap_tex, ftexcoord), texture(last_frame_glowmap_tex, ftexcoord), 0.9);
+   count++;
+   
+    for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
+    {
+		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
+        {
+            vec2 texcoords = ftexcoord + vec2(cos(d),sin(d))*radius*i;
+
+            vec4 temp_colour = mix(texture( glowmap_tex, texcoords), texture(last_frame_glowmap_tex, texcoords), 0.9);
+            glowmap_blurred_colour += temp_colour;
+            count++;
+        }
+    }
+    
+   glowmap_blurred_colour /= count;
+
+
+    /*
+   int count = 0;
+
    vec4 glowmap_blurred_colour = texture(glowmap_tex, ftexcoord);
    count++;
    
@@ -55,7 +76,7 @@ void main()
     }
     
    glowmap_blurred_colour /= count;
-
+   */
     
 
 

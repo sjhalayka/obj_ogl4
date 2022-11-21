@@ -616,7 +616,7 @@ void draw_scene(GLuint fbo_handle)
 
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
-
+	// Make backup of glow map
 	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
