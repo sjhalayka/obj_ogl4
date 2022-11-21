@@ -459,16 +459,16 @@ void draw_scene(GLuint fbo_handle)
 
 
 	// to do: recreate these on window size change
-	if (last_frame_glowmap_tex == 0)
-	{
-		glGenTextures(1, &last_frame_glowmap_tex);
-		glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
+	//if (last_frame_glowmap_tex == 0)
+	//{
+	//	glGenTextures(1, &last_frame_glowmap_tex);
+	//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//}
 
 
 
@@ -540,9 +540,9 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
 
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
+	//glActiveTexture(GL_TEXTURE5);
+	//glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	//glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
 
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
@@ -618,9 +618,10 @@ void draw_scene(GLuint fbo_handle)
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
-	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-		win_x, win_y, 1);
+	// Sort of works
+	//glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+	//	last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+	//	win_x, win_y, 1);
 
 
 
@@ -1132,27 +1133,27 @@ void keyboard_func(unsigned char key, int x, int y)
 		break;
 
 	case 'z':
-		player_game_piece_meshes[0].model_mat[3][1] = player_game_piece_meshes[0].model_mat[3][1] + 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] + 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 'x':
-		player_game_piece_meshes[0].model_mat[3][1] = player_game_piece_meshes[0].model_mat[3][1] - 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] - 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 'w':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 's':
-		player_game_piece_meshes[0].model_mat[3][0] = player_game_piece_meshes[0].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 'a':
-		player_game_piece_meshes[0].model_mat[3][2] = player_game_piece_meshes[0].model_mat[3][2] + 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] + 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 'd':
-		player_game_piece_meshes[0].model_mat[3][2] = player_game_piece_meshes[0].model_mat[3][2] - 0.1f;// vec4(n_up * displacement, 1.0f);
+		player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] - 0.1f;// vec4(n_up * displacement, 1.0f);
 		break;
 
 	case 'o':

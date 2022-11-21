@@ -42,7 +42,7 @@ void main()
 
    int count = 0;
 
-   vec4 glowmap_blurred_colour = texture( glowmap_tex, ftexcoord) +  texture(last_frame_glowmap_tex, ftexcoord);
+   vec4 glowmap_blurred_colour = texture( glowmap_tex, ftexcoord);// + texture(last_frame_glowmap_tex, ftexcoord);
    count++;
    
    
@@ -52,12 +52,12 @@ void main()
         {
             vec2 texcoords = ftexcoord + vec2(cos(d),sin(d))*radius*i;
 
-            glowmap_blurred_colour += texture( glowmap_tex, texcoords) + texture(last_frame_glowmap_tex, texcoords);
+            glowmap_blurred_colour += texture( glowmap_tex, texcoords);// + texture(last_frame_glowmap_tex, texcoords);
            
             count++;
         }
     }
-   
+ 
 
    glowmap_blurred_colour /= count;
 

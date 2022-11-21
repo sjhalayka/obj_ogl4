@@ -55,7 +55,7 @@ vector<vec3> board_highlight_colours;
 vector<bool> board_highlight_enabled;
 
 
-GLuint last_frame_glowmap_tex = 0;
+//GLuint last_frame_glowmap_tex = 0;
 
 
 // These need to be adjusted when players die
