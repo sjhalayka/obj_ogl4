@@ -5,6 +5,8 @@ uniform sampler2D upside_down_tex;
 uniform sampler2D reflectance_tex;
 uniform sampler2D upside_down_white_mask_tex;
 uniform sampler2D glowmap_tex;
+uniform sampler2D last_frame_glowmap_tex;
+
 uniform sampler2D depth_tex;
 
 in vec2 ftexcoord;
@@ -22,7 +24,7 @@ void main()
 
 
     // for debug purposes
-//  frag_colour = texture( regular_tex, ftexcoord);
+//  frag_colour = texture(last_frame_glowmap_tex, ftexcoord);
 
 //  return;
 
@@ -47,16 +49,11 @@ void main()
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
         {
             vec4 temp_colour = texture( glowmap_tex, ftexcoord + vec2(cos(d),sin(d))*radius*i);
-
-            if(true)//temp_colour.xyz != vec3(0, 0, 0))
-            {
-        	    glowmap_blurred_colour += temp_colour;
-                count++;
-            }
+            glowmap_blurred_colour += temp_colour;
+            count++;
         }
     }
     
-    // Output to screen
    glowmap_blurred_colour /= count;
 
     
@@ -129,8 +126,7 @@ void main()
     // Bloom mixer
     final_colour += glowmap_blurred_colour*2;
 
-    frag_colour = final_colour;
-    //frag_colour = mix(final_colour, glowmap_blurred_colour, glowmap_blurred_colour);                 
+    frag_colour = final_colour;                 
 }
 
 

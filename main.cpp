@@ -400,11 +400,6 @@ void reshape_func(int width, int height)
 
 void draw_scene(GLuint fbo_handle)
 {
-	glClearColor(1, 0.5, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0, 0, 0, 1);
-
-
 	glUseProgram(point_shader.get_program());
 
 	GLuint upside_down_white_mask_tex = 0;
@@ -461,6 +456,18 @@ void draw_scene(GLuint fbo_handle)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	if (last_frame_glowmap_tex == 0)
+	{
+		glGenTextures(1, &last_frame_glowmap_tex);
+		glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
 
 
 
@@ -528,18 +535,17 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "regular_tex"), 3);
 
-
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
 
 	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
+
+	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 5);
-
-
-
-
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 6);
 
 
 
@@ -611,10 +617,16 @@ void draw_scene(GLuint fbo_handle)
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
+	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+		win_x, win_y, 1);
+
+
 	glDeleteTextures(1, &upside_down_white_mask_tex);
 	glDeleteTextures(1, &upside_down_tex);
 	glDeleteTextures(1, &reflectance_tex);
 	glDeleteTextures(1, &regular_tex);
+	glDeleteTextures(1, &glowmap_tex);
 	glDeleteTextures(1, &d_tex);
 
 	//const string s = "Paused. Press esc to continue!";
