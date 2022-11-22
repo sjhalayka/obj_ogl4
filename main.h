@@ -10,6 +10,7 @@
 #include "vertex_fragment_shader.h"
 #include "vertex_geometry_fragment_shader.h"
 #include "astar.h"
+#include "arc_animation.h"
 
 #include <cstdlib>
 #include "GL/glew.h"
@@ -37,6 +38,9 @@ using std::istringstream;
 #include <algorithm>
 using std::min;
 using std::max;
+
+#include <deque>
+using std::deque;
 
 
 void idle_func(void);
@@ -93,6 +97,9 @@ vector<mesh> player_game_piece_meshes;
 mesh light_mesh;
 binned_mesh board_mesh;
 
+deque<arc_animation> anim_deque;
+
+vector<pair<int, int>> output_path;
 
 
 enum possible_collision_locations { player_game_piece, game_board, background };
@@ -523,21 +530,21 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r = 1;
-	lightColours[0].g = 1 ;
-	lightColours[0].b = 1 ;
+	lightColours[0].r = 0.75;
+	lightColours[0].g = 0.75;
+	lightColours[0].b = 0.75;
 
-	lightColours[1].r = 1 ;
-	lightColours[1].g =1 ;
-	lightColours[1].b = 1 ;
+	lightColours[1].r = 0.2;
+	lightColours[1].g = 0.2 ;
+	lightColours[1].b = 0.2;
 
 	lightColours[2].r = 0 ;
 	lightColours[2].g = 0 ;
 	lightColours[2].b = 1 ;
 
-	lightColours[3].r =1 ;
-	lightColours[3].g = 0 ;
-	lightColours[3].b = 0 ;
+	lightColours[3].r = 1;
+	lightColours[3].g = 0;
+	lightColours[3].b = 0;
 
 
 
@@ -1410,14 +1417,17 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index)
+void situate_player_mesh(size_t x_cell, size_t y_cell, size_t index, bool update_location = true)
 {
-	vec3 centre = board_mesh.get_centre(x_cell, y_cell);
-	centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
-	centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
+	if (update_location)
+	{
+		vec3 centre = board_mesh.get_centre(x_cell, y_cell);
+		centre.y = board_mesh.get_y_plane_min(x_cell, y_cell);
+		centre.y += player_game_piece_meshes[index].get_y_extent() * 0.5;
 
-	player_game_piece_meshes[index].model_mat[3] = vec4(0, 0, 0, 1);// = mat4(1.0f);
-	player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
+		player_game_piece_meshes[index].model_mat = mat4(1.0f);
+		player_game_piece_meshes[index].model_mat = translate(player_game_piece_meshes[index].model_mat, centre);
+	}
 
 	player_game_piece_meshes[index].cell_location.first = x_cell;
 	player_game_piece_meshes[index].cell_location.second = y_cell;
@@ -1434,6 +1444,363 @@ void move_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 	player_game_piece_meshes[index].cell_location.first = x_cell;
 	player_game_piece_meshes[index].cell_location.second = y_cell;
 }
+
+
+
+
+void update_board_highlighting(void)
+{
+
+	pair<size_t, size_t> hover_start = player_game_piece_meshes[current_player].cell_location;
+	size_t hover_start_x = hover_start.first;
+	size_t hover_start_y = hover_start.second;
+
+	size_t hover_end_x = hover_cell_x;
+	size_t hover_end_y = hover_cell_y;
+
+
+	Pair src = make_pair(hover_start_x, hover_start_y);
+
+	// Destination is the left-most top-most corner
+	Pair dest = make_pair(hover_end_x, hover_end_y);
+
+	output_path.clear();
+
+	path_line_strip.clear();
+
+	int grid_temp[ROW][COL] =
+	{
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 }
+	};
+
+	for (size_t i = 0; i < ROW; i++)
+	{
+		for (size_t j = 0; j < COL; j++)
+		{
+			for (size_t k = 0; k < player_game_piece_meshes.size(); k++)
+			{
+				if (k == current_player)
+				{
+					grid_temp[player_game_piece_meshes[k].cell_location.first][player_game_piece_meshes[k].cell_location.second] = 1;
+				}
+				else
+				{
+					grid_temp[player_game_piece_meshes[k].cell_location.first][player_game_piece_meshes[k].cell_location.second] = 0;
+				}
+			}
+
+			grid[i][j] = grid_temp[i][j];
+		}
+	}
+
+	for (size_t i = 0; i < (ROW); i++)
+	{
+		for (size_t j = 0; j < (COL); j++)
+		{
+			size_t index = j * ROW + i;
+
+			vec4 m = player_game_piece_meshes[current_player].model_mat[3];
+			vec3 player_centre(m.x, m.y, m.z);
+
+			vec3 start_centre = board_mesh.get_centre(i, j);
+			start_centre.y = board_mesh.get_y_plane_min(i, j);
+
+			// to do: change the parameter used here to the player's distance paramter
+			// like, far reach for an archer or mage, close reach for
+			// tanks
+			if (distance(player_centre, start_centre) < 4.0 && aStarSearch(grid, pair<size_t, size_t>(player_game_piece_meshes[current_player].cell_location.first, player_game_piece_meshes[current_player].cell_location.second), pair<size_t, size_t>(i, j), output_path))
+			{
+				if (hover_cell_x == i && hover_cell_y == j)
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(0, 1, 0);
+				}
+				else
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(0, 0, 1);
+				}
+			}
+			else
+			{
+				if (hover_cell_x == i && hover_cell_y == j)
+				{
+					board_highlight_enabled[index] = true;
+					board_highlight_colours[index] = vec3(1, 0, 0);
+				}
+				else
+				{
+					board_highlight_enabled[index] = false;
+				}
+			}
+		}
+	}
+
+
+
+	if (false == aStarSearch(grid, src, dest, output_path))
+	{
+		cout << "did not find path" << endl;
+	}
+
+
+}
+
+
+
+
+
+void get_hover_collision_location(size_t x, size_t y)
+{
+	// Only one can be picked at a time
+	player_highlight_enabled.clear();
+	player_highlight_enabled.resize(player_game_piece_meshes.size(), false);
+
+	// Get intersection point closest to camera
+
+
+	vec3 ray = screen_coords_to_world_coords(x, y, win_x, win_y);
+
+	float t = 0;
+
+	hover_col_loc = background;
+	bool first_assignment = true;
+
+	vec4 start = vec4(main_camera.eye, 1.0);
+	vec4 direction = vec4(ray, 0.0);
+	direction = normalize(direction);
+
+	// bounding box is axis aligned for the board mesh
+	// and assuming that board_mesh's model matrix equals mat4(1.0f)
+	if (true == board_mesh.intersect_AABB(start, direction))
+	{
+		vec3 closest_intersection_point;
+
+		for (size_t cell_x = 0; cell_x < board_mesh.num_cells_wide; cell_x++)
+		{
+			for (size_t cell_y = 0; cell_y < board_mesh.num_cells_wide; cell_y++)
+			{
+				size_t index = cell_y * board_mesh.num_cells_wide + cell_x;
+
+				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, cell_x, cell_y))
+				{
+					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+
+					hover_collision_location = closest_intersection_point;
+					hover_col_loc = game_board;
+					hover_cell_x = cell_x;
+					hover_cell_y = cell_y;
+					first_assignment = false;
+
+					board_highlight_colours[index] = vec3(1, 0.5, 0);
+					board_highlight_enabled[index] = true;
+				}
+				else
+				{
+					//board_highlight_colours[index] = vec3(1, 0.5, 0);
+					board_highlight_enabled[index] = false;
+				}
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
+		mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+
+
+
+				if (first_assignment)
+				{
+					hover_collision_location = closest_intersection_point;
+
+					hover_col_loc = player_game_piece;
+					hover_collision_location_index = i;
+
+					first_assignment = false;
+
+					player_highlight_colours[i] = vec3(1, 0.5, 0);
+					player_highlight_enabled[i] = true;
+
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - hover_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						hover_collision_location = closest_intersection_point;
+
+						hover_col_loc = player_game_piece;
+						hover_collision_location_index = i;
+
+						// ... so that only one player is highlighted
+						player_highlight_enabled.clear();
+						player_highlight_enabled.resize(player_highlight_colours.size(), false);
+
+						player_highlight_colours[i] = vec3(1, 0.5, 0);
+						player_highlight_enabled[i] = true;
+					}
+				}
+			}
+		}
+	}
+
+	// Nothing was clicked on, so the background is set
+	if (first_assignment)
+	{
+		hover_collision_location = vec3(0, 0, 0);
+		hover_col_loc = background;
+	}
+
+	size_t number_players_highlighted = 0;
+
+	for (size_t j = 0; j < player_highlight_enabled.size(); j++)
+	{
+		if (player_highlight_enabled[j])
+		{
+			number_players_highlighted++;
+		}
+	}
+
+	if (number_players_highlighted > 0)
+	{
+		//cout << "num highlighted " << number_players_highlighted << endl;
+
+		board_highlight_enabled.clear();
+		board_highlight_enabled.resize(board_mesh.num_cells_wide * board_mesh.num_cells_wide, false);
+	}
+}
+
+
+
+
+
+
+void get_collision_location(size_t x, size_t y)
+{
+	// Get intersection point closest to camera
+
+	vec3 ray = screen_coords_to_world_coords(x, y, win_x, win_y);
+
+	float t = 0;
+
+	clicked_col_loc = background;
+	bool first_assignment = true;
+
+	vec4 start = vec4(main_camera.eye, 1.0);
+	vec4 direction = vec4(ray, 0.0);
+	direction = normalize(direction);
+
+	// bounding box is axis aligned for the board mesh
+	// bounding box is centred on xyz -- the mesh model matrix is the identity matrix
+	// (assumes that board_mesh's model matrix equals mat4(1.0f))
+	if (true == board_mesh.intersect_AABB(start, direction))
+	{
+		vec3 closest_intersection_point;
+
+		for (size_t cell_x = 0; cell_x < board_mesh.num_cells_wide; cell_x++)
+		{
+			for (size_t cell_y = 0; cell_y < board_mesh.num_cells_wide; cell_y++)
+			{
+				if (true == board_mesh.intersect_triangles(start, direction, closest_intersection_point, cell_x, cell_y))
+				{
+					closest_intersection_point = board_mesh.model_mat * vec4(closest_intersection_point, 1);
+
+					clicked_collision_location = closest_intersection_point;
+					clicked_col_loc = game_board;
+					clicked_cell_x = cell_x;
+					clicked_cell_y = cell_y;
+					first_assignment = false;
+				}
+			}
+		}
+	}
+
+
+	for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
+	{
+		// Not necessarily axis-aligned (characters can rotate)
+		mat4 inv = inverse(player_game_piece_meshes[i].model_mat);
+		vec4 start = inv * vec4(main_camera.eye, 1.0);
+		vec4 direction = inv * vec4(ray, 0.0);
+		direction = normalize(direction);
+
+		if (true == player_game_piece_meshes[i].intersect_AABB(start, direction))
+		{
+			vec3 closest_intersection_point;
+
+			if (true == player_game_piece_meshes[i].intersect_triangles(start, direction, closest_intersection_point, false))
+			{
+				closest_intersection_point = player_game_piece_meshes[i].model_mat * vec4(closest_intersection_point, 1);
+
+				if (first_assignment)
+				{
+					clicked_collision_location = closest_intersection_point;
+
+					clicked_col_loc = player_game_piece;
+					clicked_collision_location_index = i;
+
+					first_assignment = false;
+				}
+				else
+				{
+					vec3 c0 = vec3(main_camera.eye) - closest_intersection_point;
+					vec3 c1 = vec3(main_camera.eye) - clicked_collision_location;
+
+					if (length(c0) < length(c1))
+					{
+						clicked_collision_location = closest_intersection_point;
+
+						clicked_col_loc = player_game_piece;
+						clicked_collision_location_index = i;
+					}
+				}
+			}
+		}
+	}
+
+
+	// Nothing was clicked on, so the background is set
+	if (first_assignment)
+	{
+		clicked_collision_location = vec3(0, 0, 0);
+		clicked_col_loc = background;
+	}
+}
+
+
+
 
 #endif
 

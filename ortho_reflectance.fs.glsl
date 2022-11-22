@@ -118,7 +118,7 @@ void main()
 
     vec4 final_colour = mix(texture(regular_tex, ftexcoord), upside_down_colour, texture(reflectance_tex, ftexcoord)*upside_down_white_mask);
 
-    final_colour += glowmap_blurred_colour;
+    final_colour += glowmap_blurred_colour*2;
 
     frag_colour = final_colour;                 
 }

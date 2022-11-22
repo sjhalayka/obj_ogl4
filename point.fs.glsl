@@ -42,8 +42,7 @@ uniform int glowmap_only = 0;
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
-float MaterialShininess = 100;
-
+float MaterialShininess = 1;
 
 vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 {
@@ -211,7 +210,7 @@ void main()
 		return;
 	}
 
-	MaterialKs = texture(specularTexture, fs_in.TexCoords).rgb;
+	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
 
 
 	int num_shadows = 0;
@@ -296,6 +295,6 @@ void main()
 
 
 
-    //FragColor = pow(FragColor, vec4(1.0 / 2.2));
+//    FragColor = pow(FragColor, vec4(1.0 / 2.2));
 
 }
