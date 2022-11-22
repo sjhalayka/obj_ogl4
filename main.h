@@ -530,21 +530,21 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r = 0.75;
-	lightColours[0].g = 0.75;
-	lightColours[0].b = 0.75;
+	lightColours[0].r = 1;
+	lightColours[0].g = 1;
+	lightColours[0].b = 1;
 
-	lightColours[1].r = 0.2;
-	lightColours[1].g = 0.2 ;
-	lightColours[1].b = 0.2;
+	lightColours[1].r = 1;
+	lightColours[1].g = 1 ;
+	lightColours[1].b = 1;
 
-	lightColours[2].r = 0 ;
-	lightColours[2].g = 0 ;
+	lightColours[2].r = 0.2 ;
+	lightColours[2].g = 0.2 ;
 	lightColours[2].b = 1 ;
 
 	lightColours[3].r = 1;
-	lightColours[3].g = 0;
-	lightColours[3].b = 0;
+	lightColours[3].g = 0.2;
+	lightColours[3].b = 0.2;
 
 
 
@@ -1519,8 +1519,17 @@ void update_board_highlighting(void)
 			{
 				if (hover_cell_x == i && hover_cell_y == j)
 				{
-					board_highlight_enabled[index] = true;
-					board_highlight_colours[index] = vec3(0, 1, 0);
+					// Disallow movement to and from the same cell
+					if (i == player_game_piece_meshes[current_player].cell_location.first && j == player_game_piece_meshes[current_player].cell_location.second)
+					{
+						board_highlight_enabled[index] = true;
+						board_highlight_colours[index] = vec3(1, 0, 0);
+					}
+					else
+					{
+						board_highlight_enabled[index] = true;
+						board_highlight_colours[index] = vec3(0, 1, 0);
+					}
 				}
 				else
 				{

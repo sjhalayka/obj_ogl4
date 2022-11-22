@@ -56,9 +56,12 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 
     if( sDotN > 0.0 )
     {
-        spec.x = lightColours[index].r*MaterialKs.r * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.y = lightColours[index].g*MaterialKs.g * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.z = lightColours[index].b*MaterialKs.b * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        // Bend reality a little bit
+        float distsq = pow(distance(lightPositions[index].xyz, fs_in.untransformed_position), 2.0);
+
+        spec.x = 1.0/distsq * lightColours[index].r*MaterialKs.r * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec.y = 1.0/distsq * lightColours[index].g*MaterialKs.g * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec.z = 1.0/distsq * lightColours[index].b*MaterialKs.b * pow( max( dot(r,v), 0.0 ), MaterialShininess );
     }
 
     vec3 n2 = fs_in.untransformed_normal;//fs_in.Normal;

@@ -159,8 +159,6 @@ void idle_func(void)
 			player_game_piece_meshes[current_player].model_mat = translate(player_game_piece_meshes[current_player].model_mat, anim_deque[0].end_location);
 
 			situate_player_mesh(anim_deque[0].end_cell_x, anim_deque[0].end_cell_y, current_player, true);
-			
-
 
 			anim_deque.pop_front();
 			popped_front = true;
@@ -175,9 +173,11 @@ void idle_func(void)
 		if (popped_front && anim_deque.size() > 0)
 			anim_deque[0].start_time = std::chrono::high_resolution_clock::now();
 	}
-
-	get_hover_collision_location(mouse_x, mouse_y);
-	update_board_highlighting();
+	else
+	{
+		get_hover_collision_location(mouse_x, mouse_y);
+		update_board_highlighting();
+	}
 
 	glutPostRedisplay();
 }
@@ -735,38 +735,35 @@ void mouse_func(int button, int state, int x, int y)
 
 			if (board_highlight_colours[index].g == 1.0)
 			{
-				if (output_path.size() == 1)
+				if (output_path.size() == 0)
 				{
-					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
+//					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
+//					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
 				}
-				else if (output_path.size() == 0)
+				else
 				{
-					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
-					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
-				}
+					for (size_t i = 0; i < output_path.size() - 1; i++)
+					{
+						vec3 start_centre = board_mesh.get_centre(output_path[i].first, output_path[i].second);
+						start_centre.y = board_mesh.get_y_plane_min(output_path[i].first, output_path[i].second);
+						start_centre.y += player_game_piece_meshes[current_player].get_y_extent() * 0.5;
 
+						vec3 end_centre = board_mesh.get_centre(output_path[i + 1].first, output_path[i + 1].second);
+						end_centre.y = board_mesh.get_y_plane_min(output_path[i + 1].first, output_path[i + 1].second);
+						end_centre.y += player_game_piece_meshes[current_player].get_y_extent() * 0.5;
 
-				for (size_t i = 0; i < output_path.size() - 1; i++)
-				{
-					vec3 start_centre = board_mesh.get_centre(output_path[i].first, output_path[i].second);
-					start_centre.y = board_mesh.get_y_plane_min(output_path[i].first, output_path[i].second);
-					start_centre.y += player_game_piece_meshes[current_player].get_y_extent() * 0.5;
+						arc_animation a;
+						a.start_location = start_centre;
+						a.end_location = end_centre;
+						a.duration = 0.5;
+						a.end_cell_x = output_path[i + 1].first;
+						a.end_cell_y = output_path[i + 1].second;
 
-					vec3 end_centre = board_mesh.get_centre(output_path[i + 1].first, output_path[i + 1].second);
-					end_centre.y = board_mesh.get_y_plane_min(output_path[i + 1].first, output_path[i + 1].second);
-					end_centre.y += player_game_piece_meshes[current_player].get_y_extent() * 0.5;
+						// Only need to set this for the first animation in a batch
+						a.start_time = std::chrono::high_resolution_clock::now();
 
-					arc_animation a;
-					a.start_location = start_centre;
-					a.end_location = end_centre;
-					a.duration = 0.5;
-					a.end_cell_x = output_path[i + 1].first;
-					a.end_cell_y = output_path[i + 1].second;
-
-					// Only need to set this for the first animation in a batch
-					a.start_time = std::chrono::high_resolution_clock::now();
-
-					anim_deque.push_back(a);
+						anim_deque.push_back(a);
+					}
 				}
 			}
 
