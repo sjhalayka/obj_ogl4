@@ -42,7 +42,7 @@ uniform int glowmap_only = 0;
 vec3 MaterialKd = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKs = vec3(1.0, 1.0, 1.0);
 vec3 MaterialKa = vec3(0.0, 0.025, 0.075);
-float MaterialShininess = 1;
+float MaterialShininess = 100;
 
 
 vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
@@ -57,9 +57,9 @@ vec3 phongModelDiffAndSpec(bool do_specular, vec3 lp, int index)
 
     if( sDotN > 0.0 )
     {
-        spec.x = MaterialKs.x * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.y = MaterialKs.y * pow( max( dot(r,v), 0.0 ), MaterialShininess );
-        spec.z = MaterialKs.z * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec.x = lightColours[index].r*MaterialKs.r * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec.y = lightColours[index].g*MaterialKs.g * pow( max( dot(r,v), 0.0 ), MaterialShininess );
+        spec.z = lightColours[index].b*MaterialKs.b * pow( max( dot(r,v), 0.0 ), MaterialShininess );
     }
 
     vec3 n2 = fs_in.untransformed_normal;//fs_in.Normal;
@@ -211,7 +211,7 @@ void main()
 		return;
 	}
 
-	MaterialKs *= texture(specularTexture, fs_in.TexCoords).rgb;
+	MaterialKs = texture(specularTexture, fs_in.TexCoords).rgb;
 
 
 	int num_shadows = 0;
@@ -260,9 +260,10 @@ void main()
 			else
 				s = get_shadow(lightPositions[i], depthMaps[i]);
 
-			vec3 phong_contrib = phongModelDiffAndSpec(true, lightPositions[i], i);
-			vec3 shadow_contrib = s * phongModelDiffAndSpec(false, lightPositions[i], i);
-			diffAndSpec += mix(phong_contrib, shadow_contrib, 0.75);
+			vec3 phong_contrib = phongModelDiffAndSpec(true, lightPositions[i], i);            
+            vec3 shadow_contrib = s * phongModelDiffAndSpec(false, lightPositions[i], i);
+
+			diffAndSpec += mix(phong_contrib, shadow_contrib, 0.5 );
 		}
 	}
 	
