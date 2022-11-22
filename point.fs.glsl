@@ -263,7 +263,7 @@ void main()
 			vec3 phong_contrib = phongModelDiffAndSpec(true, lightPositions[i], i);            
             vec3 shadow_contrib = s * phongModelDiffAndSpec(false, lightPositions[i], i);
 
-			diffAndSpec += mix(phong_contrib, shadow_contrib, 0.5 );
+			diffAndSpec += mix(phong_contrib, shadow_contrib, 1.0 );
 		}
 	}
 	
@@ -296,6 +296,6 @@ void main()
 
 
 
-    FragColor = pow(FragColor, vec4(1.0 / 2.2));
+    //FragColor = pow(FragColor, vec4(1.0 / 2.2));
 
 }
