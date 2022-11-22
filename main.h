@@ -55,8 +55,8 @@ vector<vec3> board_highlight_colours;
 vector<bool> board_highlight_enabled;
 
 
-//GLuint last_frame_glowmap_tex = 0;
-
+GLuint last_frame_glowmap_tex = 0;
+//GLuint last_frame_glowmap_tex2 = 0;
 
 // These need to be adjusted when players die
 // that is, delete the item, then reduce the index of
@@ -125,8 +125,8 @@ float y_offset = 0;
 
 int cam_factor = 4;
 
-size_t shadowMapWidth = 1024;
-size_t shadowMapHeight = 1024;
+size_t shadowMapWidth = 2048;
+size_t shadowMapHeight = 2048;
 
 const size_t max_num_lights = 4;
 vector<GLuint> depthCubemaps(max_num_lights, 0);
@@ -523,13 +523,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightPositions[3] = vec3(-6, 6, -6);
 
 
-	lightColours[0].r = 0.01;
-	lightColours[0].g = 0.01;
-	lightColours[0].b = 0.01;
+	lightColours[0].r = 0.125;
+	lightColours[0].g = 0.125;
+	lightColours[0].b = 0.125;
 
-	lightColours[1].r = 0.01;
-	lightColours[1].g = 0.01;
-	lightColours[1].b = 0.01;
+	lightColours[1].r = 0.125;
+	lightColours[1].g = 0.125;
+	lightColours[1].b = 0.125;
 
 	lightColours[2].r = 0.2;
 	lightColours[2].g = 0.2;
@@ -541,13 +541,13 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 
-	lightEnabled[0] = 0;
-	lightEnabled[1] = 0;
+	lightEnabled[0] = 1;
+	lightEnabled[1] = 1;
 	lightEnabled[2] = 1;
 	lightEnabled[3] = 1;
 
-	lightShadowCaster[0] = 1;
-	lightShadowCaster[1] = 1;
+	lightShadowCaster[0] = 0;
+	lightShadowCaster[1] = 0;
 	lightShadowCaster[2] = 1;
 	lightShadowCaster[3] = 1;
 
@@ -581,8 +581,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	if (false == reflectance_only && false == solid_white && false == glowmap_only)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		for (size_t i = 0; i < max_num_lights; i++)
 		{
 			if (lightEnabled[i] == 0 || lightShadowCaster[i] == 0)
@@ -590,13 +588,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBOs[i]);
 
-
-
 			glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 			main_camera.calculate_camera_matrices(shadowMapWidth, shadowMapHeight, false);
-
-
-
 
 			glClear(GL_DEPTH_BUFFER_BIT);
 			point_depth_shader.use_program();
@@ -671,7 +664,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
+	if(false == glowmap_only)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	else
+		glClear(GL_DEPTH_BUFFER_BIT);
 
 
 	point_shader.use_program();

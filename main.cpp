@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 	situate_player_mesh(0, 0, 0);
 	situate_player_mesh(4, 2, 1);
 
-	situate_player_mesh(5, 0, 2);
+	situate_player_mesh(4, 4, 2);
 	situate_player_mesh(6, 1, 3);
 
 	board_mesh.model_mat = mat4(1.0f);
@@ -459,18 +459,27 @@ void draw_scene(GLuint fbo_handle)
 
 
 	// to do: recreate these on window size change
-	//if (last_frame_glowmap_tex == 0)
+	if (last_frame_glowmap_tex == 0)
+	{
+		glGenTextures(1, &last_frame_glowmap_tex);
+		glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+	//if (last_frame_glowmap_tex2 == 0)
 	//{
-	//	glGenTextures(1, &last_frame_glowmap_tex);
-	//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	//	glGenTextures(1, &last_frame_glowmap_tex2);
+	//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex2);
 	//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
 	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	//}
-
-
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -495,11 +504,13 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, regular_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
 
-
 	// Glow map
 	draw_stuff(offscreen_fbo, false, false, false, true);
 	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, win_x, win_y);
+
+
+
 
 
 	glReadBuffer(GL_DEPTH_ATTACHMENT);
@@ -540,9 +551,9 @@ void draw_scene(GLuint fbo_handle)
 	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
 
-	//glActiveTexture(GL_TEXTURE5);
-	//glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
-	//glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
 
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
@@ -618,11 +629,10 @@ void draw_scene(GLuint fbo_handle)
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
-	// Sort of works
-	//glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-	//	last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-	//	win_x, win_y, 1);
-
+		// Sort of works, for one frame. very frustrating
+	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+		win_x, win_y, 1);
 
 
 	glDeleteTextures(1, &upside_down_white_mask_tex);
@@ -631,6 +641,9 @@ void draw_scene(GLuint fbo_handle)
 	glDeleteTextures(1, &regular_tex);
 	glDeleteTextures(1, &glowmap_tex);
 	glDeleteTextures(1, &d_tex);
+
+
+
 
 	//const string s = "Paused. Press esc to continue!";
 	//const float font_scale = win_x / 1024.0f;
