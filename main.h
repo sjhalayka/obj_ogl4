@@ -535,12 +535,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	lightColours[0].b = 1;
 
 	lightColours[1].r = 1;
-	lightColours[1].g = 1 ;
+	lightColours[1].g = 1;
 	lightColours[1].b = 1;
 
-	lightColours[2].r = 0.2 ;
-	lightColours[2].g = 0.2 ;
-	lightColours[2].b = 1 ;
+	lightColours[2].r = 0.2;
+	lightColours[2].g = 0.2;
+	lightColours[2].b = 1;
 
 	lightColours[3].r = 1;
 	lightColours[3].g = 0.2;

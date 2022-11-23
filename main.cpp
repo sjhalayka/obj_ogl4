@@ -158,7 +158,18 @@ void idle_func(void)
 			player_game_piece_meshes[current_player].model_mat = mat4(1.0f);
 			player_game_piece_meshes[current_player].model_mat = translate(player_game_piece_meshes[current_player].model_mat, anim_deque[0].end_location);
 
-			situate_player_mesh(anim_deque[0].end_cell_x, anim_deque[0].end_cell_y, current_player, true);
+			vec3 n_forward = anim_deque[0].end_location - anim_deque[0].start_location;
+			n_forward.y = 0;
+			n_forward = normalize(n_forward);
+
+			const vec3 n_up = vec3(0, 1, 0);
+			const vec3 n_left = cross(n_forward, n_up);
+
+			player_game_piece_meshes[current_player].model_mat[0] = normalize(vec4(-n_forward, 0.0f));
+			player_game_piece_meshes[current_player].model_mat[1] = normalize(vec4(n_up, 0.0f));
+			player_game_piece_meshes[current_player].model_mat[2] = normalize(vec4(-n_left, 0.0f));
+
+			situate_player_mesh(anim_deque[0].end_cell_x, anim_deque[0].end_cell_y, current_player, false);
 
 			anim_deque.pop_front();
 			popped_front = true;
@@ -167,6 +178,17 @@ void idle_func(void)
 		{
 			player_game_piece_meshes[current_player].model_mat = mat4(1.0f);
 			player_game_piece_meshes[current_player].model_mat = translate(player_game_piece_meshes[current_player].model_mat, anim_deque[0].curr_pos());
+
+			vec3 n_forward = anim_deque[0].end_location - anim_deque[0].start_location;
+			n_forward.y = 0;
+			n_forward = normalize(n_forward);
+
+			const vec3 n_up = vec3(0, 1, 0);
+			const vec3 n_left = cross(n_forward, n_up);
+
+			player_game_piece_meshes[current_player].model_mat[0] = normalize(vec4(-n_forward, 0.0f));
+			player_game_piece_meshes[current_player].model_mat[1] = normalize(vec4(n_up, 0.0f));
+			player_game_piece_meshes[current_player].model_mat[2] = normalize(vec4(-n_left, 0.0f));
 		}
 
 		// Trigger the next animation
@@ -755,7 +777,7 @@ void mouse_func(int button, int state, int x, int y)
 						arc_animation a;
 						a.start_location = start_centre;
 						a.end_location = end_centre;
-						a.duration = 0.5;
+						a.duration = 2;
 						a.end_cell_x = output_path[i + 1].first;
 						a.end_cell_y = output_path[i + 1].second;
 

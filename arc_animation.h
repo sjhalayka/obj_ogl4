@@ -14,10 +14,20 @@ class arc_animation
 {
 public:
 
-	size_t player_index;
+	//size_t player_index;
 
 	vec3 start_location, end_location;
 	size_t end_cell_x, end_cell_y;
+
+	vec3 get_xz_direction(void)
+	{
+		vec3 xz_direction = end_location - start_location;
+		xz_direction.y = 0;
+
+		xz_direction = normalize(xz_direction);
+
+		return xz_direction;
+	}
 
 	vec3 curr_pos(void)
 	{

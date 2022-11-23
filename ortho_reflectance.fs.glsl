@@ -33,7 +33,7 @@ void main()
     
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 4.0; // BLUR quality (Default 4.0 - More is better but slower)
-    float size = 20.0; // BLUR size (radius)
+    float size = 10.0; // BLUR size (radius)
     vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
 
