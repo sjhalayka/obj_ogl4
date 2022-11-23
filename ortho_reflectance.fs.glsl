@@ -14,7 +14,7 @@ in vec2 ftexcoord;
 
 uniform int img_width;
 uniform int img_height;
-uniform int cam_factor; 
+uniform int cam_factor;
 
 vec2 img_size = vec2(img_width, img_height);
 
@@ -25,8 +25,8 @@ void main()
 
 
     // for debug purposes
-//frag_colour = texture(glowmap_tex, ftexcoord);
-//  return;
+//frag_colour = texture(last_frame_glowmap_tex, ftexcoord);
+  //return;
 
 
    const float pi_times_2 = 6.28318530718; // Pi*2

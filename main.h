@@ -673,10 +673,10 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
-	if(false == glowmap_only)
+	//if(false == glowmap_only)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	else
-		glClear(GL_DEPTH_BUFFER_BIT);
+	
+	//	glClear(GL_DEPTH_BUFFER_BIT);
 
 
 	point_shader.use_program();
@@ -754,8 +754,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	/*
-	if (false == upside_down && false == reflectance_only && false == solid_white && false == glowmap_only)
+	
+	if (false == upside_down && false == reflectance_only && false == solid_white/* && true == glowmap_only*/)
 	{
 		glUseProgram(line_shader.get_program());
 
@@ -777,7 +777,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		mat4 model = board_mesh.model_mat;
 		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.5, 0.5, 0.5, 1.0);
+		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.25, 0.25, 0.25, 1.0);
 		board_mesh.draw_lines(line_shader.get_program());
 
 
@@ -791,7 +791,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			mvp = main_camera.projection_mat * main_camera.view_mat * model;
 			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 
-			glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.125, 0.25, 1.0, 1.0);
+			if(i == current_player)
+				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.5, 0.25, 0.0, 1.0);
+			else
+				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.0, 0.0, 0.0, 1.0);
+
+
 			player_game_piece_meshes[i].draw_lines(line_shader.get_program());
 
 			//if(clicked_col_loc == player_game_piece && i == clicked_collision_location_index)
@@ -800,7 +805,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	}
 
 	glDepthRange(0.0, 1.0);
-	*/
+	
 
 
 

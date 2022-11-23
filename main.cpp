@@ -201,11 +201,14 @@ void idle_func(void)
 		{
 			advance_current_player = false;
 
+			// to do: if no move or attack left, then advance the player
+
 			if (player_game_piece_meshes.size() > 0 && current_player == player_game_piece_meshes.size() - 1)
 				current_player = 0;
 			else
 				current_player++;
 		}
+
 		get_hover_collision_location(mouse_x, mouse_y);
 		update_board_highlighting();
 	}
@@ -744,15 +747,13 @@ void display_func(void)
 
 void mouse_func(int button, int state, int x, int y)
 {
-	if (anim_deque.size() > 0)
-		return;
-
-	
-
 	if (GLUT_LEFT_BUTTON == button)
 	{
 		if (GLUT_DOWN == state)
 		{
+			if (anim_deque.size() > 0)
+				return;
+
 			get_collision_location(x, y);
 
 			vec4 m = player_game_piece_meshes[current_player].model_mat[3];
