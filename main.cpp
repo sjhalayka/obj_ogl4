@@ -197,6 +197,15 @@ void idle_func(void)
 	}
 	else
 	{
+		if (advance_current_player)
+		{
+			advance_current_player = false;
+
+			if (player_game_piece_meshes.size() > 0 && current_player == player_game_piece_meshes.size() - 1)
+				current_player = 0;
+			else
+				current_player++;
+		}
 		get_hover_collision_location(mouse_x, mouse_y);
 		update_board_highlighting();
 	}
@@ -757,10 +766,12 @@ void mouse_func(int button, int state, int x, int y)
 
 			if (board_highlight_colours[index].g == 1.0)
 			{
+				advance_current_player = true;
+
 				if (output_path.size() == 0)
 				{
-//					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
-//					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
+					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
+					output_path.push_back(pair<size_t, size_t>(clicked_cell_x, clicked_cell_y));
 				}
 				else
 				{
@@ -777,7 +788,7 @@ void mouse_func(int button, int state, int x, int y)
 						arc_animation a;
 						a.start_location = start_centre;
 						a.end_location = end_centre;
-						a.duration = 2;
+						a.duration = 0.5;
 						a.end_cell_x = output_path[i + 1].first;
 						a.end_cell_y = output_path[i + 1].second;
 
@@ -789,10 +800,7 @@ void mouse_func(int button, int state, int x, int y)
 				}
 			}
 
-
-
-
-
+			
 
 			lmb_down = true;
 		}

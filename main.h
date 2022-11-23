@@ -70,6 +70,8 @@ vector<bool> player_highlight_enabled;
  
 
 size_t current_player = 0;
+bool advance_current_player = false;
+
 
 int grid[ROW][COL] =
 {
@@ -1450,7 +1452,6 @@ void move_player_mesh(size_t x_cell, size_t y_cell, size_t index)
 
 void update_board_highlighting(void)
 {
-
 	pair<size_t, size_t> hover_start = player_game_piece_meshes[current_player].cell_location;
 	size_t hover_start_x = hover_start.first;
 	size_t hover_start_y = hover_start.second;
@@ -1520,7 +1521,7 @@ void update_board_highlighting(void)
 				if (hover_cell_x == i && hover_cell_y == j)
 				{
 					// Disallow movement to and from the same cell
-					if (i == player_game_piece_meshes[current_player].cell_location.first && j == player_game_piece_meshes[current_player].cell_location.second)
+					if (false)//i == player_game_piece_meshes[current_player].cell_location.first && j == player_game_piece_meshes[current_player].cell_location.second)
 					{
 						board_highlight_enabled[index] = true;
 						board_highlight_colours[index] = vec3(1, 0, 0);
