@@ -25,7 +25,7 @@ void main()
 
 
     // for debug purposes
-//frag_colour = texture(last_frame_glowmap_tex, ftexcoord);
+//frag_colour = texture(glowmap_tex, ftexcoord);
   //return;
 
 

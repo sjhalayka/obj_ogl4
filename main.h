@@ -60,7 +60,8 @@ vector<bool> board_highlight_enabled;
 
 
 GLuint last_frame_glowmap_tex = 0;
-//GLuint last_frame_glowmap_tex2 = 0;
+
+
 
 // These need to be adjusted when players die
 // that is, delete the item, then reduce the index of
@@ -673,10 +674,9 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
 
 
-	//if(false == glowmap_only)
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	//	glClear(GL_DEPTH_BUFFER_BIT);
 
 
 	point_shader.use_program();

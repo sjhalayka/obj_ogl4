@@ -528,9 +528,8 @@ void draw_scene(GLuint fbo_handle)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
-	// to do: recreate these on window size change
-	if (last_frame_glowmap_tex == 0)
+	// to do: recreate this on window size change
+	if (false == glIsTexture(last_frame_glowmap_tex))
 	{
 		glGenTextures(1, &last_frame_glowmap_tex);
 		glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
@@ -540,17 +539,6 @@ void draw_scene(GLuint fbo_handle)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
-
-	//if (last_frame_glowmap_tex2 == 0)
-	//{
-	//	glGenTextures(1, &last_frame_glowmap_tex2);
-	//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex2);
-	//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//}
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -700,10 +688,13 @@ void draw_scene(GLuint fbo_handle)
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
-		// Sort of works, for one frame. very frustrating
+
 	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
+
+
+
 
 
 	glDeleteTextures(1, &upside_down_white_mask_tex);
@@ -868,19 +859,6 @@ void passive_motion_func(int x, int y)
 	update_board_highlighting();
 
 
-
-
-
-
-	//vec3 start_centre = board_mesh.get_centre(hover_start_x, hover_start_y);
-	//start_centre.y = board_mesh.get_y_plane_min(hover_start_x, hover_start_y);
-
-	//path_line_strip.push_back(start_centre);
-
-	//vec3 end_centre = board_mesh.get_centre(hover_end_x, hover_end_y);
-	//end_centre.y = board_mesh.get_y_plane_min(hover_end_x, hover_end_y);
-
-	//path_line_strip.push_back(end_centre);
 }
 
 
@@ -898,29 +876,29 @@ void keyboard_func(unsigned char key, int x, int y)
 
 		break;
 
-	case 'z':
-		player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] + 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 'z':
+	//	player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] + 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
-	case 'x':
-		player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] - 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 'x':
+	//	player_game_piece_meshes[2].model_mat[3][1] = player_game_piece_meshes[2].model_mat[3][1] - 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
-	case 'w':
-		player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 'w':
+	//	player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] + 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
-	case 's':
-		player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 's':
+	//	player_game_piece_meshes[2].model_mat[3][0] = player_game_piece_meshes[2].model_mat[3][0] - 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
-	case 'a':
-		player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] + 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 'a':
+	//	player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] + 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
-	case 'd':
-		player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] - 0.1f;// vec4(n_up * displacement, 1.0f);
-		break;
+	//case 'd':
+	//	player_game_piece_meshes[2].model_mat[3][2] = player_game_piece_meshes[2].model_mat[3][2] - 0.1f;// vec4(n_up * displacement, 1.0f);
+	//	break;
 
 	case 'o':
 		y_offset -= 0.01f;
