@@ -725,7 +725,7 @@ void draw_scene(GLuint fbo_handle)
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputb_image"), 2);
 
 	// call compute shader
-	glDispatchCompute((GLuint)win_x, (GLuint)win_y, 1);
+	glDispatchCompute((GLuint)win_x/8, (GLuint)win_y/8, 1);
 
 	// Wait for compute shader to finish
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -735,12 +735,9 @@ void draw_scene(GLuint fbo_handle)
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
 
-	//glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-	//	last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
-	//	win_x, win_y, 1);
+
 
 	glDeleteTextures(1, &temp_tex);
-
 
 
 

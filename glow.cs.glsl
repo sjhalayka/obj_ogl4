@@ -1,7 +1,7 @@
 // OpenGL 4.3 introduces compute shaders
 #version 430
 
-layout(local_size_x = 32, local_size_y = 32) in;
+layout(local_size_x = 1, local_size_y = 1) in;
 
 layout(binding = 0, rgba32f) writeonly uniform image2D output_image;
 layout(binding = 1, rgba32f) readonly uniform image2D inputa_image;
