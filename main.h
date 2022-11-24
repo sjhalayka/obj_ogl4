@@ -796,7 +796,7 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 
 			if(i == current_player)
-				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.5, 0.25, 0.0, 1.0);
+				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 1.0, 0.5, 0.0, 1.0);
 			else
 				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.0, 0.0, 0.0, 1.0);
 

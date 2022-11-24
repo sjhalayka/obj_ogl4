@@ -47,8 +47,22 @@ int main(int argc, char** argv)
 	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
+	if (false == game_piece_mesh.read_quads_from_vox_file("spider.vox", "spider_glow.png", "spider.png", "black.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
+	if (false == game_piece_mesh.read_quads_from_vox_file("snake.vox", "snake_glow.png", "snake.png", "black.png", false))
+	{
+		cout << "Error: Could not properly read vox file" << endl;
+		return 2;
+	}
+
+	player_game_piece_meshes.push_back(game_piece_mesh);
 
 
 	if (false == light_mesh.read_quads_from_vox_file("3x3x3.vox", "3x3x3.png", "3x3x3.png", "3x3x3.png", false))
@@ -84,6 +98,9 @@ int main(int argc, char** argv)
 
 	situate_player_mesh(4, 4, 2);
 	situate_player_mesh(6, 1, 3);
+
+	situate_player_mesh(2, 2, 4);
+	situate_player_mesh(1, 1, 5);
 
 	board_mesh.model_mat = mat4(1.0f);
 
@@ -615,12 +632,8 @@ void draw_scene(GLuint fbo_handle)
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
 
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
-
-	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 6);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 5);
 
 
 
@@ -693,11 +706,10 @@ void draw_scene(GLuint fbo_handle)
 
 
 
+	glUseProgram(glowmap_copier.get_program());
 
 
-	glowmap_copier.use_program();
-
-	// create output temp texture, with texstorage
+	// create output temp texture
 	GLuint temp_tex;
 
 	glGenTextures(1, &temp_tex);
@@ -709,10 +721,6 @@ void draw_scene(GLuint fbo_handle)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, win_x, win_y, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, temp_tex);
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "output_image"), 0);
 
 	// activate glow and last frame glow input textures
@@ -725,7 +733,7 @@ void draw_scene(GLuint fbo_handle)
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputb_image"), 2);
 
 	// call compute shader
-	glDispatchCompute((GLuint)win_x/8, (GLuint)win_y/8, 1);
+	glDispatchCompute((GLuint)win_x, (GLuint)win_y, 1);
 
 	// Wait for compute shader to finish
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -735,9 +743,11 @@ void draw_scene(GLuint fbo_handle)
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
 
-
-
 	glDeleteTextures(1, &temp_tex);
+
+
+
+
 
 
 
