@@ -9,6 +9,7 @@
 #include "logging_system.h"
 #include "vertex_fragment_shader.h"
 #include "vertex_geometry_fragment_shader.h"
+#include "compute_shader.h"
 #include "astar.h"
 #include "arc_animation.h"
 
@@ -127,6 +128,9 @@ vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
 vertex_fragment_shader tex_reflectance;
 vertex_fragment_shader ortho_text;
+compute_shader glowmap_copier;
+
+
 //vertex_fragment_shader proj_tex_shader;
 
 //vertex_geometry_fragment_shader silhouette_shader;

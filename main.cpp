@@ -392,7 +392,11 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
-
+	if (false == glowmap_copier.init("glow.cs.glsl"))
+	{
+		cout << "Could not load glowmap copier shader" << endl;
+		return false;
+	}
 
 
 
@@ -689,10 +693,53 @@ void draw_scene(GLuint fbo_handle)
 
 
 
-	glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+
+
+	glowmap_copier.use_program();
+
+	// create output temp texture, with texstorage
+	GLuint temp_tex;
+
+	glGenTextures(1, &temp_tex);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, temp_tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, win_x, win_y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, temp_tex);
+	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "output_image"), 0);
+
+	// activate glow and last frame glow input textures
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
+	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputa_image"), 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputb_image"), 2);
+
+	// call compute shader
+	glDispatchCompute((GLuint)win_x, (GLuint)win_y, 1);
+
+	// Wait for compute shader to finish
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	// copy from temp to last frame using glCopyImageSubData
+	glCopyImageSubData(temp_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
 
+	//glCopyImageSubData(glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+	//	last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
+	//	win_x, win_y, 1);
+
+	glDeleteTextures(1, &temp_tex);
 
 
 
