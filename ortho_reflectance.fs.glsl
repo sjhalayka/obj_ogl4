@@ -33,7 +33,7 @@ void main()
     
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 4.0; // BLUR quality (Default 4.0 - More is better but slower)
-    float size = 10.0; // BLUR size (radius)
+    float size = 15.0; // BLUR size (radius)
     vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
 
@@ -41,7 +41,7 @@ void main()
 
    int count = 0;
 
-   vec4 glowmap_blurred_colour =  texture( last_frame_glowmap_tex, ftexcoord);
+   vec4 glowmap_blurred_colour = texture( glowmap_tex, ftexcoord) + texture( last_frame_glowmap_tex, ftexcoord);
    count++;
    
    
@@ -51,7 +51,7 @@ void main()
         {
             vec2 texcoords = ftexcoord + vec2(cos(d),sin(d))*radius*i;
 
-            glowmap_blurred_colour += texture( last_frame_glowmap_tex, texcoords);
+            glowmap_blurred_colour += texture(glowmap_tex, texcoords) + texture( last_frame_glowmap_tex, texcoords);
            
             count++;
         }

@@ -54,7 +54,7 @@ vec4 get_blurred_pixel(vec2 tc)
    */
 
 
-
+   /*
    float x = clamp(distance_to_pixel, 0.0, 2*model_distance) / (2*model_distance);
 
 // tent function
@@ -73,7 +73,7 @@ if(x > 0.5)
      x = 1.0 - x;
 
  x = 1.0 - pow(x, 1.0/10.0);
-
+ */
 
 
    const float pi_times_2 = 6.28318530718; // Pi*2
@@ -84,14 +84,16 @@ if(x > 0.5)
         vec2 radius = vec2(size/img_size.x * cam_factor, size/img_size.y * cam_factor);
 
    vec4 blurred_colour = texture(colour_tex, tc);
-    
+
+// don't do DOF
+/*    
     for( float d=0.0; d<pi_times_2; d+= pi_times_2/directions)
 		for(float i=1.0/quality; i<=1.0; i+=1.0/quality)
 			blurred_colour += texture( colour_tex, tc + vec2(cos(d),sin(d))*radius*x*i);	
     
     // Output to screen
     blurred_colour /= quality * directions - 15.0;
-
+*/
     return blurred_colour;
 }
 

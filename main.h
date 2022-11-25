@@ -395,121 +395,142 @@ bool line_sphere_intersect(const vec3 orig, const vec3 dir, const vec3 center, c
 
 
 
-
-
-void take_screenshot2(size_t num_cams_wide, const char* filename)
-{
-	screenshot_mode = true;
-
-	const size_t old_width = win_x;
-	const size_t old_height = win_y;
-
-	win_x = win_x * num_cams_wide;
-	win_y = win_y * num_cams_wide;
-
-	glViewport(0, 0, win_x, win_y);
-
-	GLuint quad_vao = 0;
-
-	glEnable(GL_DEPTH_TEST);
-
-
-	init_offscreen_fbo();
-
-	main_camera.calculate_camera_matrices(win_x, win_y, true);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
-
-
-
-
-
-	draw_scene(offscreen_fbo);
-
-
-	glGenVertexArrays(1, &quad_vao);
-
-	//	glDisable(GL_DEPTH_TEST);
-	glBindVertexArray(quad_vao);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDeleteVertexArrays(1, &quad_vao);
-
-
-
-	vector<unsigned char> output_pixels(win_x * win_y * 3);
-
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glReadPixels(0, 0, win_x, win_y, GL_RGB, GL_UNSIGNED_BYTE, &output_pixels[0]);
-
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-	// Set up Targa TGA image data.
-	unsigned char  idlength = 0;
-	unsigned char  colourmaptype = 0;
-	unsigned char  datatypecode = 2;
-	unsigned short int colourmaporigin = 0;
-	unsigned short int colourmaplength = 0;
-	unsigned char  colourmapdepth = 0;
-	unsigned short int x_origin = 0;
-	unsigned short int y_origin = 0;
-
-	unsigned short int px = win_x;
-	unsigned short int py = win_y;
-	unsigned char  bitsperpixel = 24;
-	unsigned char  imagedescriptor = 0;
-	vector<char> idstring;
-
-	for (size_t i = 0; i < win_x; i++)
-	{
-		for (size_t j = 0; j < win_y; j++)
-		{
-			size_t index = 3 * (j * win_x + i);
-
-			unsigned char temp_char;
-			temp_char = output_pixels[index + 0];
-			output_pixels[index + 0] = output_pixels[index + 2];
-			output_pixels[index + 2] = temp_char;
-		}
-	}
-
-	// Write Targa TGA file to disk.
-	ofstream out(filename, ios::binary);
-
-	if (!out.is_open())
-	{
-		cout << "Failed to open TGA file for writing: " << filename << endl;
-		return;
-	}
-
-	out.write(reinterpret_cast<char*>(&idlength), 1);
-	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
-	out.write(reinterpret_cast<char*>(&datatypecode), 1);
-	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
-	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
-	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
-	out.write(reinterpret_cast<char*>(&x_origin), 2);
-	out.write(reinterpret_cast<char*>(&y_origin), 2);
-	out.write(reinterpret_cast<char*>(&px), 2);
-	out.write(reinterpret_cast<char*>(&py), 2);
-	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
-	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
-
-	out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 3 * sizeof(unsigned char));
-
-	out.close();
-
-	win_x = old_width;
-	win_y = old_height;
-	main_camera.calculate_camera_matrices(win_x, win_y, true);
-
-	screenshot_mode = false;
-
-	init_offscreen_fbo();
-
-}
+//
+//
+//void take_screenshot2(size_t num_cams_wide, const char* filename)
+//{
+//	screenshot_mode = true;
+//
+//	const size_t old_width = win_x;
+//	const size_t old_height = win_y;
+//
+//	win_x = win_x * num_cams_wide;
+//	win_y = win_y * num_cams_wide;
+//
+//	glViewport(0, 0, win_x, win_y);
+//
+//	GLuint quad_vao = 0;
+//
+//	glEnable(GL_DEPTH_TEST);
+//
+//	main_camera.calculate_camera_matrices(win_x, win_y, true);
+//
+//	init_offscreen_fbo();
+//
+//	if (glIsTexture(last_frame_glowmap_tex))
+//		glDeleteTextures(1, &last_frame_glowmap_tex);
+//
+//	glGenTextures(1, &last_frame_glowmap_tex);
+//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//
+//
+//	glBindFramebuffer(GL_FRAMEBUFFER, offscreen_fbo);
+//
+//
+//
+//
+//
+//	draw_scene(offscreen_fbo);
+//
+//
+//	glGenVertexArrays(1, &quad_vao);
+//
+//	//	glDisable(GL_DEPTH_TEST);
+//	glBindVertexArray(quad_vao);
+//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//
+//	glDeleteVertexArrays(1, &quad_vao);
+//
+//
+//
+//	vector<unsigned char> output_pixels(win_x * win_y * 3);
+//
+//	glReadBuffer(GL_COLOR_ATTACHMENT0);
+//	glReadPixels(0, 0, win_x, win_y, GL_RGB, GL_UNSIGNED_BYTE, &output_pixels[0]);
+//
+//
+//	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//
+//	// Set up Targa TGA image data.
+//	unsigned char  idlength = 0;
+//	unsigned char  colourmaptype = 0;
+//	unsigned char  datatypecode = 2;
+//	unsigned short int colourmaporigin = 0;
+//	unsigned short int colourmaplength = 0;
+//	unsigned char  colourmapdepth = 0;
+//	unsigned short int x_origin = 0;
+//	unsigned short int y_origin = 0;
+//
+//	unsigned short int px = win_x;
+//	unsigned short int py = win_y;
+//	unsigned char  bitsperpixel = 24;
+//	unsigned char  imagedescriptor = 0;
+//	vector<char> idstring;
+//
+//	for (size_t i = 0; i < win_x; i++)
+//	{
+//		for (size_t j = 0; j < win_y; j++)
+//		{
+//			size_t index = 3 * (j * win_x + i);
+//
+//			unsigned char temp_char;
+//			temp_char = output_pixels[index + 0];
+//			output_pixels[index + 0] = output_pixels[index + 2];
+//			output_pixels[index + 2] = temp_char;
+//		}
+//	}
+//
+//	// Write Targa TGA file to disk.
+//	ofstream out(filename, ios::binary);
+//
+//	if (!out.is_open())
+//	{
+//		cout << "Failed to open TGA file for writing: " << filename << endl;
+//		return;
+//	}
+//
+//	out.write(reinterpret_cast<char*>(&idlength), 1);
+//	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+//	out.write(reinterpret_cast<char*>(&datatypecode), 1);
+//	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+//	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+//	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+//	out.write(reinterpret_cast<char*>(&x_origin), 2);
+//	out.write(reinterpret_cast<char*>(&y_origin), 2);
+//	out.write(reinterpret_cast<char*>(&px), 2);
+//	out.write(reinterpret_cast<char*>(&py), 2);
+//	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+//	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+//
+//	out.write(reinterpret_cast<char*>(&output_pixels[0]), win_x * win_y * 3 * sizeof(unsigned char));
+//
+//	out.close();
+//
+//	win_x = old_width;
+//	win_y = old_height;
+//	main_camera.calculate_camera_matrices(win_x, win_y, true);
+//
+//	screenshot_mode = false;
+//
+//	init_offscreen_fbo();
+//
+//	if (glIsTexture(last_frame_glowmap_tex))
+//		glDeleteTextures(1, &last_frame_glowmap_tex);
+//
+//	glGenTextures(1, &last_frame_glowmap_tex);
+//	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//}
 
 
 
@@ -775,15 +796,16 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
 
+		if (false == glowmap_only)
+		{
+			glDepthRange(0.1, 1.0);
 
-		glDepthRange(0.1, 1.0);
-
-		mat4 model = board_mesh.model_mat;
-		mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-		glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-		glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.25, 0.25, 0.25, 1.0);
-		board_mesh.draw_lines(line_shader.get_program());
-
+			mat4 model = board_mesh.model_mat;
+			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
+			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+			glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.75, 0.75, 0.75, 1.0);
+			board_mesh.draw_lines(line_shader.get_program());
+		}
 
 
 		glDepthRange(0.01, 1.0);
@@ -791,12 +813,12 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 		for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 		{
-			model = player_game_piece_meshes[i].model_mat;
-			mvp = main_camera.projection_mat * main_camera.view_mat * model;
+			mat4 model = player_game_piece_meshes[i].model_mat;
+			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 
 			if(i == current_player)
-				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 1.0, 0.5, 0.0, 1.0);
+				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.5, 0.25, 0.0, 1.0);
 			else
 				glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.0, 0.0, 0.0, 1.0);
 

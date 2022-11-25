@@ -724,7 +724,7 @@ void draw_scene(GLuint fbo_handle)
 	
 
 
-
+	
 
 	glUseProgram(glowmap_copier.get_program());
 
@@ -764,6 +764,9 @@ void draw_scene(GLuint fbo_handle)
 	glCopyImageSubData(temp_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
+
+
+
 
 	// debug -- shows that it works
 //	vector<float> output_pixels(win_x * win_y * 4);
@@ -959,7 +962,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		take_screenshot2(cam_factor, "out.tga");// , const bool reverse_rows = false)
+		//take_screenshot2(3, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 
