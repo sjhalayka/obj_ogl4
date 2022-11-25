@@ -5,7 +5,7 @@ uniform sampler2D upside_down_tex;
 uniform sampler2D reflectance_tex;
 uniform sampler2D upside_down_white_mask_tex;
 uniform sampler2D glowmap_tex;
-
+uniform sampler2D last_frame_glowmap_tex;
 
 
 uniform sampler2D depth_tex;
@@ -41,7 +41,7 @@ void main()
 
    int count = 0;
 
-   vec4 glowmap_blurred_colour = texture( glowmap_tex, ftexcoord);
+   vec4 glowmap_blurred_colour =  texture( last_frame_glowmap_tex, ftexcoord);
    count++;
    
    
@@ -51,7 +51,7 @@ void main()
         {
             vec2 texcoords = ftexcoord + vec2(cos(d),sin(d))*radius*i;
 
-            glowmap_blurred_colour += texture( glowmap_tex, texcoords);
+            glowmap_blurred_colour += texture( last_frame_glowmap_tex, texcoords);
            
             count++;
         }

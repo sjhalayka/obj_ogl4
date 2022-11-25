@@ -632,8 +632,12 @@ void draw_scene(GLuint fbo_handle)
 	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "glowmap_tex"), 4);
 
 	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "last_frame_glowmap_tex"), 5);
+
+	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, d_tex);
-	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 5);
+	glUniform1i(glGetUniformLocation(tex_reflectance.get_program(), "depth_tex"), 6);
 
 
 
@@ -705,6 +709,10 @@ void draw_scene(GLuint fbo_handle)
 	use_buffers(fbo_handle, d_tex, offscreen_colour_tex);
 
 
+	
+
+
+
 
 	glUseProgram(glowmap_copier.get_program());
 
@@ -723,25 +731,44 @@ void draw_scene(GLuint fbo_handle)
 	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "output_image"), 0);
 
+
 	// activate glow and last frame glow input textures
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, glowmap_tex);
+	glBindImageTexture(1, glowmap_tex, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputa_image"), 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glBindImageTexture(2, last_frame_glowmap_tex, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 	glUniform1i(glGetUniformLocation(glowmap_copier.get_program(), "inputb_image"), 2);
 
 	// call compute shader
-	glDispatchCompute((GLuint)win_x, (GLuint)win_y, 1);
+	glDispatchCompute(win_x, win_y, 1);
 
 	// Wait for compute shader to finish
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-	// copy from temp to last frame using glCopyImageSubData
+	// debug -- shows that it works
+	vector<float> output_pixels(win_x* win_y * 4);
+	glActiveTexture(GL_TEXTURE0);
+	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
+
+	save_float_tex_to_disk(win_x, win_y, output_pixels, "temp_tex.tga");
+
 	glCopyImageSubData(temp_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
+
+	// debug -- shows that it works
+	glActiveTexture(GL_TEXTURE0);
+	glBindImageTexture(0, last_frame_glowmap_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
+
+	save_float_tex_to_disk(win_x, win_y, output_pixels, "last_frame_glowmap_tex.tga");
+
+
 
 	glDeleteTextures(1, &temp_tex);
 

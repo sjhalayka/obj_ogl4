@@ -1821,5 +1821,74 @@ void get_collision_location(size_t x, size_t y)
 
 
 
+void save_float_tex_to_disk(size_t win_x, size_t win_y, vector<float> &output_pixels, const char *file_name)
+{
+	size_t size = win_x * win_y;
+	size_t num_bytes = size * 4;
+	vector<unsigned char> output_pixels_bytes(num_bytes);
+
+	for (int x = 0; x < win_x; x++)
+	{
+		for (int y = 0; y < win_y; y++)
+		{
+			size_t imgIdx = 4 * ((y * win_x) + x);
+			size_t bufIdx = 4 * ((y * win_x) + x);
+
+			output_pixels_bytes[imgIdx + 0] = output_pixels[imgIdx + 2] * 255.0f;
+			output_pixels_bytes[imgIdx + 1] = output_pixels[imgIdx + 1] * 255.0f;
+			output_pixels_bytes[imgIdx + 2] = output_pixels[imgIdx + 0] * 255.0f;
+			output_pixels_bytes[imgIdx + 3] = output_pixels[imgIdx + 3] * 255.0f;
+		}
+	}
+
+	// Set up Targa TGA image data.
+	unsigned char  idlength = 0;
+	unsigned char  colourmaptype = 0;
+	unsigned char  datatypecode = 2;
+	unsigned short int colourmaporigin = 0;
+	unsigned short int colourmaplength = 0;
+	unsigned char  colourmapdepth = 0;
+	unsigned short int x_origin = 0;
+	unsigned short int y_origin = 0;
+
+	unsigned short int px = win_x;
+	unsigned short int py = win_y;
+	unsigned char  bitsperpixel = 32;
+	unsigned char  imagedescriptor = 0;
+	vector<char> idstring;
+
+
+
+	// Write Targa TGA file to disk.
+	ofstream out(file_name, ios::binary);
+
+	if (!out.is_open())
+	{
+		cout << "Failed to open TGA file for writing: " << file_name << endl;
+		return;
+	}
+
+	out.write(reinterpret_cast<char*>(&idlength), 1);
+	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+	out.write(reinterpret_cast<char*>(&datatypecode), 1);
+	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+	out.write(reinterpret_cast<char*>(&x_origin), 2);
+	out.write(reinterpret_cast<char*>(&y_origin), 2);
+	out.write(reinterpret_cast<char*>(&px), 2);
+	out.write(reinterpret_cast<char*>(&py), 2);
+	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+	out.write(reinterpret_cast<char*>(&output_pixels_bytes[0]), num_bytes * sizeof(unsigned char));
+
+	out.close();
+
+}
+
+
+
+
 #endif
 
