@@ -12,7 +12,7 @@ void main()
 {
 	// Get global coordinates
 	const ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	const vec3 output_pixel = imageLoad(inputa_image, pixel_coords).rgb + 0.75*imageLoad(inputb_image, pixel_coords).rgb;
+	const vec3 output_pixel = imageLoad(inputa_image, pixel_coords).rgb + 0.5*imageLoad(inputb_image, pixel_coords).rgb;
 
 	imageStore(output_image, pixel_coords, vec4(output_pixel, 1.0));
 }

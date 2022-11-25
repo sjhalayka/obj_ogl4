@@ -753,9 +753,8 @@ void draw_scene(GLuint fbo_handle)
 	vector<float> output_pixels(win_x* win_y * 4);
 	glActiveTexture(GL_TEXTURE0);
 	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
-
-	save_float_tex_to_disk(win_x, win_y, output_pixels, "temp_tex.tga");
+//	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
+//	save_float_tex_to_disk(win_x, win_y, output_pixels, "temp_tex.tga");
 
 	glCopyImageSubData(temp_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
@@ -764,9 +763,8 @@ void draw_scene(GLuint fbo_handle)
 	// debug -- shows that it works
 	glActiveTexture(GL_TEXTURE0);
 	glBindImageTexture(0, last_frame_glowmap_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
-
-	save_float_tex_to_disk(win_x, win_y, output_pixels, "last_frame_glowmap_tex.tga");
+//	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
+//	save_float_tex_to_disk(win_x, win_y, output_pixels, "last_frame_glowmap_tex.tga");
 
 
 
