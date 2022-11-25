@@ -453,6 +453,15 @@ bool init_opengl(const int& width, const int& height)
 	init_offscreen_fbo();
 
 
+	glGenTextures(1, &last_frame_glowmap_tex);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
 	return true;
 }
 
@@ -474,6 +483,18 @@ void reshape_func(int width, int height)
 	main_camera.calculate_camera_matrices(win_x, win_y, true);
 
 	init_offscreen_fbo();
+
+	if (true == glIsTexture(last_frame_glowmap_tex))
+		glDeleteTextures(1, &last_frame_glowmap_tex);
+
+	glGenTextures(1, &last_frame_glowmap_tex);
+	glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 }
 
 
@@ -550,16 +571,7 @@ void draw_scene(GLuint fbo_handle)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	// to do: recreate this on window size change
-	if (false == glIsTexture(last_frame_glowmap_tex))
-	{
-		glGenTextures(1, &last_frame_glowmap_tex);
-		glBindTexture(GL_TEXTURE_2D, last_frame_glowmap_tex);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
+
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -749,24 +761,22 @@ void draw_scene(GLuint fbo_handle)
 	// Wait for compute shader to finish
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-	// debug -- shows that it works
-	vector<float> output_pixels(win_x* win_y * 4);
-	glActiveTexture(GL_TEXTURE0);
-	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
-//	save_float_tex_to_disk(win_x, win_y, output_pixels, "temp_tex.tga");
-
 	glCopyImageSubData(temp_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		last_frame_glowmap_tex, GL_TEXTURE_2D, 0, 0, 0, 0,
 		win_x, win_y, 1);
 
 	// debug -- shows that it works
-	glActiveTexture(GL_TEXTURE0);
-	glBindImageTexture(0, last_frame_glowmap_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//	vector<float> output_pixels(win_x * win_y * 4);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindImageTexture(0, temp_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
+//	save_float_tex_to_disk(win_x, win_y, output_pixels, "temp_tex.tga");
+
+	// debug -- shows that it works
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindImageTexture(0, last_frame_glowmap_tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 //	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &output_pixels[0]);
 //	save_float_tex_to_disk(win_x, win_y, output_pixels, "last_frame_glowmap_tex.tga");
-
-
 
 	glDeleteTextures(1, &temp_tex);
 
