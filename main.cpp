@@ -962,7 +962,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch (tolower(key))
 	{
 	case 'm':
-		//take_screenshot2(3, "out.tga");// , const bool reverse_rows = false)
+		take_screenshot2(4, "out.tga");// , const bool reverse_rows = false)
 		//take_screenshot3(1, "out.tga");
 
 
