@@ -855,11 +855,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 			player_game_piece_meshes[i].draw_lines(line_shader.get_program());
 
 
-			glDepthRange(0.01, 1.0);
-
-
-
-
 
 			circle_shader.use_program();
 
@@ -896,69 +891,6 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 	glDepthRange(0.0, 1.0);
 	
-
-
-
-
-	//glBegin(GL_LINES);
-
-	//glVertex3f(path_line_strip[0].x, path_line_strip[0].y, path_line_strip[0].z);
-	//glVertex3f(path_line_strip[1].x, path_line_strip[1].y, path_line_strip[1].z);
-
-
-	//glEnd();
-
-
-
-	//mat4 model = board_mesh.model_mat;
-	//mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
-	//glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
-
-
-
-	//vector<float> l;
-
-	//for (size_t i = 0; i < path_line_strip.size(); i++)
-	//{
-	//	l.push_back(path_line_strip[i].x);
-	//	l.push_back(path_line_strip[i].y);
-	//	l.push_back(path_line_strip[i].z);
-	//}
-
-
-
-	//GLuint components_per_vertex = 3;
-	//GLuint components_per_position = 3;
-
-	//GLuint axis_buffer;
-
-	//glGenBuffers(1, &axis_buffer);
-
-	//GLuint num_vertices = static_cast<GLuint>(l.size()) / components_per_vertex;
-
-	//glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
-	//glBufferData(GL_ARRAY_BUFFER, l.size() * sizeof(GLfloat), &l[0], GL_STATIC_DRAW);
-
-	//glEnableVertexAttribArray(glGetAttribLocation(line_shader.get_program(), "position"));
-	//glVertexAttribPointer(glGetAttribLocation(line_shader.get_program(), "position"),
-	//	components_per_position,
-	//	GL_FLOAT,
-	//	GL_FALSE,
-	//	components_per_vertex * sizeof(GLfloat),
-	//	NULL);
-
-	//glDrawArrays(GL_LINE_STRIP, 0, num_vertices);
-
-	//glDeleteBuffers(1, &axis_buffer);
-
-
-
-
-
-
-
-
-
 
 
 
