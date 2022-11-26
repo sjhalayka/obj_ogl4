@@ -74,7 +74,6 @@ void mesh::init_opengl_data(void)
 
 	// points
 
-	cout << tri_vec.size() << endl;
 
 	for (size_t i = 0; i < tri_vec.size(); i++)
 	{

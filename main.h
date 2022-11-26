@@ -436,7 +436,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 
 	// Build up the glow buffer
-	for(size_t i = 0; i < 10; i++)
+	for(size_t i = 0; i < 4; i++)
 	draw_scene(offscreen_fbo);
 
 
@@ -798,15 +798,38 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		glUniform1f(glGetUniformLocation(line_shader.get_program(), "line_thickness"), 4.0f);
 
 
+		glUseProgram(circle_shader.get_program());
+
+		glUniform3f(glGetUniformLocation(circle_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+		glUniform1i(glGetUniformLocation(circle_shader.get_program(), "img_width"), win_x);
+		glUniform1i(glGetUniformLocation(circle_shader.get_program(), "img_height"), win_y);
+
+		if (screenshot_mode)
+			glUniform1i(glGetUniformLocation(circle_shader.get_program(), "cam_factor"), cam_factor);
+		else
+			glUniform1i(glGetUniformLocation(circle_shader.get_program(), "cam_factor"), 1);
+
+		glUniform1f(glGetUniformLocation(circle_shader.get_program(), "line_thickness"), 4.0f);
+
+
 		if (false == glowmap_only)
 		{
 			glDepthRange(0.1, 1.0);
+
+			line_shader.use_program();
 
 			mat4 model = board_mesh.model_mat;
 			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
 			glUniform4f(glGetUniformLocation(line_shader.get_program(), "u_color"), 0.75, 0.75, 0.75, 1.0);
 			board_mesh.draw_lines(line_shader.get_program());
+
+
+			circle_shader.use_program();
+
+			glUniformMatrix4fv(glGetUniformLocation(circle_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+			glUniform4f(glGetUniformLocation(circle_shader.get_program(), "u_color"), 0.75, 0.75, 0.75, 1.0);
+			board_mesh.draw_circles(circle_shader.get_program());
 		}
 
 
