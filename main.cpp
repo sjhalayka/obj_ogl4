@@ -395,6 +395,11 @@ bool init_opengl(const int& width, const int& height)
 		return false;
 	}
 
+	if (false == circle_shader.init("circles.vs.glsl", "circles.gs.glsl", "circles.fs.glsl"))
+	{
+		cout << "Could not load line shader" << endl;
+		return false;
+	}
 
 	
 	if (false == tex_reflectance.init("ortho_reflectance.vs.glsl", "ortho_reflectance.fs.glsl"))

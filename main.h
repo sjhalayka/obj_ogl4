@@ -126,6 +126,8 @@ vertex_fragment_shader point_shader;
 vertex_geometry_fragment_shader point_depth_shader;
 vertex_fragment_shader tex_passthrough;
 vertex_geometry_fragment_shader line_shader;
+vertex_geometry_fragment_shader circle_shader;
+
 vertex_fragment_shader tex_reflectance;
 vertex_fragment_shader ortho_text;
 compute_shader glowmap_copier;
@@ -808,11 +810,15 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 		}
 
 
-		glDepthRange(0.01, 1.0);
 
 
 		for (size_t i = 0; i < player_game_piece_meshes.size(); i++)
 		{
+
+			glDepthRange(0.01, 1.0);
+
+			line_shader.use_program();
+
 			mat4 model = player_game_piece_meshes[i].model_mat;
 			mat4 mvp = main_camera.projection_mat * main_camera.view_mat * model;
 			glUniformMatrix4fv(glGetUniformLocation(line_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
@@ -824,6 +830,41 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 			player_game_piece_meshes[i].draw_lines(line_shader.get_program());
+
+
+			glDepthRange(0.01, 1.0);
+
+
+
+
+
+			circle_shader.use_program();
+
+			glUniform3f(glGetUniformLocation(circle_shader.get_program(), "camera_pos"), main_camera.eye.x, main_camera.eye.y, main_camera.eye.z);
+			glUniform1i(glGetUniformLocation(circle_shader.get_program(), "img_width"), win_x);
+			glUniform1i(glGetUniformLocation(circle_shader.get_program(), "img_height"), win_y);
+
+			if (screenshot_mode)
+				glUniform1i(glGetUniformLocation(circle_shader.get_program(), "cam_factor"), cam_factor);
+			else
+				glUniform1i(glGetUniformLocation(circle_shader.get_program(), "cam_factor"), 1);
+
+			glUniform1f(glGetUniformLocation(circle_shader.get_program(), "line_thickness"), 4.0f);
+
+
+			model = player_game_piece_meshes[i].model_mat;
+			mvp = main_camera.projection_mat * main_camera.view_mat * model;
+			glUniformMatrix4fv(glGetUniformLocation(circle_shader.get_program(), "u_modelviewprojection_matrix"), 1, GL_FALSE, &mvp[0][0]);
+
+			if (i == current_player)
+				glUniform4f(glGetUniformLocation(circle_shader.get_program(), "u_color"), 0.5, 0.25, 0.0, 1.0);
+			else
+				glUniform4f(glGetUniformLocation(circle_shader.get_program(), "u_color"), 0.0, 0.0, 0.0, 1.0);
+
+
+
+			player_game_piece_meshes[i].draw_circles(circle_shader.get_program());
+
 
 			//if(clicked_col_loc == player_game_piece && i == clicked_collision_location_index)
 			//player_game_piece_meshes[i].draw_AABB(line_shader.get_program());

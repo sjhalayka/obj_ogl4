@@ -461,6 +461,8 @@ public:
 
 	vector<vector<float>> opengl_vertex_data;
 	vector<float> opengl_line_vertex_data;
+	vector<float> opengl_circle_vertex_data;
+
 
 	vector<float> opengl_aabb_line_vertex_data;
 
@@ -581,6 +583,34 @@ public:
 
 
 
+	void draw_circles(GLuint circle_program)
+	{
+		glUseProgram(circle_program);
+
+		GLuint components_per_vertex = 3;
+		GLuint components_per_position = 3;
+
+		GLuint axis_buffer;
+
+		glGenBuffers(1, &axis_buffer);
+
+		GLuint num_vertices = static_cast<GLuint>(opengl_circle_vertex_data.size()) / components_per_vertex;
+
+		glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+		glBufferData(GL_ARRAY_BUFFER, opengl_circle_vertex_data.size() * sizeof(GLfloat), &opengl_circle_vertex_data[0], GL_DYNAMIC_DRAW);
+
+		glEnableVertexAttribArray(glGetAttribLocation(circle_program, "position"));
+		glVertexAttribPointer(glGetAttribLocation(circle_program, "position"),
+			components_per_position,
+			GL_FLOAT,
+			GL_FALSE,
+			components_per_vertex * sizeof(GLfloat),
+			NULL);
+
+		glDrawArrays(GL_POINTS, 0, num_vertices);
+
+		glDeleteBuffers(1, &axis_buffer);
+	}
 
 
 
@@ -1020,7 +1050,7 @@ public:
 
 		const ogt_vox_scene* scene = ogt_vox_read_scene(&v[0], file_size);
 
-		cout << scene->num_models << endl;
+		//cout << scene->num_models << endl;
 
 
 
@@ -1684,7 +1714,7 @@ public:
 
 		const ogt_vox_scene* scene = ogt_vox_read_scene(&v[0], file_size);
 
-		cout << scene->num_models << endl;
+		//cout << scene->num_models << endl;
 
 		//size_t level_size = scene->models[0]->size_x;
 		//size_t grid_cell_size = 16;
