@@ -135,8 +135,8 @@ int main(int argc, char** argv)
 	
 
 	main_camera.u = glm::pi<float>()/6;
-	main_camera.v = glm::pi<float>() - pi<float>() / 4;
-	main_camera.w = 27.5f;
+	main_camera.v = glm::pi<float>() / 2 + 0.1;// -pi<float>() / 4;
+	main_camera.w = 25.0f;
 
 
 	main_camera.calculate_camera_matrices(win_x, win_y, true);

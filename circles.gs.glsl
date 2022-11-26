@@ -20,7 +20,7 @@ void main()
 {
     vec4 position = gl_in[0].gl_Position;
 
-    vec2 offset = vec2(u_thickness / u_viewportSize);
+    vec2 offset = vec2(u_thickness / u_viewportSize)*0.75;
 
     gl_Position = position + vec4(-offset.x* position.w, -offset.y* position.w, 0.0, 0.0);
     EmitVertex();   
