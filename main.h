@@ -1274,7 +1274,8 @@ void draw_stuff(GLuint fbo_handle, bool upside_down, bool reflectance_only, bool
 
 
 	
-	if (1)//false == glowmap_only)//false == reflectance_only)
+	// draw lights
+	if (0)//false == glowmap_only)//false == reflectance_only)
 	{
 		for (size_t j = 0; j < max_num_lights; j++)
 		{

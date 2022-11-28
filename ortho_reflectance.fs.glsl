@@ -62,7 +62,9 @@ void main()
 
 
 
-
+    directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
+    quality = 4.0; // BLUR quality (Default 4.0 - More is better but slower)
+    size = 30.0; // BLUR size (radius)
 
    count = 0;
 
@@ -82,6 +84,7 @@ void main()
             }
         }
     }
+
     
     // Output to screen
     blurred_colour /= count;
@@ -93,6 +96,11 @@ void main()
     upside_down_colour = mix(upside_down_colour, texture(upside_down_tex, ftexcoord), texture(reflectance_tex, ftexcoord));
 
 
+
+    
+    directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
+    quality = 4.0; // BLUR quality (Default 4.0 - More is better but slower)
+    size = 10.0; // BLUR size (radius)
 
 
     count = 0;
