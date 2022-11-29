@@ -18,12 +18,12 @@ const float pi = 4.0*atan(1.0);
 void main()
 {
     const vec4 position = gl_in[0].gl_Position;
-    const vec2 offset = vec2(u_thickness / u_viewportSize);
+    const vec2 radius = vec2(u_thickness / u_viewportSize);
 
-    for( float phi = -pi/2; phi <= pi/2; phi += pi/steps)
+    for(float phi = -pi/2; phi <= pi/2; phi += pi/steps)
     {
-        const float x1 = offset.x * sin(phi);
-        const float y1 = offset.y * cos(phi);
+        const float x1 = radius.x * sin(phi);
+        const float y1 = radius.y * cos(phi);
 
         gl_Position = position + vec4(x1 * position.w,  y1 * position.w, 0.0, 0.0);
         EmitVertex();
